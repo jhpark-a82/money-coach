@@ -248,6 +248,51 @@ textarea.sms-input:focus { border-color: var(--purple); }
     </div>
   </div>
 
+  <!-- ONBOARDING OVERLAY -->
+  <div id="onboarding" style="position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;overflow-y:auto;">
+    <div style="padding:52px 24px 40px;">
+      <div style="font-size:28px;font-weight:600;color:var(--text);margin-bottom:6px;">머니코치 시작하기 👋</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:32px;">기본 정보를 입력하면 맞춤형 재정 코칭을 받을 수 있어요</div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">이름</div>
+        <input id="ob-name" type="text" placeholder="홍길동" style="width:100%;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">월 수입 (세후)</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <input id="ob-income" type="number" placeholder="3000000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">월 목표 저축액</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <input id="ob-saving" type="number" placeholder="500000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">현재 비상금</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <input id="ob-emergency" type="number" placeholder="850000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <div style="margin-bottom:32px;">
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">비상금 목표액</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <input id="ob-emergency-goal" type="number" placeholder="3000000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <button onclick="saveOnboarding()" style="width:100%;padding:16px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:16px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">시작하기 →</button>
+    </div>
+  </div>
+
   <!-- Home Nav -->
   <div class="nav" id="navHome">
     <div class="nav-title">안녕하세요, 종훈님 👋</div>
@@ -265,6 +310,10 @@ textarea.sms-input:focus { border-color: var(--purple); }
     <div class="nav-title">목표 트래커</div>
     <div class="nav-sub">재정 목표 달성 현황</div>
   </div>
+  <div class="nav" id="navSettings" style="display:none">
+    <div class="nav-title">내 정보 설정</div>
+    <div class="nav-sub">수입, 저축 목표, 비상금 수정</div>
+  </div>
 
   <div class="content">
 
@@ -278,13 +327,13 @@ textarea.sms-input:focus { border-color: var(--purple); }
         </div>
         <div class="metric">
           <div class="metric-label">저축률</div>
-          <div class="metric-value">12%</div>
-          <div class="metric-sub warn">목표 20%</div>
+          <div class="metric-value" id="m-saving-rate">12%</div>
+          <div class="metric-sub warn" id="m-saving-sub">목표 20%</div>
         </div>
         <div class="metric">
           <div class="metric-label">비상금</div>
-          <div class="metric-value">₩85만</div>
-          <div class="metric-sub neg">목표의 28%</div>
+          <div class="metric-value" id="m-emergency">₩85만</div>
+          <div class="metric-sub neg" id="m-emergency-sub">목표의 28%</div>
         </div>
         <div class="metric">
           <div class="metric-label">절약 기록</div>
@@ -463,11 +512,11 @@ textarea.sms-input:focus { border-color: var(--purple); }
     <div class="page" id="pageGoals">
       <div class="goal-card">
         <div class="goal-top">
-          <div class="goal-name"><i class="ti ti-shield-check" style="color:var(--purple)"></i> 비상금 300만원</div>
-          <div class="goal-pct">28%</div>
+          <div class="goal-name"><i class="ti ti-shield-check" style="color:var(--purple)"></i> <span id="g-emergency-title">비상금 300만원</span></div>
+          <div class="goal-pct" id="g-emergency-pct">28%</div>
         </div>
-        <div class="progress"><div class="progress-bar" style="width:28%;background:var(--purple)"></div></div>
-        <div class="goal-foot"><span>₩85만 달성</span><span>목표: 2025년 12월</span></div>
+        <div class="progress"><div class="progress-bar" id="g-emergency-bar" style="width:28%;background:var(--purple)"></div></div>
+        <div class="goal-foot"><span id="g-emergency-cur">₩85만 달성</span><span id="g-emergency-goal-txt">목표: 2025년 12월</span></div>
       </div>
       <div class="goal-card">
         <div class="goal-top">
@@ -490,6 +539,45 @@ textarea.sms-input:focus { border-color: var(--purple); }
       </button>
     </div>
 
+  <div id="pageSettings" class="page">
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:500;color:var(--text2);margin-bottom:14px;">재정 정보 수정</div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">월 수입 (세후)</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">₩</span>
+          <input id="st-income" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">월 목표 저축액</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">₩</span>
+          <input id="st-saving" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">현재 비상금</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">₩</span>
+          <input id="st-emergency" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">비상금 목표액</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">₩</span>
+          <input id="st-emergency-goal" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);">원</span>
+        </div>
+      </div>
+      <button onclick="saveSettings()" style="width:100%;padding:14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">저장하기</button>
+    </div>
+  </div>
+
   </div><!-- end content -->
 
   <!-- Bottom Nav -->
@@ -506,6 +594,9 @@ textarea.sms-input:focus { border-color: var(--purple); }
     <button class="bnav-item" onclick="goPage('Goals',this)">
       <i class="ti ti-target"></i><span>목표</span>
     </button>
+    <button class="bnav-item" onclick="goPage('Settings',this)">
+      <i class="ti ti-settings"></i><span>설정</span>
+    </button>
   </div>
 </div>
 
@@ -520,14 +611,74 @@ let expenses = [];
 let pendingLoc = null;
 let pendingSms = null;
 
+// 사용자 프로필
+let userProfile = JSON.parse(localStorage.getItem('mc_profile') || 'null') || {
+  name: '종훈', income: 3000000, saving: 500000, emergency: 850000, emergencyGoal: 3000000
+};
+
+function saveOnboarding() {
+  const income = parseInt(document.getElementById('ob-income').value) || 3000000;
+  const saving = parseInt(document.getElementById('ob-saving').value) || 500000;
+  const emergency = parseInt(document.getElementById('ob-emergency').value) || 850000;
+  const emergencyGoal = parseInt(document.getElementById('ob-emergency-goal').value) || 3000000;
+  userProfile = { name: '종훈', income, saving, emergency, emergencyGoal };
+  localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+  document.getElementById('onboarding').style.display = 'none';
+  applyProfile();
+}
+
+function applyProfile() {
+  const p = userProfile;
+  const savingRate = Math.round(p.saving / p.income * 100);
+  const emergencyPct = Math.round(p.emergency / p.emergencyGoal * 100);
+  const fmt = v => v >= 10000 ? (v/10000).toFixed(0)+'만' : v.toLocaleString();
+  document.getElementById('m-saving-rate').textContent = savingRate + '%';
+  document.getElementById('m-saving-sub').textContent = '목표 ' + Math.round(p.income*0.2/10000) + '만원/월';
+  document.getElementById('m-emergency').textContent = '\u20a9' + fmt(p.emergency);
+  document.getElementById('m-emergency-sub').textContent = '목표의 ' + emergencyPct + '%';
+  document.getElementById('g-emergency-pct').textContent = emergencyPct + '%';
+  document.getElementById('g-emergency-bar').style.width = Math.min(emergencyPct,100) + '%';
+  document.getElementById('g-emergency-cur').textContent = '\u20a9' + fmt(p.emergency) + ' 달성';
+  document.getElementById('g-emergency-goal-txt').textContent = '목표: \u20a9' + fmt(p.emergencyGoal);
+  document.getElementById('g-emergency-title').textContent = '비상금 ' + fmt(p.emergencyGoal) + '원';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('mc_profile')) {
+    document.getElementById('onboarding').style.display = 'none';
+  }
+  applyProfile();
+});
+
+function saveSettings() {
+  const income = parseInt(document.getElementById('st-income').value) || userProfile.income;
+  const saving = parseInt(document.getElementById('st-saving').value) || userProfile.saving;
+  const emergency = parseInt(document.getElementById('st-emergency').value) || userProfile.emergency;
+  const emergencyGoal = parseInt(document.getElementById('st-emergency-goal').value) || userProfile.emergencyGoal;
+  userProfile = { name: userProfile.name, income, saving, emergency, emergencyGoal };
+  localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+  applyProfile();
+  showToast('설정이 저장됐어요!');
+  goPage('Home', document.querySelectorAll('.bnav-item')[0]);
+  document.querySelectorAll('.bnav-item')[0].classList.add('active');
+}
+
+function openSettings() {
+  document.getElementById('st-income').value = userProfile.income;
+  document.getElementById('st-saving').value = userProfile.saving;
+  document.getElementById('st-emergency').value = userProfile.emergency;
+  document.getElementById('st-emergency-goal').value = userProfile.emergencyGoal;
+}
+
 function goPage(name, el) {
-  ['Home','Input','Coach','Goals'].forEach(p => {
+  ['Home','Input','Coach','Goals','Settings'].forEach(p => {
     document.getElementById('page'+p).classList.remove('active');
     document.getElementById('nav'+p).style.display = 'none';
   });
   document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('page'+name).classList.add('active');
   document.getElementById('nav'+name).style.display = '';
+  if (name === 'Settings') openSettings();
   if (el) el.classList.add('active');
 }
 
