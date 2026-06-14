@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>머니코치 — 개인 재정 AI 코치</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<style>
+:root {
+  --bg: #F7F6F2;
+  --surface: #FFFFFF;
+  --surface2: #F0EEE8;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1A1917;
+  --text2: #6B6860;
+  --text3: #A09D97;
+  --purple: #534AB7;
+  --purple-light: #EEEDFE;
+  --purple-dark: #3C3489;
+  --teal: #1D9E75;
+  --teal-light: #E1F5EE;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --coral: #D85A30;
+  --coral-light: #FAECE7;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); }
+body { font-family: 'Pretendard', -apple-system, sans-serif; color: var(--text); }
+
+.phone-frame {
+  max-width: 390px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Nav */
+.nav { padding: 52px 20px 12px; background: var(--bg); }
+.nav-title { font-size: 22px; font-weight: 600; }
+.nav-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+/* Scroll content */
+.content { flex: 1; overflow-y: auto; padding: 0 20px 100px; }
+.content::-webkit-scrollbar { display: none; }
+
+/* Bottom tabs */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  padding: 10px 0 24px;
+}
+.bnav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; padding: 4px 0; border: none; background: transparent;
+}
+.bnav-item i { font-size: 22px; color: var(--text3); }
+.bnav-item span { font-size: 10px; color: var(--text3); }
+.bnav-item.active i, .bnav-item.active span { color: var(--purple); }
+
+/* Sections */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  border: 0.5px solid var(--border);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* Metric grid */
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.metric { background: var(--surface2); border-radius: var(--r-md); padding: 14px; }
+.metric-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; }
+.metric-value { font-size: 22px; font-weight: 600; }
+.metric-sub { font-size: 11px; margin-top: 4px; }
+.pos { color: var(--teal); }
+.neg { color: var(--coral); }
+.warn { color: var(--amber); }
+
+/* Insight cards */
+.insight { background: var(--surface); border-radius: var(--r-lg); border: 0.5px solid var(--border); padding: 14px 16px; margin-bottom: 10px; }
+.insight-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+.b-warn { background: var(--amber-light); color: #633806; }
+.b-ok { background: var(--teal-light); color: #085041; }
+.b-tip { background: var(--purple-light); color: #26215C; }
+.insight-title { font-size: 14px; font-weight: 500; }
+.insight-body { font-size: 13px; color: var(--text2); line-height: 1.65; }
+.go-coach { margin-top: 10px; font-size: 12px; padding: 6px 12px; border-radius: var(--r-md); border: 0.5px solid var(--border2); background: transparent; color: var(--text); cursor: pointer; }
+.go-coach:hover { background: var(--surface2); }
+
+/* Section label */
+.sec-label { font-size: 12px; font-weight: 500; color: var(--text2); margin: 18px 0 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Expense history */
+.exp-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+.exp-item:last-child { border-bottom: none; }
+.exp-ico { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.exp-info { flex: 1; min-width: 0; }
+.exp-name { font-size: 14px; }
+.exp-cat { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.exp-amt { font-size: 14px; font-weight: 500; }
+.src-pill { font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 4px; }
+.s-ocr { background: var(--purple-light); color: #3C3489; }
+.s-sms { background: var(--teal-light); color: #0F6E56; }
+.s-loc { background: var(--amber-light); color: #854F0B; }
+.s-manual { background: var(--surface2); color: var(--text2); }
+
+/* Input page */
+.input-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.imethod { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.15s; }
+.imethod:hover, .imethod.sel { border-color: var(--purple); }
+.imethod i { font-size: 26px; display: block; margin-bottom: 8px; }
+.imethod .im-title { font-size: 13px; font-weight: 500; }
+.imethod .im-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+.input-panel { background: var(--surface); border-radius: var(--r-lg); border: 0.5px solid var(--border); padding: 16px; margin-bottom: 12px; display: none; }
+.input-panel.show { display: block; }
+
+.drop-zone { border: 1.5px dashed var(--border2); border-radius: var(--r-lg); padding: 28px 16px; text-align: center; cursor: pointer; margin-bottom: 12px; }
+.drop-zone:hover { border-color: var(--purple); }
+.drop-zone i { font-size: 32px; color: var(--text2); display: block; margin-bottom: 8px; }
+.drop-zone p { font-size: 13px; color: var(--text2); }
+
+.scan-ring { width: 52px; height: 52px; border: 3px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.scanning { text-align: center; padding: 20px; display: none; }
+.scanning.show { display: block; }
+.scanning p { font-size: 13px; color: var(--text2); }
+
+.result-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+.result-row:last-child { border-bottom: none; }
+.result-row .rl { color: var(--text2); }
+.result-row .rv { font-weight: 500; }
+.auto-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--teal-light); color: #0F6E56; }
+
+.ocr-result, .sms-result { display: none; }
+.ocr-result.show, .sms-result.show { display: block; }
+
+.sms-examples { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.sms-eg { font-size: 12px; padding: 8px 10px; background: var(--surface2); border-radius: var(--r-md); color: var(--text2); cursor: pointer; font-family: monospace; border: none; text-align: left; }
+.sms-eg:hover { color: var(--text); }
+textarea.sms-input { width: 100%; min-height: 80px; padding: 10px 12px; border: 0.5px solid var(--border2); border-radius: var(--r-md); background: var(--surface); color: var(--text); font-size: 13px; font-family: monospace; resize: none; outline: none; }
+textarea.sms-input:focus { border-color: var(--purple); }
+
+.loc-list { display: flex; flex-direction: column; gap: 8px; }
+.loc-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface2); border-radius: var(--r-md); cursor: pointer; border: 0.5px solid transparent; transition: border-color 0.15s; }
+.loc-item:hover, .loc-item.sel { border-color: var(--purple); background: var(--purple-light); }
+.loc-ico { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.loc-nm { font-size: 13px; font-weight: 500; }
+.loc-dt { font-size: 11px; color: var(--text2); }
+.loc-cat-badge { margin-left: auto; font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+
+.quick-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.qchip { padding: 7px 12px; border: 0.5px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 12px; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.qchip:hover { color: var(--text); border-color: var(--border2); }
+.qchip i { font-size: 13px; }
+
+.inp { width: 100%; padding: 11px 14px; border: 0.5px solid var(--border2); border-radius: var(--r-md); background: var(--surface); color: var(--text); font-size: 14px; outline: none; margin-bottom: 10px; }
+.inp:focus { border-color: var(--purple); }
+.amount-inp { font-size: 22px; font-weight: 600; }
+
+.parse-btn { padding: 8px 16px; background: var(--purple); color: #fff; border: none; border-radius: var(--r-md); font-size: 13px; cursor: pointer; margin-top: 8px; }
+.add-btn { width: 100%; padding: 14px; background: var(--purple); color: #fff; border: none; border-radius: var(--r-lg); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+.add-btn:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; }
+
+/* AI Coach */
+.coach-wrap { display: flex; flex-direction: column; height: calc(100vh - 200px); }
+.coach-msgs { flex: 1; overflow-y: auto; padding-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+.coach-msgs::-webkit-scrollbar { display: none; }
+.msg { max-width: 85%; padding: 11px 14px; border-radius: 18px; font-size: 14px; line-height: 1.65; }
+.msg.ai { align-self: flex-start; background: var(--surface); border: 0.5px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
+.msg.user { align-self: flex-end; background: var(--purple); color: #fff; border-bottom-right-radius: 4px; }
+.msg-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
+.typing-dots { display: none; gap: 4px; align-items: center; padding: 12px 14px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 18px; border-bottom-left-radius: 4px; align-self: flex-start; }
+.typing-dots.show { display: flex; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: blink 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%,80%,100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+.chat-input-area { padding: 10px 0; }
+.chips-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
+.chips-row::-webkit-scrollbar { display: none; }
+.chip { white-space: nowrap; padding: 6px 12px; border: 0.5px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 12px; color: var(--text2); cursor: pointer; flex-shrink: 0; }
+.chip:hover { border-color: var(--purple); color: var(--purple); }
+.chat-row { display: flex; gap: 8px; }
+.chat-row input { flex: 1; padding: 10px 16px; border: 0.5px solid var(--border2); border-radius: 24px; background: var(--surface); color: var(--text); font-size: 14px; outline: none; }
+.chat-row input:focus { border-color: var(--purple); }
+.send-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--purple); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.send-btn:hover { background: var(--purple-dark); }
+
+/* Goals */
+.goal-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 16px; margin-bottom: 10px; }
+.goal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.goal-name { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.goal-pct { font-size: 13px; font-weight: 600; color: var(--purple); }
+.progress { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.progress-bar { height: 100%; border-radius: 3px; }
+.goal-foot { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); }
+.add-goal { width: 100%; padding: 14px; border: 1.5px dashed var(--border2); border-radius: var(--r-lg); background: transparent; color: var(--text2); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.add-goal:hover { background: var(--surface); color: var(--text); }
+
+/* Toast */
+.toast {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: #fff; padding: 10px 20px;
+  border-radius: 20px; font-size: 13px; opacity: 0;
+  transition: opacity 0.25s; pointer-events: none; white-space: nowrap; z-index: 999;
+}
+.toast.show { opacity: 1; }
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(247,246,242,0.9);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+  backdrop-filter: blur(4px); display: none;
+}
+.loading-overlay.show { display: flex; }
+.loading-inner { text-align: center; }
+.loading-inner p { font-size: 13px; color: var(--text2); margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="toast" id="toast"></div>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-inner">
+      <div class="scan-ring"></div>
+      <p id="loadingMsg">AI 코치 생각 중...</p>
+    </div>
+  </div>
+
+  <!-- Home Nav -->
+  <div class="nav" id="navHome">
+    <div class="nav-title">안녕하세요, 종훈님 👋</div>
+    <div class="nav-sub">오늘도 재정 목표를 향해 나아가볼게요</div>
+  </div>
+  <div class="nav" id="navInput" style="display:none">
+    <div class="nav-title">지출 입력</div>
+    <div class="nav-sub">4가지 방법으로 빠르게 추가</div>
+  </div>
+  <div class="nav" id="navCoach" style="display:none">
+    <div class="nav-title">AI 재정 코치</div>
+    <div class="nav-sub">Claude 기반 · 실시간 분석</div>
+  </div>
+  <div class="nav" id="navGoals" style="display:none">
+    <div class="nav-title">목표 트래커</div>
+    <div class="nav-sub">재정 목표 달성 현황</div>
+  </div>
+
+  <div class="content">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="pageHome">
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-label">이번 달 지출</div>
+          <div class="metric-value" id="m-spend">₩0</div>
+          <div class="metric-sub warn" id="m-spend-sub">예산 입력 대기</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">저축률</div>
+          <div class="metric-value">12%</div>
+          <div class="metric-sub warn">목표 20%</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">비상금</div>
+          <div class="metric-value">₩85만</div>
+          <div class="metric-sub neg">목표의 28%</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">절약 기록</div>
+          <div class="metric-value" id="m-count">0건</div>
+          <div class="metric-sub pos">이번 달 입력</div>
+        </div>
+      </div>
+
+      <div class="sec-label">AI 인사이트</div>
+
+      <div class="insight">
+        <div class="insight-top">
+          <span class="badge b-warn"><i class="ti ti-alert-triangle"></i> 주의</span>
+          <span class="insight-title">카페 지출 급증</span>
+        </div>
+        <div class="insight-body">이번 달 카페 지출이 40% 늘었어요. 주 3회 방문 패턴이 감지됩니다.</div>
+        <button class="go-coach" onclick="goCoach('카페 지출을 줄이는 구체적인 방법을 알려줘')">코치에게 물어보기 →</button>
+      </div>
+
+      <div class="insight">
+        <div class="insight-top">
+          <span class="badge b-ok"><i class="ti ti-check"></i> 잘하고 있어요</span>
+          <span class="insight-title">구독 서비스 정리</span>
+        </div>
+        <div class="insight-body">미사용 구독 2건을 해지해서 월 1.5만원을 절약했어요!</div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-top">
+          <span class="badge b-tip"><i class="ti ti-bulb"></i> 코치 팁</span>
+          <span class="insight-title">급여일까지 D-8</span>
+        </div>
+        <div class="insight-body">남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.</div>
+        <button class="go-coach" onclick="goCoach('남은 예산으로 이번 달을 버티는 절약 계획을 세워줘')">절약 계획 세우기 →</button>
+      </div>
+
+      <div class="sec-label">최근 지출</div>
+      <div class="card" style="padding: 8px 16px;">
+        <div id="homeExpList">
+          <div style="text-align:center; padding:24px; color:var(--text2); font-size:13px;">
+            <i class="ti ti-receipt-off" style="font-size:28px; display:block; margin-bottom:6px;"></i>
+            아직 입력된 지출이 없어요
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT PAGE -->
+    <div class="page" id="pageInput">
+      <div class="input-methods">
+        <div class="imethod" onclick="showPanel('ocr',this)" style="color:var(--purple)">
+          <i class="ti ti-camera-scan"></i>
+          <div class="im-title">영수증 OCR</div>
+          <div class="im-sub">사진으로 자동 인식</div>
+        </div>
+        <div class="imethod" onclick="showPanel('sms',this)" style="color:var(--teal)">
+          <i class="ti ti-message-2"></i>
+          <div class="im-title">카드 문자</div>
+          <div class="im-sub">승인 문자 붙여넣기</div>
+        </div>
+        <div class="imethod" onclick="showPanel('loc',this)" style="color:var(--amber)">
+          <i class="ti ti-map-pin"></i>
+          <div class="im-title">위치 감지</div>
+          <div class="im-sub">주변 장소 자동분류</div>
+        </div>
+        <div class="imethod" onclick="showPanel('manual',this)" style="color:var(--coral)">
+          <i class="ti ti-pencil"></i>
+          <div class="im-title">직접 입력</div>
+          <div class="im-sub">빠른 선택</div>
+        </div>
+      </div>
+
+      <!-- OCR Panel -->
+      <div class="input-panel" id="panel-ocr">
+        <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:12px;">영수증 촬영 · OCR 자동 인식</div>
+        <div class="drop-zone" id="ocrDrop" onclick="runOCR()">
+          <i class="ti ti-photo-scan"></i>
+          <p>탭해서 영수증 촬영</p>
+        </div>
+        <div class="scanning" id="ocrScanning"><div class="scan-ring"></div><p>영수증 분석 중...</p></div>
+        <div class="ocr-result" id="ocrResult">
+          <div class="result-row"><span class="rl">가게명</span><span class="rv">스타벅스 대전터미널점</span></div>
+          <div class="result-row"><span class="rl">금액</span><span class="rv">₩6,800</span></div>
+          <div class="result-row"><span class="rl">날짜</span><span class="rv">2025.06.13</span></div>
+          <div class="result-row"><span class="rl">카테고리</span><span class="auto-badge">카페 · 자동분류</span></div>
+        </div>
+        <button class="add-btn" id="ocrAddBtn" onclick="addExp('스타벅스 대전터미널점',6800,'카페','ocr')" disabled style="margin-top:12px;">지출 추가</button>
+      </div>
+
+      <!-- SMS Panel -->
+      <div class="input-panel" id="panel-sms">
+        <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:12px;">카드 승인 문자 파싱</div>
+        <div class="sms-examples">
+          <button class="sms-eg" onclick="fillSms(this.textContent)">[신한카드] 6/13 14:32 스타벅스 6,800원 승인</button>
+          <button class="sms-eg" onclick="fillSms(this.textContent)">[국민카드] 쿠팡 23,500원 승인 06/13 19:04</button>
+          <button class="sms-eg" onclick="fillSms(this.textContent)">[삼성카드] T-money 1,500원 충전 06/13</button>
+        </div>
+        <textarea class="sms-input" id="smsText" placeholder="카드 승인 문자를 붙여넣으세요..."></textarea>
+        <button class="parse-btn" onclick="parseSms()">파싱하기</button>
+        <div class="sms-result" id="smsResult" style="margin-top:12px;">
+          <div class="result-row"><span class="rl">가게명</span><span class="rv" id="sr-name">—</span></div>
+          <div class="result-row"><span class="rl">금액</span><span class="rv" id="sr-amt">—</span></div>
+          <div class="result-row"><span class="rl">카테고리</span><span class="auto-badge" id="sr-cat">—</span></div>
+        </div>
+        <button class="add-btn" id="smsAddBtn" onclick="addFromSms()" disabled style="margin-top:12px;">지출 추가</button>
+      </div>
+
+      <!-- Location Panel -->
+      <div class="input-panel" id="panel-loc">
+        <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:12px;">현재 위치 기준 (대전 둔산동)</div>
+        <div class="loc-list">
+          <div class="loc-item" onclick="selLoc(this,'스타벅스 갤러리아점','카페',6800,'#FAEEDA','#854F0B','ti-coffee')">
+            <div class="loc-ico" style="background:#FAEEDA"><i class="ti ti-coffee" style="color:#854F0B"></i></div>
+            <div><div class="loc-nm">스타벅스 갤러리아점</div><div class="loc-dt">카페 · 32m</div></div>
+            <span class="loc-cat-badge" style="background:#FAEEDA;color:#854F0B">카페</span>
+          </div>
+          <div class="loc-item" onclick="selLoc(this,'GS25 둔산점','식비',3200,'#E1F5EE','#0F6E56','ti-building-store')">
+            <div class="loc-ico" style="background:#E1F5EE"><i class="ti ti-building-store" style="color:#0F6E56"></i></div>
+            <div><div class="loc-nm">GS25 둔산점</div><div class="loc-dt">편의점 · 58m</div></div>
+            <span class="loc-cat-badge" style="background:#E1F5EE;color:#0F6E56">식비</span>
+          </div>
+          <div class="loc-item" onclick="selLoc(this,'대전 지하철 갈마역','교통',1500,'#EEEDFE','#3C3489','ti-train')">
+            <div class="loc-ico" style="background:#EEEDFE"><i class="ti ti-train" style="color:#3C3489"></i></div>
+            <div><div class="loc-nm">대전 지하철 갈마역</div><div class="loc-dt">교통 · 120m</div></div>
+            <span class="loc-cat-badge" style="background:#EEEDFE;color:#3C3489">교통</span>
+          </div>
+        </div>
+        <div id="locAmtRow" style="display:none; margin-top:12px;">
+          <input type="number" class="inp amount-inp" id="locAmt" placeholder="금액 확인" />
+        </div>
+        <button class="add-btn" id="locAddBtn" onclick="addFromLoc()" disabled style="margin-top:4px;">지출 추가</button>
+      </div>
+
+      <!-- Manual Panel -->
+      <div class="input-panel" id="panel-manual">
+        <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:10px;">자주 쓰는 항목</div>
+        <div class="quick-chips">
+          <button class="qchip" onclick="quickFill('아메리카노',4500,'카페')"><i class="ti ti-coffee"></i> 아메리카노</button>
+          <button class="qchip" onclick="quickFill('편의점',3200,'식비')"><i class="ti ti-building-store"></i> 편의점</button>
+          <button class="qchip" onclick="quickFill('지하철',1500,'교통')"><i class="ti ti-train"></i> 지하철</button>
+          <button class="qchip" onclick="quickFill('점심',8000,'식비')"><i class="ti ti-bowl"></i> 점심</button>
+          <button class="qchip" onclick="quickFill('배달',15000,'식비')"><i class="ti ti-bike"></i> 배달</button>
+        </div>
+        <input type="number" class="inp amount-inp" id="manAmt" placeholder="₩ 금액" oninput="checkManual()" />
+        <input type="text" class="inp" id="manMemo" placeholder="메모 (선택)" />
+        <button class="add-btn" id="manAddBtn" onclick="addManual()" disabled>지출 추가</button>
+      </div>
+    </div>
+
+    <!-- COACH PAGE -->
+    <div class="page" id="pageCoach">
+      <div class="coach-wrap">
+        <div class="coach-msgs" id="coachMsgs">
+          <div>
+            <div class="msg-label">AI 재정 코치 · Claude</div>
+            <div class="msg ai">안녕하세요 종훈님! 저는 Claude 기반 AI 재정 코치예요.<br><br>지출 데이터를 바탕으로 맞춤형 조언을 드려요. 재정 목표, 지출 습관, 저축 전략 등 무엇이든 물어보세요 💬</div>
+          </div>
+          <div class="typing-dots" id="typingDots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+        <div class="chat-input-area">
+          <div class="chips-row" id="chipRow">
+            <button class="chip" onclick="sendChip('이번 달 지출을 분석해줘')">지출 분석</button>
+            <button class="chip" onclick="sendChip('저축률을 20%로 올리려면 어떻게 해야 해?')">저축률 올리기</button>
+            <button class="chip" onclick="sendChip('비상금 300만원 모으는 계획 세워줘')">비상금 계획</button>
+            <button class="chip" onclick="sendChip('식비 절약 방법 알려줘')">식비 절약</button>
+          </div>
+          <div class="chat-row">
+            <input type="text" id="coachInput" placeholder="재정 고민을 말씀해주세요..." onkeydown="if(event.key==='Enter') sendMsg()" />
+            <button class="send-btn" onclick="sendMsg()"><i class="ti ti-send" style="font-size:16px;"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOALS PAGE -->
+    <div class="page" id="pageGoals">
+      <div class="goal-card">
+        <div class="goal-top">
+          <div class="goal-name"><i class="ti ti-shield-check" style="color:var(--purple)"></i> 비상금 300만원</div>
+          <div class="goal-pct">28%</div>
+        </div>
+        <div class="progress"><div class="progress-bar" style="width:28%;background:var(--purple)"></div></div>
+        <div class="goal-foot"><span>₩85만 달성</span><span>목표: 2025년 12월</span></div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-top">
+          <div class="goal-name"><i class="ti ti-device-laptop" style="color:var(--teal)"></i> 맥북 구매</div>
+          <div class="goal-pct">62%</div>
+        </div>
+        <div class="progress"><div class="progress-bar" style="width:62%;background:var(--teal)"></div></div>
+        <div class="goal-foot"><span>₩155만 달성</span><span>목표: 2025년 9월</span></div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-top">
+          <div class="goal-name"><i class="ti ti-plane" style="color:var(--amber)"></i> 여행 적금</div>
+          <div class="goal-pct">15%</div>
+        </div>
+        <div class="progress"><div class="progress-bar" style="width:15%;background:var(--amber)"></div></div>
+        <div class="goal-foot"><span>₩15만 달성</span><span>목표: 2026년 3월</span></div>
+      </div>
+      <button class="add-goal" onclick="goCoach('새로운 재정 목표를 추가하고 싶어. 어떻게 설정하면 좋을까?')">
+        <i class="ti ti-plus"></i> 새 목표 AI와 함께 설정하기 →
+      </button>
+    </div>
+
+  </div><!-- end content -->
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="bnav-item active" onclick="goPage('Home',this)">
+      <i class="ti ti-home"></i><span>홈</span>
+    </button>
+    <button class="bnav-item" onclick="goPage('Input',this)">
+      <i class="ti ti-plus-circle"></i><span>입력</span>
+    </button>
+    <button class="bnav-item" onclick="goPage('Coach',this)">
+      <i class="ti ti-message-chatbot"></i><span>AI 코치</span>
+    </button>
+    <button class="bnav-item" onclick="goPage('Goals',this)">
+      <i class="ti ti-target"></i><span>목표</span>
+    </button>
+  </div>
+</div>
+
+<script>
+const CAT_ICON = { '식비':'ti-bowl','카페':'ti-coffee','교통':'ti-train','쇼핑':'ti-shopping-bag','구독':'ti-refresh','기타':'ti-dots' };
+const CAT_BG   = { '식비':'#E1F5EE','카페':'#FAEEDA','교통':'#EEEDFE','쇼핑':'#FAECE7','구독':'#E6F1FB','기타':'#F1EFE8' };
+const CAT_FG   = { '식비':'#0F6E56','카페':'#854F0B','교통':'#3C3489','쇼핑':'#993C1D','구독':'#185FA5','기타':'#5F5E5A' };
+const SRC_CLS  = { ocr:'s-ocr', sms:'s-sms', loc:'s-loc', manual:'s-manual' };
+const SRC_LBL  = { ocr:'OCR', sms:'문자', loc:'위치', manual:'수동' };
+
+let expenses = [];
+let pendingLoc = null;
+let pendingSms = null;
+
+function goPage(name, el) {
+  ['Home','Input','Coach','Goals'].forEach(p => {
+    document.getElementById('page'+p).classList.remove('active');
+    document.getElementById('nav'+p).style.display = 'none';
+  });
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page'+name).classList.add('active');
+  document.getElementById('nav'+name).style.display = '';
+  if (el) el.classList.add('active');
+}
+
+function showPanel(id, el) {
+  document.querySelectorAll('.input-panel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.imethod').forEach(m => m.classList.remove('sel'));
+  document.getElementById('panel-'+id).classList.add('show');
+  el.classList.add('sel');
+}
+
+function runOCR() {
+  document.getElementById('ocrDrop').style.display = 'none';
+  document.getElementById('ocrScanning').classList.add('show');
+  setTimeout(() => {
+    document.getElementById('ocrScanning').classList.remove('show');
+    document.getElementById('ocrResult').classList.add('show');
+    document.getElementById('ocrAddBtn').disabled = false;
+  }, 1600);
+}
+
+function fillSms(txt) { document.getElementById('smsText').value = txt; }
+
+function parseSms() {
+  const txt = document.getElementById('smsText').value;
+  if (!txt) return;
+  const amtM = txt.match(/(\d[\d,]+)원/);
+  const amt = amtM ? parseInt(amtM[1].replace(/,/g,'')) : 0;
+  let name = '알 수 없음', cat = '기타';
+  if (txt.includes('스타벅스')) { name='스타벅스'; cat='카페'; }
+  else if (txt.includes('쿠팡')) { name='쿠팡'; cat='쇼핑'; }
+  else if (txt.includes('T-money') || txt.includes('충전')) { name='교통카드 충전'; cat='교통'; }
+  document.getElementById('sr-name').textContent = name;
+  document.getElementById('sr-amt').textContent = '₩' + amt.toLocaleString();
+  document.getElementById('sr-cat').textContent = cat + ' · 자동분류';
+  document.getElementById('smsResult').classList.add('show');
+  document.getElementById('smsAddBtn').disabled = false;
+  pendingSms = { name, amt, cat };
+}
+
+function addFromSms() {
+  if (!pendingSms) return;
+  addExp(pendingSms.name, pendingSms.amt, pendingSms.cat, 'sms');
+  document.getElementById('smsResult').classList.remove('show');
+  document.getElementById('smsText').value = '';
+  document.getElementById('smsAddBtn').disabled = true;
+  pendingSms = null;
+}
+
+function selLoc(el, name, cat, amt, bg, fg, icon) {
+  document.querySelectorAll('.loc-item').forEach(i => i.classList.remove('sel'));
+  el.classList.add('sel');
+  pendingLoc = { name, cat, amt };
+  document.getElementById('locAmt').value = amt;
+  document.getElementById('locAmtRow').style.display = 'block';
+  document.getElementById('locAddBtn').disabled = false;
+}
+
+function addFromLoc() {
+  if (!pendingLoc) return;
+  const amt = parseInt(document.getElementById('locAmt').value) || pendingLoc.amt;
+  addExp(pendingLoc.name, amt, pendingLoc.cat, 'loc');
+  document.querySelectorAll('.loc-item').forEach(i => i.classList.remove('sel'));
+  document.getElementById('locAmtRow').style.display = 'none';
+  document.getElementById('locAddBtn').disabled = true;
+  pendingLoc = null;
+}
+
+function quickFill(name, amt, cat) {
+  document.getElementById('manAmt').value = amt;
+  document.getElementById('manMemo').value = name;
+  window._manCat = cat;
+  checkManual();
+}
+
+function checkManual() {
+  document.getElementById('manAddBtn').disabled = !(parseInt(document.getElementById('manAmt').value) > 0);
+}
+
+function addManual() {
+  const amt = parseInt(document.getElementById('manAmt').value) || 0;
+  if (!amt) return;
+  const memo = document.getElementById('manMemo').value.trim() || '기타';
+  addExp(memo, amt, window._manCat || '기타', 'manual');
+  document.getElementById('manAmt').value = '';
+  document.getElementById('manMemo').value = '';
+  document.getElementById('manAddBtn').disabled = true;
+  window._manCat = null;
+}
+
+function addExp(name, amt, cat, src) {
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  expenses.unshift({ name, amt, cat, src, time: t });
+  renderHomeExp();
+  updateMetrics();
+  showToast('지출이 추가됐어요!');
+  // reset ocr
+  if (src === 'ocr') {
+    document.getElementById('ocrResult').classList.remove('show');
+    document.getElementById('ocrDrop').style.display = '';
+    document.getElementById('ocrAddBtn').disabled = true;
+  }
+  goPage('Home', document.querySelectorAll('.bnav-item')[0]);
+  document.querySelectorAll('.bnav-item')[0].classList.add('active');
+}
+
+function renderHomeExp() {
+  const el = document.getElementById('homeExpList');
+  if (!expenses.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:13px;"><i class="ti ti-receipt-off" style="font-size:28px;display:block;margin-bottom:6px;"></i>아직 입력된 지출이 없어요</div>';
+    return;
+  }
+  el.innerHTML = expenses.slice(0,5).map(e => `
+    <div class="exp-item">
+      <div class="exp-ico" style="background:${CAT_BG[e.cat]||'#F1EFE8'}">
+        <i class="ti ${CAT_ICON[e.cat]||'ti-dots'}" style="color:${CAT_FG[e.cat]||'#5F5E5A'};font-size:16px;"></i>
+      </div>
+      <div class="exp-info">
+        <div class="exp-name">${e.name}<span class="src-pill ${SRC_CLS[e.src]}">${SRC_LBL[e.src]}</span></div>
+        <div class="exp-cat">${e.cat} · ${e.time}</div>
+      </div>
+      <div class="exp-amt">-₩${e.amt.toLocaleString()}</div>
+    </div>
+  `).join('');
+}
+
+function updateMetrics() {
+  const total = expenses.reduce((s,e) => s+e.amt, 0);
+  document.getElementById('m-spend').textContent = '₩' + total.toLocaleString();
+  document.getElementById('m-spend-sub').textContent = expenses.length + '건 입력됨';
+  document.getElementById('m-count').textContent = expenses.length + '건';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ── AI COACH ── */
+let msgHistory = [];
+
+async function sendMsg() {
+  const input = document.getElementById('coachInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addChatMsg('user', text);
+  await callClaude(text);
+}
+
+function sendChip(text) {
+  document.getElementById('coachInput').value = '';
+  addChatMsg('user', text);
+  callClaude(text);
+}
+
+function goCoach(text) {
+  goPage('Coach', null);
+  document.querySelectorAll('.bnav-item')[2].classList.add('active');
+  setTimeout(() => {
+    addChatMsg('user', text);
+    callClaude(text);
+  }, 100);
+}
+
+function addChatMsg(role, text) {
+  const msgs = document.getElementById('coachMsgs');
+  const typing = document.getElementById('typingDots');
+  const wrap = document.createElement('div');
+  if (role === 'ai') {
+    const lbl = document.createElement('div');
+    lbl.className = 'msg-label';
+    lbl.textContent = 'AI 재정 코치 · Claude';
+    wrap.appendChild(lbl);
+  }
+  const msg = document.createElement('div');
+  msg.className = 'msg ' + role;
+  msg.style.whiteSpace = 'pre-wrap';
+  msg.textContent = text;
+  wrap.appendChild(msg);
+  msgs.insertBefore(wrap, typing);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  if (role === 'user') {
+    msgHistory.push({ role: 'user', content: text });
+  } else {
+    msgHistory.push({ role: 'assistant', content: text });
+  }
+}
+
+function setTyping(show) {
+  const t = document.getElementById('typingDots');
+  t.classList.toggle('show', show);
+  const msgs = document.getElementById('coachMsgs');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function callClaude(userText) {
+  setTyping(true);
+
+  const expSummary = expenses.length
+    ? '최근 지출: ' + expenses.slice(0,5).map(e => `${e.name} ${e.amt.toLocaleString()}원(${e.cat})`).join(', ')
+    : '아직 입력된 지출 없음';
+
+  const systemPrompt = `당신은 친근하고 실용적인 한국어 개인 재정 코치입니다.
+사용자 이름: 종훈
+현재 재정 현황:
+- 이번 달 지출: ${expenses.reduce((s,e)=>s+e.amt,0).toLocaleString()}원 (${expenses.length}건 입력)
+- ${expSummary}
+- 저축률: 12% (목표 20%)
+- 비상금: 85만원 (목표 300만원의 28%)
+- 맥북 구매 목표: 62% 달성 (155만/250만)
+
+답변 원칙:
+- 따뜻하고 솔직하게 조언
+- 구체적인 금액과 기간을 포함
+- 3줄 이내 간결하게 (필요시 더 길게)
+- 이모지 1~2개 사용해 친근하게
+- 실천 가능한 다음 액션 1가지 제시`;
+
+  const messages = [
+    ...msgHistory.slice(0, -1)
+  ];
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: messages.concat([{ role: 'user', content: userText }])
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || '잠시 후 다시 시도해주세요.';
+    setTyping(false);
+    addChatMsg('ai', reply);
+  } catch(e) {
+    setTyping(false);
+    addChatMsg('ai', '연결 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+  }
+}
+</script>
+</body>
+</html>
