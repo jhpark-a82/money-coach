@@ -538,47 +538,47 @@ textarea.sms-input:focus { border-color: var(--purple); }
     </div>
 
     <div class="card" style="margin-bottom:12px;">
-      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;">💰 기본 재정 정보</div>
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;" id="st-fin-title">💰 기본 재정 정보</div>
       <div style="margin-bottom:14px;">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">월 수입 (세후)</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="st-income-label">월 수입 (세후)</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--text2);">₩</span>
+          <span style="color:var(--text2);" id="st-income-sym">₩</span>
           <input id="st-income" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="st-income-unit">원</span>
         </div>
       </div>
       <div style="margin-bottom:14px;">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">월 목표 저축액</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="st-saving-label">월 목표 저축액</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--text2);">₩</span>
+          <span style="color:var(--text2);" id="st-saving-sym">₩</span>
           <input id="st-saving" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="st-saving-unit">원</span>
         </div>
       </div>
       <div style="margin-bottom:14px;">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">현재 비상금</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="st-emergency-label">현재 비상금</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--text2);">₩</span>
+          <span style="color:var(--text2);" id="st-emergency-sym">₩</span>
           <input id="st-emergency" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="st-emergency-unit">원</span>
         </div>
       </div>
       <div style="margin-bottom:20px;">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">비상금 목표액</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="st-emergency-goal-label">비상금 목표액</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--text2);">₩</span>
+          <span style="color:var(--text2);" id="st-emergency-goal-sym">₩</span>
           <input id="st-emergency-goal" type="number" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="st-emergency-goal-unit">원</span>
         </div>
       </div>
-      <button onclick="saveSettings()" style="width:100%;padding:14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">저장하기</button>
+      <button onclick="saveSettings()" id="st-save-btn" style="width:100%;padding:14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">저장하기</button>
     </div>
 
     <div class="card">
-      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;">🎯 목표 관리</div>
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;" id="st-goal-title">🎯 목표 관리</div>
       <div id="goalEditList"></div>
       <button onclick="addGoal()" style="width:100%;padding:12px;border:1.5px dashed var(--border2);border-radius:var(--r-lg);background:transparent;color:var(--text2);font-size:14px;cursor:pointer;margin-top:8px;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px;">
-        <i class="ti ti-plus"></i> 새 목표 추가
+        <i class="ti ti-plus"></i> <span id="st-add-goal-label">새 목표 추가</span>
       </button>
     </div>
   </div>
@@ -642,7 +642,11 @@ const I18N = {
     coachTitle: 'AI 재정 코치', coachSub: 'Claude 기반 · 실시간 분석',
     goalsTitle: '목표 트래커', goalsSub: '재정 목표 달성 현황',
     settingsTitle: '내 정보 설정', settingsSub: '수입, 저축 목표, 비상금 수정',
-    navHome: '홈', navInput: '입력', navCoach: 'AI 코치', navGoals: '목표', navSettings: '설정'
+    navHome: '홈', navInput: '입력', navCoach: 'AI 코치', navGoals: '목표', navSettings: '설정',
+    finTitle: '💰 기본 재정 정보', incomeLabel: '월 수입 (세후)', savingLabel: '월 목표 저축액',
+    emergencyLabel: '현재 비상금', emergencyGoalLabel: '비상금 목표액', saveBtn: '저장하기',
+    goalTitle: '🎯 목표 관리', addGoalBtn: '새 목표 추가',
+    emergencyEditLabel: '🛡 비상금 (현재 금액)', currentAmtLabel: '현재 금액', targetAmtLabel: '목표 금액'
   },
   en: {
     greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
@@ -651,7 +655,11 @@ const I18N = {
     coachTitle: 'AI Finance Coach', coachSub: 'Powered by Claude · Real-time',
     goalsTitle: 'Goal Tracker', goalsSub: 'Your financial goals progress',
     settingsTitle: 'Settings', settingsSub: 'Edit income, savings, emergency fund',
-    navHome: 'Home', navInput: 'Add', navCoach: 'AI Coach', navGoals: 'Goals', navSettings: 'Settings'
+    navHome: 'Home', navInput: 'Add', navCoach: 'AI Coach', navGoals: 'Goals', navSettings: 'Settings',
+    finTitle: '💰 Financial Info', incomeLabel: 'Monthly Income (after tax)', savingLabel: 'Monthly Savings Target',
+    emergencyLabel: 'Current Emergency Fund', emergencyGoalLabel: 'Emergency Fund Target', saveBtn: 'Save',
+    goalTitle: '🎯 Manage Goals', addGoalBtn: 'Add New Goal',
+    emergencyEditLabel: '🛡 Emergency Fund (current)', currentAmtLabel: 'Current', targetAmtLabel: 'Target'
   }
 };
 
@@ -665,6 +673,7 @@ function changeLang(lang) {
   userProfile.lang = lang;
   localStorage.setItem('mc_profile', JSON.stringify(userProfile));
   applyI18n();
+  renderGoals();
 }
 
 function changeCurrency(cur) {
@@ -716,6 +725,27 @@ function applyI18n() {
       : ['지출 분석', '저축률 올리기', '비상금 계획', '식비 절약'];
     btn.textContent = labels[idx];
   });
+
+  // 설정 페이지 텍스트
+  const sym = curSym();
+  const unit = lang === 'en' ? '' : '원';
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('st-fin-title', t('finTitle'));
+  setText('st-income-label', t('incomeLabel'));
+  setText('st-saving-label', t('savingLabel'));
+  setText('st-emergency-label', t('emergencyLabel'));
+  setText('st-emergency-goal-label', t('emergencyGoalLabel'));
+  setText('st-income-sym', sym);
+  setText('st-saving-sym', sym);
+  setText('st-emergency-sym', sym);
+  setText('st-emergency-goal-sym', sym);
+  setText('st-income-unit', unit);
+  setText('st-saving-unit', unit);
+  setText('st-emergency-unit', unit);
+  setText('st-emergency-goal-unit', unit);
+  setText('st-save-btn', t('saveBtn'));
+  setText('st-goal-title', t('goalTitle'));
+  setText('st-add-goal-label', t('addGoalBtn'));
 }
 
 function getChipText(idx) {
@@ -771,19 +801,24 @@ function applyProfile() {
 
 function renderGoals() {
   const p = userProfile;
+  const lang = p.lang || 'ko';
+  const sym = curSym();
   const emergencyPct = Math.round(p.emergency / p.emergencyGoal * 100);
   const goalColors = ['#534AB7','#1D9E75','#BA7517','#D85A30','#185FA5'];
+  const achievedLabel = lang === 'en' ? 'reached' : '달성';
+  const targetLabel = lang === 'en' ? 'Target' : '목표';
+  const emergencyName = lang === 'en' ? `Emergency Fund ${sym}${fmt(p.emergencyGoal)}` : `비상금 ${fmt(p.emergencyGoal)}원`;
 
   // 목표 트래커 페이지
   const list = document.getElementById('goalList');
   if (list) {
     let html = `<div class="goal-card">
       <div class="goal-top">
-        <div class="goal-name"><i class="ti ti-shield-check" style="color:var(--purple)"></i> 비상금 ${fmt(p.emergencyGoal)}원</div>
+        <div class="goal-name"><i class="ti ti-shield-check" style="color:var(--purple)"></i> ${emergencyName}</div>
         <div class="goal-pct">${emergencyPct}%</div>
       </div>
       <div class="progress"><div class="progress-bar" style="width:${Math.min(emergencyPct,100)}%;background:var(--purple)"></div></div>
-      <div class="goal-foot"><span>${curSym()}${fmt(p.emergency)} 달성</span><span>목표: ${curSym()}${fmt(p.emergencyGoal)}</span></div>
+      <div class="goal-foot"><span>${sym}${fmt(p.emergency)} ${achievedLabel}</span><span>${targetLabel}: ${sym}${fmt(p.emergencyGoal)}</span></div>
     </div>`;
     p.goals.forEach((g,i) => {
       const pct = Math.min(Math.round(g.current/g.target*100),100);
@@ -794,7 +829,7 @@ function renderGoals() {
           <div class="goal-pct">${pct}%</div>
         </div>
         <div class="progress"><div class="progress-bar" style="width:${pct}%;background:${color}"></div></div>
-        <div class="goal-foot"><span>${curSym()}${fmt(g.current)} 달성</span><span>목표: ${curSym()}${fmt(g.target)}</span></div>
+        <div class="goal-foot"><span>${sym}${fmt(g.current)} ${achievedLabel}</span><span>${targetLabel}: ${sym}${fmt(g.target)}</span></div>
       </div>`;
     });
     list.innerHTML = html;
@@ -804,11 +839,10 @@ function renderGoals() {
   const editList = document.getElementById('goalEditList');
   if (editList) {
     let ehtml = `<div style="padding:10px 12px;background:var(--surface2);border-radius:var(--r-md);margin-bottom:8px;">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">🛡 비상금 (현재 금액)</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">${t('emergencyEditLabel')}</div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <span style="color:var(--text2);">₩</span>
+        <span style="color:var(--text2);">${sym}</span>
         <input type="number" value="${p.emergency}" onchange="updateEmergency(this.value)" style="flex:1;padding:8px 10px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;" />
-        <span style="font-size:12px;color:var(--text2);">원</span>
       </div>
     </div>`;
     p.goals.forEach(g => {
@@ -819,11 +853,11 @@ function renderGoals() {
         </div>
         <div style="display:flex;gap:6px;margin-bottom:6px;">
           <div style="flex:1;">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">현재 금액</div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">${t('currentAmtLabel')}</div>
             <input type="number" value="${g.current}" onchange="updateGoal(${g.id},'current',this.value)" style="width:100%;padding:7px 10px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:13px;outline:none;" />
           </div>
           <div style="flex:1;">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">목표 금액</div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">${t('targetAmtLabel')}</div>
             <input type="number" value="${g.target}" onchange="updateGoal(${g.id},'target',this.value)" style="width:100%;padding:7px 10px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:13px;outline:none;" />
           </div>
         </div>
