@@ -249,47 +249,71 @@ textarea.sms-input:focus { border-color: var(--purple); }
   </div>
 
   <!-- ONBOARDING OVERLAY -->
-  <div id="onboarding" style="position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;overflow-y:auto;">
+  <!-- WELCOME SCREEN (1단계) -->
+  <div id="welcome" style="position:fixed;inset:0;background:var(--bg);z-index:201;display:flex;flex-direction:column;justify-content:space-between;padding:52px 24px 40px;">
+    <div>
+      <select id="wc-lang" onchange="changeOnboardLang(this.value)" style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;font-family:var(--font-sans);margin-bottom:8px;">
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="en">🇺🇸 English</option>
+        <option value="ja">🇯🇵 日本語</option>
+      </select>
+      <select id="wc-currency" onchange="changeOnboardCurrency(this.value)" style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;font-family:var(--font-sans);">
+        <option value="KRW">₩ 원 (KRW)</option>
+        <option value="USD">$ 달러 (USD)</option>
+        <option value="JPY">¥ 엔 (JPY)</option>
+        <option value="EUR">€ 유로 (EUR)</option>
+      </select>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:56px;margin-bottom:20px;">💰</div>
+      <div style="font-size:26px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.4;" id="wc-title">머니코치</div>
+      <div style="font-size:15px;color:var(--text2);line-height:1.6;max-width:280px;margin:0 auto;" id="wc-desc">AI가 당신의 지출을 분석하고<br>재정 목표를 함께 세워드려요</div>
+    </div>
+    <button onclick="goToOnboarding()" style="width:100%;padding:16px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:16px;font-weight:600;cursor:pointer;font-family:var(--font-sans);" id="wc-start-btn">시작하기 →</button>
+  </div>
+
+  <!-- ONBOARDING FORM (2단계) -->
+  <div id="onboarding" style="position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;overflow-y:auto;">
     <div style="padding:52px 24px 40px;">
-      <div style="font-size:28px;font-weight:600;color:var(--text);margin-bottom:6px;">머니코치 시작하기 👋</div>
-      <div style="font-size:14px;color:var(--text2);margin-bottom:32px;">기본 정보를 입력하면 맞춤형 재정 코칭을 받을 수 있어요</div>
+      <div style="font-size:28px;font-weight:600;color:var(--text);margin-bottom:6px;" id="ob-title">기본 정보 입력</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:32px;" id="ob-sub">기본 정보를 입력하면 맞춤형 재정 코칭을 받을 수 있어요</div>
       <div style="margin-bottom:20px;">
-        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">이름</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;" id="ob-name-label">이름</div>
         <input id="ob-name" type="text" placeholder="홍길동" style="width:100%;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
       </div>
       <div style="margin-bottom:20px;">
-        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">월 수입 (세후)</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;" id="ob-income-label">월 수입 (세후)</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <span style="font-size:16px;color:var(--text2);" id="ob-income-sym">₩</span>
           <input id="ob-income" type="number" placeholder="3000000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="ob-income-unit">원</span>
         </div>
       </div>
       <div style="margin-bottom:20px;">
-        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">월 목표 저축액</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;" id="ob-saving-label">월 목표 저축액</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <span style="font-size:16px;color:var(--text2);" id="ob-saving-sym">₩</span>
           <input id="ob-saving" type="number" placeholder="500000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="ob-saving-unit">원</span>
         </div>
       </div>
       <div style="margin-bottom:20px;">
-        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">현재 비상금</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;" id="ob-emergency-label">현재 비상금</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <span style="font-size:16px;color:var(--text2);" id="ob-emergency-sym">₩</span>
           <input id="ob-emergency" type="number" placeholder="850000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="ob-emergency-unit">원</span>
         </div>
       </div>
       <div style="margin-bottom:32px;">
-        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;">비상금 목표액</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;" id="ob-emergency-goal-label">비상금 목표액</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:16px;color:var(--text2);">₩</span>
+          <span style="font-size:16px;color:var(--text2);" id="ob-emergency-goal-sym">₩</span>
           <input id="ob-emergency-goal" type="number" placeholder="3000000" style="flex:1;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
-          <span style="font-size:13px;color:var(--text2);">원</span>
+          <span style="font-size:13px;color:var(--text2);" id="ob-emergency-goal-unit">원</span>
         </div>
       </div>
-      <button onclick="saveOnboarding()" style="width:100%;padding:16px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:16px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">시작하기 →</button>
+      <button onclick="saveOnboarding()" style="width:100%;padding:16px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:16px;font-weight:600;cursor:pointer;font-family:var(--font-sans);" id="ob-submit-btn">시작하기 →</button>
     </div>
   </div>
 
@@ -666,7 +690,10 @@ const I18N = {
     imLocTitle: '위치 감지', imLocSub: '주변 장소 자동분류', imManualTitle: '직접 입력', imManualSub: '빠른 선택',
     goalsAddBtn: '목표 추가 · 수정하기 →', langCurTitle: '🌐 언어 및 화폐', langLabel: '언어', currencyLabel: '화폐 단위',
     curKrw: '₩ 원 (KRW)', curUsd: '$ 달러 (USD)', curJpy: '¥ 엔 (JPY)', curEur: '€ 유로 (EUR)',
-    paydayLabel: '급여일 (매월)', paydayUnit: '일'
+    paydayLabel: '급여일 (매월)', paydayUnit: '일',
+    obTitle: '기본 정보 입력', obSub: '기본 정보를 입력하면 맞춤형 재정 코칭을 받을 수 있어요',
+    obNameLabel: '이름', obIncomeLabel: '월 수입 (세후)', obSavingLabel: '월 목표 저축액',
+    obEmergencyLabel: '현재 비상금', obEmergencyGoalLabel: '비상금 목표액', obSubmitBtn: '시작하기 →'
   },
   en: {
     greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
@@ -690,7 +717,10 @@ const I18N = {
     imLocTitle: 'Location Detect', imLocSub: 'Auto-categorize nearby places', imManualTitle: 'Manual Entry', imManualSub: 'Quick select',
     goalsAddBtn: 'Add / Edit Goals →', langCurTitle: '🌐 Language & Currency', langLabel: 'Language', currencyLabel: 'Currency',
     curKrw: '₩ Korean Won (KRW)', curUsd: '$ US Dollar (USD)', curJpy: '¥ Japanese Yen (JPY)', curEur: '€ Euro (EUR)',
-    paydayLabel: 'Payday (monthly)', paydayUnit: 'th'
+    paydayLabel: 'Payday (monthly)', paydayUnit: 'th',
+    obTitle: 'Enter Your Info', obSub: 'Enter your basic info to get personalized financial coaching',
+    obNameLabel: 'Name', obIncomeLabel: 'Monthly Income (after tax)', obSavingLabel: 'Monthly Savings Target',
+    obEmergencyLabel: 'Current Emergency Fund', obEmergencyGoalLabel: 'Emergency Fund Target', obSubmitBtn: 'Get Started →'
   },
   ja: {
     greeting: 'こんにちは', monthSpend: '今月の支出', savingRate: '貯蓄率', emergency: '緊急資金',
@@ -714,7 +744,10 @@ const I18N = {
     imLocTitle: '位置検出', imLocSub: '周辺の場所を自動分類', imManualTitle: '手動入力', imManualSub: 'クイック選択',
     goalsAddBtn: '目標を追加・編集する →', langCurTitle: '🌐 言語と通貨', langLabel: '言語', currencyLabel: '通貨単位',
     curKrw: '₩ 韓国ウォン (KRW)', curUsd: '$ 米ドル (USD)', curJpy: '¥ 日本円 (JPY)', curEur: '€ ユーロ (EUR)',
-    paydayLabel: '給料日（毎月）', paydayUnit: '日'
+    paydayLabel: '給料日（毎月）', paydayUnit: '日',
+    obTitle: '基本情報を入力', obSub: '基本情報を入力すると、あなたに合った財務コーチングが受けられます',
+    obNameLabel: 'お名前', obIncomeLabel: '月収（税後）', obSavingLabel: '月間目標貯蓄額',
+    obEmergencyLabel: '現在の緊急資金', obEmergencyGoalLabel: '緊急資金の目標額', obSubmitBtn: '始める →'
   }
 };
 
@@ -932,15 +965,70 @@ function getChipText(idx) {
   return queries[idx];
 }
 
+function goToOnboarding() {
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('onboarding').style.display = 'flex';
+}
+
+function changeOnboardLang(lang) {
+  userProfile.lang = lang;
+  applyOnboardI18n();
+}
+
+function changeOnboardCurrency(cur) {
+  userProfile.currency = cur;
+  applyOnboardI18n();
+}
+
+function applyOnboardI18n() {
+  const lang = userProfile.lang || 'ko';
+  const sym = CUR_SYMBOL[userProfile.currency] || '\u20a9';
+  const unitMap = { ko: '원', en: '', ja: '円' };
+  const unit = unitMap[lang] !== undefined ? unitMap[lang] : '원';
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  setText('wc-title', lang === 'ko' ? '머니코치' : (lang === 'ja' ? 'マネーコーチ' : 'Money Coach'));
+  const descMap = {
+    ko: 'AI가 당신의 지출을 분석하고<br>재정 목표를 함께 세워드려요',
+    en: 'AI analyzes your spending<br>and helps you reach your financial goals',
+    ja: 'AIが支出を分析し<br>財務目標を一緒に立てます'
+  };
+  const wcDesc = document.getElementById('wc-desc');
+  if (wcDesc) wcDesc.innerHTML = descMap[lang] || descMap.ko;
+  setText('wc-start-btn', t('obSubmitBtn') || '시작하기 →');
+
+  setText('ob-title', t('obTitle'));
+  setText('ob-sub', t('obSub'));
+  setText('ob-name-label', t('obNameLabel'));
+  setText('ob-income-label', t('obIncomeLabel'));
+  setText('ob-saving-label', t('obSavingLabel'));
+  setText('ob-emergency-label', t('obEmergencyLabel'));
+  setText('ob-emergency-goal-label', t('obEmergencyGoalLabel'));
+  setText('ob-submit-btn', t('obSubmitBtn'));
+  setText('ob-income-sym', sym);
+  setText('ob-saving-sym', sym);
+  setText('ob-emergency-sym', sym);
+  setText('ob-emergency-goal-sym', sym);
+  setText('ob-income-unit', unit);
+  setText('ob-saving-unit', unit);
+  setText('ob-emergency-unit', unit);
+  setText('ob-emergency-goal-unit', unit);
+}
+
 function saveOnboarding() {
+  const name = document.getElementById('ob-name').value.trim() || '사용자';
   const income = parseInt(document.getElementById('ob-income').value) || 3000000;
   const saving = parseInt(document.getElementById('ob-saving').value) || 500000;
   const emergency = parseInt(document.getElementById('ob-emergency').value) || 850000;
   const emergencyGoal = parseInt(document.getElementById('ob-emergency-goal').value) || 3000000;
-  userProfile = { name: '종훈', income, saving, emergency, emergencyGoal };
+  userProfile = {
+    ...userProfile, name, income, saving, emergency, emergencyGoal,
+    goals: DEFAULT_GOALS, payday: userProfile.payday || 25
+  };
   localStorage.setItem('mc_profile', JSON.stringify(userProfile));
   document.getElementById('onboarding').style.display = 'none';
   applyProfile();
+  applyI18n();
 }
 
 function fmt(v) {
@@ -1078,7 +1166,12 @@ function addGoal() {
 
 window.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('mc_profile')) {
+    document.getElementById('welcome').style.display = 'none';
     document.getElementById('onboarding').style.display = 'none';
+  } else {
+    document.getElementById('wc-lang').value = userProfile.lang || 'ko';
+    document.getElementById('wc-currency').value = userProfile.currency || 'KRW';
+    applyOnboardI18n();
   }
   applyProfile();
   applyI18n();
