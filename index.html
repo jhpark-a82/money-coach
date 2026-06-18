@@ -488,17 +488,17 @@ textarea.sms-input:focus { border-color: var(--purple); }
       <div class="coach-wrap">
         <div class="coach-msgs" id="coachMsgs">
           <div>
-            <div class="msg-label">AI 재정 코치 · Claude</div>
-            <div class="msg ai">안녕하세요 종훈님! 저는 Claude 기반 AI 재정 코치예요.<br><br>지출 데이터를 바탕으로 맞춤형 조언을 드려요. 재정 목표, 지출 습관, 저축 전략 등 무엇이든 물어보세요 💬</div>
+            <div class="msg-label" id="coach-welcome-label">AI 재정 코치 · Claude</div>
+            <div class="msg ai" id="coach-welcome-msg">안녕하세요 종훈님! 저는 Claude 기반 AI 재정 코치예요.<br><br>지출 데이터를 바탕으로 맞춤형 조언을 드려요. 재정 목표, 지출 습관, 저축 전략 등 무엇이든 물어보세요 💬</div>
           </div>
           <div class="typing-dots" id="typingDots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         </div>
         <div class="chat-input-area">
           <div class="chips-row" id="chipRow">
-            <button class="chip" onclick="sendChip('이번 달 지출을 분석해줘')">지출 분석</button>
-            <button class="chip" onclick="sendChip('저축률을 20%로 올리려면 어떻게 해야 해?')">저축률 올리기</button>
-            <button class="chip" onclick="sendChip('비상금 300만원 모으는 계획 세워줘')">비상금 계획</button>
-            <button class="chip" onclick="sendChip('식비 절약 방법 알려줘')">식비 절약</button>
+            <button class="chip" data-chip="0" onclick="sendChip(getChipText(0))">지출 분석</button>
+            <button class="chip" data-chip="1" onclick="sendChip(getChipText(1))">저축률 올리기</button>
+            <button class="chip" data-chip="2" onclick="sendChip(getChipText(2))">비상금 계획</button>
+            <button class="chip" data-chip="3" onclick="sendChip(getChipText(3))">식비 절약</button>
           </div>
           <div class="chat-row">
             <input type="text" id="coachInput" placeholder="재정 고민을 말씀해주세요..." onkeydown="if(event.key==='Enter') sendMsg()" />
@@ -517,6 +517,26 @@ textarea.sms-input:focus { border-color: var(--purple); }
     </div>
 
   <div id="pageSettings" class="page">
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;">🌐 언어 및 화폐</div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">언어</div>
+        <select id="st-lang" onchange="changeLang(this.value)" style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;font-family:var(--font-sans);">
+          <option value="ko">한국어</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div style="margin-bottom:4px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">화폐 단위</div>
+        <select id="st-currency" onchange="changeCurrency(this.value)" style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;font-family:var(--font-sans);">
+          <option value="KRW">₩ 원 (KRW)</option>
+          <option value="USD">$ 달러 (USD)</option>
+          <option value="JPY">¥ 엔 (JPY)</option>
+          <option value="EUR">€ 유로 (EUR)</option>
+        </select>
+      </div>
+    </div>
+
     <div class="card" style="margin-bottom:12px;">
       <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;">💰 기본 재정 정보</div>
       <div style="margin-bottom:14px;">
@@ -568,19 +588,19 @@ textarea.sms-input:focus { border-color: var(--purple); }
   <!-- Bottom Nav -->
   <div class="bottom-nav">
     <button class="bnav-item active" onclick="goPage('Home',this)">
-      <i class="ti ti-home"></i><span>홈</span>
+      <i class="ti ti-home"></i><span id="nav-home-label">홈</span>
     </button>
     <button class="bnav-item" onclick="goPage('Input',this)">
-      <i class="ti ti-plus-circle"></i><span>입력</span>
+      <i class="ti ti-plus-circle"></i><span id="nav-input-label">입력</span>
     </button>
     <button class="bnav-item" onclick="goPage('Coach',this)">
-      <i class="ti ti-message-chatbot"></i><span>AI 코치</span>
+      <i class="ti ti-message-chatbot"></i><span id="nav-coach-label">AI 코치</span>
     </button>
     <button class="bnav-item" onclick="goPage('Goals',this)">
-      <i class="ti ti-target"></i><span>목표</span>
+      <i class="ti ti-target"></i><span id="nav-goals-label">목표</span>
     </button>
     <button class="bnav-item" onclick="goPage('Settings',this)">
-      <i class="ti ti-settings"></i><span>설정</span>
+      <i class="ti ti-settings"></i><span id="nav-settings-label">설정</span>
     </button>
   </div>
 </div>
@@ -596,17 +616,125 @@ let expenses = [];
 let pendingLoc = null;
 let pendingSms = null;
 
-// 사용자 프로필
+// 사용자 프로필 (모든 금액은 KRW 기준으로 저장)
 const DEFAULT_GOALS = [
   { id:1, name:'맥북 구매', icon:'ti-device-laptop', color:'#1D9E75', current:1550000, target:2500000 },
   { id:2, name:'여행 적금', icon:'ti-plane', color:'#BA7517', current:150000, target:1000000 }
 ];
 let userProfile = JSON.parse(localStorage.getItem('mc_profile') || 'null') || {
   name: '종훈', income: 3000000, saving: 500000, emergency: 850000, emergencyGoal: 3000000,
-  goals: DEFAULT_GOALS
+  goals: DEFAULT_GOALS, lang: 'ko', currency: 'KRW'
 };
 if (!userProfile.goals) userProfile.goals = DEFAULT_GOALS;
+if (!userProfile.lang) userProfile.lang = 'ko';
+if (!userProfile.currency) userProfile.currency = 'KRW';
 let nextGoalId = Math.max(0, ...userProfile.goals.map(g=>g.id)) + 1;
+
+// 환율 (KRW 기준, 대략값 — 실시간 연동은 추후 API 적용 가능)
+const FX_RATES = { KRW: 1, USD: 1/1380, JPY: 1/9.2, EUR: 1/1480 };
+const CUR_SYMBOL = { KRW: '\u20a9', USD: '$', JPY: '\u00a5', EUR: '\u20ac' };
+
+const I18N = {
+  ko: {
+    greeting: '안녕하세요', monthSpend: '이번 달 지출', savingRate: '저축률', emergency: '비상금',
+    savingsRecord: '절약 기록', aiInsight: 'AI 인사이트', recentExpense: '최근 지출',
+    inputTitle: '지출 입력', inputSub: '4가지 방법으로 빠르게 추가',
+    coachTitle: 'AI 재정 코치', coachSub: 'Claude 기반 · 실시간 분석',
+    goalsTitle: '목표 트래커', goalsSub: '재정 목표 달성 현황',
+    settingsTitle: '내 정보 설정', settingsSub: '수입, 저축 목표, 비상금 수정',
+    navHome: '홈', navInput: '입력', navCoach: 'AI 코치', navGoals: '목표', navSettings: '설정'
+  },
+  en: {
+    greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
+    savingsRecord: 'Entries', aiInsight: 'AI Insights', recentExpense: 'Recent Expenses',
+    inputTitle: 'Add Expense', inputSub: '4 quick ways to add',
+    coachTitle: 'AI Finance Coach', coachSub: 'Powered by Claude · Real-time',
+    goalsTitle: 'Goal Tracker', goalsSub: 'Your financial goals progress',
+    settingsTitle: 'Settings', settingsSub: 'Edit income, savings, emergency fund',
+    navHome: 'Home', navInput: 'Add', navCoach: 'AI Coach', navGoals: 'Goals', navSettings: 'Settings'
+  }
+};
+
+function t(key) { return (I18N[userProfile.lang] || I18N.ko)[key] || key; }
+
+function convertKrw(krwValue) {
+  return krwValue * (FX_RATES[userProfile.currency] || 1);
+}
+
+function changeLang(lang) {
+  userProfile.lang = lang;
+  localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+  applyI18n();
+}
+
+function changeCurrency(cur) {
+  userProfile.currency = cur;
+  localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+  applyProfile();
+}
+
+function applyI18n() {
+  document.getElementById('nav-home-label').textContent = t('navHome');
+  document.getElementById('nav-input-label').textContent = t('navInput');
+  document.getElementById('nav-coach-label').textContent = t('navCoach');
+  document.getElementById('nav-goals-label').textContent = t('navGoals');
+  document.getElementById('nav-settings-label').textContent = t('navSettings');
+  const navInputTitle = document.querySelector('#navInput .nav-title');
+  const navInputSub = document.querySelector('#navInput .nav-sub');
+  if (navInputTitle) navInputTitle.textContent = t('inputTitle');
+  if (navInputSub) navInputSub.textContent = t('inputSub');
+  const navCoachTitle = document.querySelector('#navCoach .nav-title');
+  const navCoachSub = document.querySelector('#navCoach .nav-sub');
+  if (navCoachTitle) navCoachTitle.textContent = t('coachTitle');
+  if (navCoachSub) navCoachSub.textContent = t('coachSub');
+  const navGoalsTitle = document.querySelector('#navGoals .nav-title');
+  const navGoalsSub = document.querySelector('#navGoals .nav-sub');
+  if (navGoalsTitle) navGoalsTitle.textContent = t('goalsTitle');
+  if (navGoalsSub) navGoalsSub.textContent = t('goalsSub');
+  const navSettingsTitle = document.querySelector('#navSettings .nav-title');
+  const navSettingsSub = document.querySelector('#navSettings .nav-sub');
+  if (navSettingsTitle) navSettingsTitle.textContent = t('settingsTitle');
+  if (navSettingsSub) navSettingsSub.textContent = t('settingsSub');
+
+  // AI 코치 화면 텍스트
+  const lang = userProfile.lang || 'ko';
+  const welcomeLabel = document.getElementById('coach-welcome-label');
+  const welcomeMsg = document.getElementById('coach-welcome-msg');
+  const coachInput = document.getElementById('coachInput');
+  if (welcomeLabel) welcomeLabel.textContent = lang === 'en' ? 'AI Finance Coach · Claude' : 'AI 재정 코치 · Claude';
+  if (welcomeMsg) {
+    welcomeMsg.innerHTML = lang === 'en'
+      ? `Hi ${userProfile.name}! I'm your Claude-powered AI finance coach.<br><br>I give personalized advice based on your spending data. Ask me anything about financial goals, spending habits, or saving strategies 💬`
+      : `안녕하세요 ${userProfile.name}님! 저는 Claude 기반 AI 재정 코치예요.<br><br>지출 데이터를 바탕으로 맞춤형 조언을 드려요. 재정 목표, 지출 습관, 저축 전략 등 무엇이든 물어보세요 💬`;
+  }
+  if (coachInput) coachInput.placeholder = lang === 'en' ? 'Tell me about your financial concerns...' : '재정 고민을 말씀해주세요...';
+
+  document.querySelectorAll('.chip').forEach(btn => {
+    const idx = parseInt(btn.dataset.chip);
+    const labels = lang === 'en'
+      ? ['Spending Analysis', 'Boost Savings', 'Emergency Fund Plan', 'Cut Food Costs']
+      : ['지출 분석', '저축률 올리기', '비상금 계획', '식비 절약'];
+    btn.textContent = labels[idx];
+  });
+}
+
+function getChipText(idx) {
+  const lang = userProfile.lang || 'ko';
+  const queries = lang === 'en'
+    ? [
+        "Analyze my spending this month",
+        "How can I raise my saving rate to 20%?",
+        `Help me plan to save ${curSym()}${fmt(userProfile.emergencyGoal)} for emergency fund`,
+        "Give me tips to cut food expenses"
+      ]
+    : [
+        '이번 달 지출을 분석해줘',
+        '저축률을 20%로 올리려면 어떻게 해야 해?',
+        `비상금 ${fmt(userProfile.emergencyGoal)}원 모으는 계획 세워줘`,
+        '식비 절약 방법 알려줘'
+      ];
+  return queries[idx];
+}
 
 function saveOnboarding() {
   const income = parseInt(document.getElementById('ob-income').value) || 3000000;
@@ -619,7 +747,16 @@ function saveOnboarding() {
   applyProfile();
 }
 
-function fmt(v) { return v >= 10000 ? (v/10000).toFixed(0)+'만' : v.toLocaleString(); }
+function fmt(v) {
+  const converted = convertKrw(v);
+  const sym = CUR_SYMBOL[userProfile.currency] || '\u20a9';
+  if (userProfile.currency === 'KRW') {
+    return converted >= 10000 ? (converted/10000).toFixed(0)+'만' : Math.round(converted).toLocaleString();
+  }
+  // 외화는 소수점 둘째자리까지, 천단위 콤마
+  return converted.toLocaleString(undefined, {maximumFractionDigits: 1});
+}
+function curSym() { return CUR_SYMBOL[userProfile.currency] || '\u20a9'; }
 
 function applyProfile() {
   const p = userProfile;
@@ -627,7 +764,7 @@ function applyProfile() {
   const emergencyPct = Math.round(p.emergency / p.emergencyGoal * 100);
   document.getElementById('m-saving-rate').textContent = savingRate + '%';
   document.getElementById('m-saving-sub').textContent = '목표 ' + Math.round(p.income*0.2/10000) + '만원/월';
-  document.getElementById('m-emergency').textContent = '\u20a9' + fmt(p.emergency);
+  document.getElementById('m-emergency').textContent = curSym() + fmt(p.emergency);
   document.getElementById('m-emergency-sub').textContent = '목표의 ' + emergencyPct + '%';
   renderGoals();
 }
@@ -646,7 +783,7 @@ function renderGoals() {
         <div class="goal-pct">${emergencyPct}%</div>
       </div>
       <div class="progress"><div class="progress-bar" style="width:${Math.min(emergencyPct,100)}%;background:var(--purple)"></div></div>
-      <div class="goal-foot"><span>\u20a9${fmt(p.emergency)} 달성</span><span>목표: \u20a9${fmt(p.emergencyGoal)}</span></div>
+      <div class="goal-foot"><span>${curSym()}${fmt(p.emergency)} 달성</span><span>목표: ${curSym()}${fmt(p.emergencyGoal)}</span></div>
     </div>`;
     p.goals.forEach((g,i) => {
       const pct = Math.min(Math.round(g.current/g.target*100),100);
@@ -657,7 +794,7 @@ function renderGoals() {
           <div class="goal-pct">${pct}%</div>
         </div>
         <div class="progress"><div class="progress-bar" style="width:${pct}%;background:${color}"></div></div>
-        <div class="goal-foot"><span>\u20a9${fmt(g.current)} 달성</span><span>목표: \u20a9${fmt(g.target)}</span></div>
+        <div class="goal-foot"><span>${curSym()}${fmt(g.current)} 달성</span><span>목표: ${curSym()}${fmt(g.target)}</span></div>
       </div>`;
     });
     list.innerHTML = html;
@@ -736,6 +873,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('onboarding').style.display = 'none';
   }
   applyProfile();
+  applyI18n();
 });
 
 function saveSettings() {
@@ -756,6 +894,8 @@ function openSettings() {
   document.getElementById('st-saving').value = userProfile.saving;
   document.getElementById('st-emergency').value = userProfile.emergency;
   document.getElementById('st-emergency-goal').value = userProfile.emergencyGoal;
+  document.getElementById('st-lang').value = userProfile.lang || 'ko';
+  document.getElementById('st-currency').value = userProfile.currency || 'KRW';
 }
 
 function goPage(name, el) {
@@ -941,7 +1081,7 @@ function addChatMsg(role, text) {
   if (role === 'ai') {
     const lbl = document.createElement('div');
     lbl.className = 'msg-label';
-    lbl.textContent = 'AI 재정 코치 · Claude';
+    lbl.textContent = (userProfile.lang === 'en') ? 'AI Finance Coach · Claude' : 'AI 재정 코치 · Claude';
     wrap.appendChild(lbl);
   }
   const msg = document.createElement('div');
@@ -969,18 +1109,46 @@ function setTyping(show) {
 async function callClaude(userText) {
   setTyping(true);
 
-  const expSummary = expenses.length
-    ? '최근 지출: ' + expenses.slice(0,5).map(e => `${e.name} ${e.amt.toLocaleString()}원(${e.cat})`).join(', ')
-    : '아직 입력된 지출 없음';
+  const p = userProfile;
+  const lang = p.lang || 'ko';
+  const sym = curSym();
+  const totalSpend = expenses.reduce((s,e)=>s+e.amt,0);
+  const savingRate = Math.round(p.saving / p.income * 100);
+  const emergencyPct = Math.round(p.emergency / p.emergencyGoal * 100);
+  const goalsDesc = p.goals.map(g => `${g.name}: ${Math.round(g.current/g.target*100)}% (${sym}${fmt(g.current)}/${sym}${fmt(g.target)})`).join(', ');
 
-  const systemPrompt = `당신은 친근하고 실용적인 한국어 개인 재정 코치입니다.
-사용자 이름: 종훈
-현재 재정 현황:
-- 이번 달 지출: ${expenses.reduce((s,e)=>s+e.amt,0).toLocaleString()}원 (${expenses.length}건 입력)
+  let systemPrompt;
+  if (lang === 'en') {
+    const expSummary = expenses.length
+      ? 'Recent expenses: ' + expenses.slice(0,5).map(e => `${e.name} ${sym}${fmt(convertKrw(e.amt)/(FX_RATES[p.currency]||1))}(${e.cat})`).join(', ')
+      : 'No expenses logged yet';
+    systemPrompt = `You are a friendly, practical personal finance coach. Always respond in English.
+User name: ${p.name}
+Current financial status:
+- This month's spending: ${sym}${fmt(totalSpend)} (${expenses.length} entries)
 - ${expSummary}
-- 저축률: 12% (목표 20%)
-- 비상금: 85만원 (목표 300만원의 28%)
-- 맥북 구매 목표: 62% 달성 (155만/250만)
+- Saving rate: ${savingRate}% (target 20%)
+- Emergency fund: ${sym}${fmt(p.emergency)} (${emergencyPct}% of ${sym}${fmt(p.emergencyGoal)} goal)
+- Other goals: ${goalsDesc}
+
+Response guidelines:
+- Be warm and direct
+- Include specific amounts and timeframes
+- Keep it concise (3 lines or less, longer only if needed)
+- Use 1-2 emojis for friendliness
+- Suggest one actionable next step`;
+  } else {
+    const expSummary = expenses.length
+      ? '최근 지출: ' + expenses.slice(0,5).map(e => `${e.name} ${e.amt.toLocaleString()}원(${e.cat})`).join(', ')
+      : '아직 입력된 지출 없음';
+    systemPrompt = `당신은 친근하고 실용적인 한국어 개인 재정 코치입니다. 반드시 한국어로만 답변하세요.
+사용자 이름: ${p.name}
+현재 재정 현황:
+- 이번 달 지출: ${totalSpend.toLocaleString()}원 (${expenses.length}건 입력)
+- ${expSummary}
+- 저축률: ${savingRate}% (목표 20%)
+- 비상금: ${fmt(p.emergency)}원 (목표 ${fmt(p.emergencyGoal)}원의 ${emergencyPct}%)
+- 기타 목표: ${goalsDesc}
 
 답변 원칙:
 - 따뜻하고 솔직하게 조언
@@ -988,6 +1156,7 @@ async function callClaude(userText) {
 - 3줄 이내 간결하게 (필요시 더 길게)
 - 이모지 1~2개 사용해 친근하게
 - 실천 가능한 다음 액션 1가지 제시`;
+  }
 
   const messages = [
     ...msgHistory.slice(0, -1)
@@ -1005,12 +1174,16 @@ async function callClaude(userText) {
       })
     });
     const data = await res.json();
-    const reply = data.content?.[0]?.text || '잠시 후 다시 시도해주세요.';
+    const fallback = lang === 'en' ? 'Please try again in a moment.' : '잠시 후 다시 시도해주세요.';
+    const reply = data.content?.[0]?.text || fallback;
     setTyping(false);
     addChatMsg('ai', reply);
   } catch(e) {
     setTyping(false);
-    addChatMsg('ai', '연결 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+    const errMsg = (userProfile.lang === 'en')
+      ? 'A connection error occurred. Please try again in a moment.'
+      : '연결 오류가 발생했어요. 잠시 후 다시 시도해주세요.';
+    addChatMsg('ai', errMsg);
   }
 }
 </script>
