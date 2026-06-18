@@ -680,6 +680,7 @@ function changeCurrency(cur) {
   userProfile.currency = cur;
   localStorage.setItem('mc_profile', JSON.stringify(userProfile));
   applyProfile();
+  applyI18n();
 }
 
 function applyI18n() {
