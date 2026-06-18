@@ -430,6 +430,12 @@ textarea.sms-input:focus { border-color: var(--purple); }
         </div>
       </div>
 
+      <div class="imethod" onclick="showPanel('saving',this)" style="color:var(--teal); margin-bottom:16px;">
+        <i class="ti ti-piggy-bank"></i>
+        <div class="im-title" id="im-saving-title">절약 기록</div>
+        <div class="im-sub" id="im-saving-sub">구독 해지, 절약한 내역 기록</div>
+      </div>
+
       <!-- OCR Panel -->
       <div class="input-panel" id="panel-ocr">
         <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:12px;">영수증 촬영 · OCR 자동 인식</div>
@@ -487,6 +493,19 @@ textarea.sms-input:focus { border-color: var(--purple); }
         <input type="number" class="inp amount-inp" id="manAmt" placeholder="₩ 금액" oninput="checkManual()" />
         <input type="text" class="inp" id="manMemo" placeholder="메모 (선택)" />
         <button class="add-btn" id="manAddBtn" onclick="addManual()" disabled>지출 추가</button>
+      </div>
+
+      <!-- Saving Panel -->
+      <div class="input-panel" id="panel-saving">
+        <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:10px;" id="saving-quick-label">자주 쓰는 항목</div>
+        <div class="quick-chips">
+          <button class="qchip" onclick="quickFillSaving('구독 서비스 해지',15000,'구독')"><i class="ti ti-player-stop"></i> <span id="saving-chip-sub">구독 서비스 해지</span></button>
+          <button class="qchip" onclick="quickFillSaving('통신비 다이어트',10000,'기타')"><i class="ti ti-phone"></i> <span id="saving-chip-phone">통신비 절감</span></button>
+          <button class="qchip" onclick="quickFillSaving('쿠폰/할인 사용',3000,'기타')"><i class="ti ti-ticket"></i> <span id="saving-chip-coupon">쿠폰 사용</span></button>
+        </div>
+        <input type="number" class="inp amount-inp" id="savAmt" placeholder="₩ 절약한 금액" oninput="checkSaving()" />
+        <input type="text" class="inp" id="savMemo" placeholder="메모 (예: 넷플릭스 해지)" />
+        <button class="add-btn" id="savAddBtn" onclick="addSaving()" disabled style="background:var(--teal);">절약 기록 추가</button>
       </div>
     </div>
 
@@ -636,6 +655,7 @@ const SRC_CLS  = { ocr:'s-ocr', sms:'s-sms', loc:'s-loc', manual:'s-manual' };
 const SRC_LBL  = { ocr:'OCR', sms:'문자', loc:'위치', manual:'수동' };
 
 let expenses = [];
+let savings = JSON.parse(localStorage.getItem('mc_savings') || '[]');
 let pendingLoc = null;
 let pendingSms = null;
 
@@ -673,7 +693,7 @@ const I18N = {
     emergencyEditLabel: '🛡 비상금 (현재 금액)', currentAmtLabel: '현재 금액', targetAmtLabel: '목표 금액',
     greetingSub: '오늘도 재정 목표를 향해 나아가볼게요', budgetWait: '예산 입력 대기', savingTargetSub: '목표 ',
     countSub: '이번 달 입력', emptyExp: '아직 입력된 지출이 없어요',
-    ins1Badge: '주의', ins1Title: '카페 지출 급증', ins1Body: '이번 달 카페 지출이 40% 늘었어요. 주 3회 방문 패턴이 감지됩니다.', ins1Btn: '코치에게 물어보기 →',
+    ins1Badge: '팁', ins1Title: '카페 지출 관리', ins1Body: '카페 지출은 늘기 쉬운 항목이에요. 주간 패턴을 점검하고 싶다면 코치에게 물어보세요.', ins1Btn: '코치에게 물어보기 →',
     ins2Badge: '잘하고 있어요', ins2Title: '구독 서비스 정리', ins2Body: '미사용 구독 2건을 해지해서 월 1.5만원을 절약했어요!',
     ins3Badge: '코치 팁', ins3Title: '급여일까지 D-8', ins3Body: '남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.', ins3Btn: '절약 계획 세우기 →',
     insPrompt1: '카페 지출을 줄이는 구체적인 방법을 알려줘', insPrompt3: '남은 예산으로 이번 달을 버티는 절약 계획을 세워줘',
@@ -686,7 +706,10 @@ const I18N = {
     obNameLabel: '이름', obIncomeLabel: '월 수입 (세후)', obSavingLabel: '월 목표 저축액',
     obEmergencyLabel: '현재 비상금', obEmergencyGoalLabel: '비상금 목표액', obSubmitBtn: '시작하기 →',
     profileTitle: '👤 프로필', nameLabel: '이름',
-    locSoonTitle: '위치 감지 기능 준비 중', locSoonDesc: '실제 GPS 기반 주변 장소 감지 기능을<br>준비하고 있어요. 곧 만나요!'
+    locSoonTitle: '위치 감지 기능 준비 중', locSoonDesc: '실제 GPS 기반 주변 장소 감지 기능을<br>준비하고 있어요. 곧 만나요!',
+    imSavingTitle: '절약 기록', imSavingSub: '구독 해지, 절약한 내역 기록',
+    savingQuickLabel: '자주 쓰는 항목', savingChipSub: '구독 서비스 해지', savingChipPhone: '통신비 절감', savingChipCoupon: '쿠폰 사용',
+    savingAddBtn: '절약 기록 추가', savAmtPlaceholder: '절약한 금액', savMemoPlaceholder: '메모 (예: 넷플릭스 해지)'
   },
   en: {
     greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
@@ -702,7 +725,7 @@ const I18N = {
     emergencyEditLabel: '🛡 Emergency Fund (current)', currentAmtLabel: 'Current', targetAmtLabel: 'Target',
     greetingSub: "Let's work toward your financial goals today", budgetWait: 'Awaiting budget', savingTargetSub: 'Target ',
     countSub: 'logged this month', emptyExp: 'No expenses logged yet',
-    ins1Badge: 'Alert', ins1Title: 'Cafe Spending Spike', ins1Body: 'Your cafe spending is up 40% this month. A 3x/week visit pattern detected.', ins1Btn: 'Ask the coach →',
+    ins1Badge: 'Tip', ins1Title: 'Watch Your Cafe Spending', ins1Body: 'Cafe spending tends to creep up. Ask the coach to review your weekly pattern.', ins1Btn: 'Ask the coach →',
     ins2Badge: 'Doing great', ins2Title: 'Subscriptions Cleaned Up', ins2Body: 'You canceled 2 unused subscriptions, saving about $11/month!',
     ins3Badge: 'Coach Tip', ins3Title: 'D-8 to Payday', ins3Body: "Keep spending under $20/day and you'll hit this month's goal.", ins3Btn: 'Build a savings plan →',
     insPrompt1: 'Give me specific ways to cut my cafe spending', insPrompt3: 'Help me plan how to save money for the rest of this month',
@@ -715,7 +738,10 @@ const I18N = {
     obNameLabel: 'Name', obIncomeLabel: 'Monthly Income (after tax)', obSavingLabel: 'Monthly Savings Target',
     obEmergencyLabel: 'Current Emergency Fund', obEmergencyGoalLabel: 'Emergency Fund Target', obSubmitBtn: 'Get Started →',
     profileTitle: '👤 Profile', nameLabel: 'Name',
-    locSoonTitle: 'Location Detection Coming Soon', locSoonDesc: "We're building real GPS-based<br>nearby place detection. Stay tuned!"
+    locSoonTitle: 'Location Detection Coming Soon', locSoonDesc: "We're building real GPS-based<br>nearby place detection. Stay tuned!",
+    imSavingTitle: 'Savings', imSavingSub: 'Log subscriptions canceled, money saved',
+    savingQuickLabel: 'Quick add', savingChipSub: 'Canceled subscription', savingChipPhone: 'Cut phone bill', savingChipCoupon: 'Used coupon',
+    savingAddBtn: 'Add Savings', savAmtPlaceholder: 'Amount saved', savMemoPlaceholder: 'Memo (e.g. Canceled Netflix)'
   },
   ja: {
     greeting: 'こんにちは', monthSpend: '今月の支出', savingRate: '貯蓄率', emergency: '緊急資金',
@@ -731,7 +757,7 @@ const I18N = {
     emergencyEditLabel: '🛡 緊急資金（現在の金額）', currentAmtLabel: '現在の金額', targetAmtLabel: '目標金額',
     greetingSub: '今日も財務目標に向かって頑張りましょう', budgetWait: '予算入力待ち', savingTargetSub: '目標 ',
     countSub: '今月の記録', emptyExp: 'まだ支出が記録されていません',
-    ins1Badge: '注意', ins1Title: 'カフェ支出が急増', ins1Body: '今月のカフェ支出が40%増加しました。週3回の訪問パターンが検出されています。', ins1Btn: 'コーチに聞く →',
+    ins1Badge: 'ヒント', ins1Title: 'カフェ支出に注意', ins1Body: 'カフェ支出は増えやすい項目です。週ごとのパターンが気になったらコーチに聞いてみましょう。', ins1Btn: 'コーチに聞く →',
     ins2Badge: '順調です', ins2Title: 'サブスク整理完了', ins2Body: '未使用のサブスク2件を解約し、月1.5万円節約しました！',
     ins3Badge: 'コーチのヒント', ins3Title: '給料日まであと8日', ins3Body: '残りの予算で1日2.7万円以内に抑えれば、今月の目標を達成できます。', ins3Btn: '節約プランを立てる →',
     insPrompt1: 'カフェの支出を減らす具体的な方法を教えて', insPrompt3: '残りの予算で今月を乗り切る節約プランを立てて',
@@ -744,7 +770,10 @@ const I18N = {
     obNameLabel: 'お名前', obIncomeLabel: '月収（税後）', obSavingLabel: '月間目標貯蓄額',
     obEmergencyLabel: '現在の緊急資金', obEmergencyGoalLabel: '緊急資金の目標額', obSubmitBtn: '始める →',
     profileTitle: '👤 プロフィール', nameLabel: 'お名前',
-    locSoonTitle: '位置検出機能を準備中', locSoonDesc: '実際のGPSベースの周辺施設検出機能を<br>準備しています。お楽しみに！'
+    locSoonTitle: '位置検出機能を準備中', locSoonDesc: '実際のGPSベースの周辺施設検出機能を<br>準備しています。お楽しみに！',
+    imSavingTitle: '節約記録', imSavingSub: 'サブスク解約・節約した内容を記録',
+    savingQuickLabel: 'よく使う項目', savingChipSub: 'サブスク解約', savingChipPhone: '通信費削減', savingChipCoupon: 'クーポン利用',
+    savingAddBtn: '節約記録を追加', savAmtPlaceholder: '節約した金額', savMemoPlaceholder: 'メモ（例：Netflix解約）'
   }
 };
 
@@ -864,9 +893,7 @@ function applyI18n() {
   setText('ins1-title', t('ins1Title'));
   setText('ins1-body', t('ins1Body'));
   setText('ins1-btn', t('ins1Btn'));
-  setText('ins2-badge', t('ins2Badge'));
-  setText('ins2-title', t('ins2Title'));
-  setText('ins2-body', t('ins2Body'));
+  updateSavingsInsight(lang);
   setText('ins3-badge', t('ins3Badge'));
   updatePaydayInsight(lang);
   setText('ins3-btn', t('ins3Btn'));
@@ -886,6 +913,17 @@ function applyI18n() {
   if (locSoonDesc) locSoonDesc.innerHTML = t('locSoonDesc');
   setText('im-manual-title', t('imManualTitle'));
   setText('im-manual-sub', t('imManualSub'));
+  setText('im-saving-title', t('imSavingTitle'));
+  setText('im-saving-sub', t('imSavingSub'));
+  setText('saving-quick-label', t('savingQuickLabel'));
+  setText('saving-chip-sub', t('savingChipSub'));
+  setText('saving-chip-phone', t('savingChipPhone'));
+  setText('saving-chip-coupon', t('savingChipCoupon'));
+  setText('savAddBtn', t('savingAddBtn'));
+  const savAmtEl = document.getElementById('savAmt');
+  if (savAmtEl) savAmtEl.placeholder = curSym() + ' ' + t('savAmtPlaceholder');
+  const savMemoEl = document.getElementById('savMemo');
+  if (savMemoEl) savMemoEl.placeholder = t('savMemoPlaceholder');
   setText('goals-page-add-btn', t('goalsAddBtn'));
   setText('st-langcur-title', t('langCurTitle'));
   setText('st-lang-label', t('langLabel'));
@@ -911,6 +949,39 @@ function daysUntilPayday() {
   }
   const diffMs = target - today;
   return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+}
+
+function updateSavingsInsight(lang) {
+  const sym = curSym();
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const thisMonth = new Date().toISOString().slice(0,7);
+  const monthSavings = savings.filter(s => s.date && s.date.startsWith(thisMonth));
+  const totalSaved = monthSavings.reduce((s,e)=>s+e.amt,0);
+
+  if (monthSavings.length > 0) {
+    const latest = monthSavings[0];
+    const badgeMap = { ko: '잘하고 있어요', en: 'Doing great', ja: '順調です' };
+    const titleMap = { ko: '이번 달 절약 현황', en: 'Savings This Month', ja: '今月の節約状況' };
+    const bodyMap = {
+      ko: `${latest.name}을 포함해 총 ${monthSavings.length}건, ${sym}${fmt(totalSaved)}원을 절약했어요!`,
+      en: `Including "${latest.name}", you've saved ${sym}${fmt(totalSaved)} across ${monthSavings.length} entries this month!`,
+      ja: `「${latest.name}」を含め、今月${monthSavings.length}件、${sym}${fmt(totalSaved)}を節約しました！`
+    };
+    setText('ins2-badge', badgeMap[lang] || badgeMap.ko);
+    setText('ins2-title', titleMap[lang] || titleMap.ko);
+    setText('ins2-body', bodyMap[lang] || bodyMap.ko);
+  } else {
+    const badgeMap = { ko: '팁', en: 'Tip', ja: 'ヒント' };
+    const titleMap = { ko: '구독 서비스 점검', en: 'Check Your Subscriptions', ja: 'サブスクを見直そう' };
+    const bodyMap = {
+      ko: '안 쓰는 구독이 있는지 점검해보세요. 절약하면 입력 탭의 "절약 기록"에 남겨보세요.',
+      en: 'Check for unused subscriptions. When you save money, log it under "Savings" in the Add tab.',
+      ja: '使っていないサブスクがないか確認してみましょう。節約したら「節約記録」に記録してみてください。'
+    };
+    setText('ins2-badge', badgeMap[lang] || badgeMap.ko);
+    setText('ins2-title', titleMap[lang] || titleMap.ko);
+    setText('ins2-body', bodyMap[lang] || bodyMap.ko);
+  }
 }
 
 function updatePaydayInsight(lang) {
@@ -1182,6 +1253,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   applyProfile();
   applyI18n();
+  updateMetrics();
 });
 
 function saveSettings() {
@@ -1310,6 +1382,36 @@ function addManual() {
   window._manCat = null;
 }
 
+function quickFillSaving(name, amt, cat) {
+  document.getElementById('savAmt').value = amt;
+  document.getElementById('savMemo').value = name;
+  window._savCat = cat;
+  checkSaving();
+}
+
+function checkSaving() {
+  document.getElementById('savAddBtn').disabled = !(parseInt(document.getElementById('savAmt').value) > 0);
+}
+
+function addSaving() {
+  const amt = parseInt(document.getElementById('savAmt').value) || 0;
+  if (!amt) return;
+  const memo = document.getElementById('savMemo').value.trim() || (userProfile.lang === 'en' ? 'Saved money' : (userProfile.lang === 'ja' ? '節約' : '절약'));
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  savings.unshift({ name: memo, amt, cat: window._savCat || '기타', time, date: now.toISOString().slice(0,10) });
+  localStorage.setItem('mc_savings', JSON.stringify(savings));
+  document.getElementById('savAmt').value = '';
+  document.getElementById('savMemo').value = '';
+  document.getElementById('savAddBtn').disabled = true;
+  window._savCat = null;
+  applyI18n();
+  updateMetrics();
+  showToast(userProfile.lang === 'en' ? 'Saving recorded!' : (userProfile.lang === 'ja' ? '節約を記録しました！' : '절약 기록이 추가됐어요!'));
+  goPage('Home', document.querySelectorAll('.bnav-item')[0]);
+  document.querySelectorAll('.bnav-item')[0].classList.add('active');
+}
+
 function addExp(name, amt, cat, src) {
   const now = new Date();
   const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
@@ -1351,7 +1453,7 @@ function updateMetrics() {
   const total = expenses.reduce((s,e) => s+e.amt, 0);
   document.getElementById('m-spend').textContent = '₩' + total.toLocaleString();
   document.getElementById('m-spend-sub').textContent = expenses.length + '건 입력됨';
-  document.getElementById('m-count').textContent = expenses.length + '건';
+  document.getElementById('m-count').textContent = savings.length + '건';
 }
 
 function showToast(msg) {
