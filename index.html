@@ -524,6 +524,7 @@ textarea.sms-input:focus { border-color: var(--purple); }
         <select id="st-lang" onchange="changeLang(this.value)" style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;font-family:var(--font-sans);">
           <option value="ko">한국어</option>
           <option value="en">English</option>
+          <option value="ja">日本語</option>
         </select>
       </div>
       <div style="margin-bottom:4px;">
@@ -660,6 +661,19 @@ const I18N = {
     emergencyLabel: 'Current Emergency Fund', emergencyGoalLabel: 'Emergency Fund Target', saveBtn: 'Save',
     goalTitle: '🎯 Manage Goals', addGoalBtn: 'Add New Goal',
     emergencyEditLabel: '🛡 Emergency Fund (current)', currentAmtLabel: 'Current', targetAmtLabel: 'Target'
+  },
+  ja: {
+    greeting: 'こんにちは', monthSpend: '今月の支出', savingRate: '貯蓄率', emergency: '緊急資金',
+    savingsRecord: '記録件数', aiInsight: 'AIインサイト', recentExpense: '最近の支出',
+    inputTitle: '支出を入力', inputSub: '4つの方法で簡単に追加',
+    coachTitle: 'AI財務コーチ', coachSub: 'Claude搭載・リアルタイム分析',
+    goalsTitle: '目標トラッカー', goalsSub: '財務目標の達成状況',
+    settingsTitle: '設定', settingsSub: '収入・貯蓄目標・緊急資金を編集',
+    navHome: 'ホーム', navInput: '追加', navCoach: 'AIコーチ', navGoals: '目標', navSettings: '設定',
+    finTitle: '💰 基本財務情報', incomeLabel: '月収（税後）', savingLabel: '月間目標貯蓄額',
+    emergencyLabel: '現在の緊急資金', emergencyGoalLabel: '緊急資金の目標額', saveBtn: '保存する',
+    goalTitle: '🎯 目標管理', addGoalBtn: '新しい目標を追加',
+    emergencyEditLabel: '🛡 緊急資金（現在の金額）', currentAmtLabel: '現在の金額', targetAmtLabel: '目標金額'
   }
 };
 
@@ -711,25 +725,34 @@ function applyI18n() {
   const welcomeLabel = document.getElementById('coach-welcome-label');
   const welcomeMsg = document.getElementById('coach-welcome-msg');
   const coachInput = document.getElementById('coachInput');
-  if (welcomeLabel) welcomeLabel.textContent = lang === 'en' ? 'AI Finance Coach · Claude' : 'AI 재정 코치 · Claude';
+  const coachLabelMap = { ko: 'AI 재정 코치 · Claude', en: 'AI Finance Coach · Claude', ja: 'AI財務コーチ・Claude' };
+  if (welcomeLabel) welcomeLabel.textContent = coachLabelMap[lang] || coachLabelMap.ko;
   if (welcomeMsg) {
-    welcomeMsg.innerHTML = lang === 'en'
-      ? `Hi ${userProfile.name}! I'm your Claude-powered AI finance coach.<br><br>I give personalized advice based on your spending data. Ask me anything about financial goals, spending habits, or saving strategies 💬`
-      : `안녕하세요 ${userProfile.name}님! 저는 Claude 기반 AI 재정 코치예요.<br><br>지출 데이터를 바탕으로 맞춤형 조언을 드려요. 재정 목표, 지출 습관, 저축 전략 등 무엇이든 물어보세요 💬`;
+    const welcomeMap = {
+      ko: `안녕하세요 ${userProfile.name}님! 저는 Claude 기반 AI 재정 코치예요.<br><br>지출 데이터를 바탕으로 맞춤형 조언을 드려요. 재정 목표, 지출 습관, 저축 전략 등 무엇이든 물어보세요 💬`,
+      en: `Hi ${userProfile.name}! I'm your Claude-powered AI finance coach.<br><br>I give personalized advice based on your spending data. Ask me anything about financial goals, spending habits, or saving strategies 💬`,
+      ja: `こんにちは、${userProfile.name}さん！私はClaude搭載のAI財務コーチです。<br><br>支出データに基づいて、あなたに合ったアドバイスをお届けします。財務目標、支出習慣、貯蓄戦略など、何でも聞いてください 💬`
+    };
+    welcomeMsg.innerHTML = welcomeMap[lang] || welcomeMap.ko;
   }
-  if (coachInput) coachInput.placeholder = lang === 'en' ? 'Tell me about your financial concerns...' : '재정 고민을 말씀해주세요...';
+  const placeholderMap = { ko: '재정 고민을 말씀해주세요...', en: 'Tell me about your financial concerns...', ja: 'お金の悩みを教えてください...' };
+  if (coachInput) coachInput.placeholder = placeholderMap[lang] || placeholderMap.ko;
 
   document.querySelectorAll('.chip').forEach(btn => {
     const idx = parseInt(btn.dataset.chip);
-    const labels = lang === 'en'
-      ? ['Spending Analysis', 'Boost Savings', 'Emergency Fund Plan', 'Cut Food Costs']
-      : ['지출 분석', '저축률 올리기', '비상금 계획', '식비 절약'];
+    const labelsMap = {
+      ko: ['지출 분석', '저축률 올리기', '비상금 계획', '식비 절약'],
+      en: ['Spending Analysis', 'Boost Savings', 'Emergency Fund Plan', 'Cut Food Costs'],
+      ja: ['支出分析', '貯蓄率アップ', '緊急資金計画', '食費節約']
+    };
+    const labels = labelsMap[lang] || labelsMap.ko;
     btn.textContent = labels[idx];
   });
 
   // 설정 페이지 텍스트
   const sym = curSym();
-  const unit = lang === 'en' ? '' : '원';
+  const unitMap = { ko: '원', en: '', ja: '円' };
+  const unit = unitMap[lang] !== undefined ? unitMap[lang] : '원';
   const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setText('st-fin-title', t('finTitle'));
   setText('st-income-label', t('incomeLabel'));
@@ -751,19 +774,27 @@ function applyI18n() {
 
 function getChipText(idx) {
   const lang = userProfile.lang || 'ko';
-  const queries = lang === 'en'
-    ? [
-        "Analyze my spending this month",
-        "How can I raise my saving rate to 20%?",
-        `Help me plan to save ${curSym()}${fmt(userProfile.emergencyGoal)} for emergency fund`,
-        "Give me tips to cut food expenses"
-      ]
-    : [
-        '이번 달 지출을 분석해줘',
-        '저축률을 20%로 올리려면 어떻게 해야 해?',
-        `비상금 ${fmt(userProfile.emergencyGoal)}원 모으는 계획 세워줘`,
-        '식비 절약 방법 알려줘'
-      ];
+  const queriesMap = {
+    en: [
+      "Analyze my spending this month",
+      "How can I raise my saving rate to 20%?",
+      `Help me plan to save ${curSym()}${fmt(userProfile.emergencyGoal)} for emergency fund`,
+      "Give me tips to cut food expenses"
+    ],
+    ja: [
+      '今月の支出を分析して',
+      '貯蓄率を20%まで上げるにはどうすればいい？',
+      `緊急資金${curSym()}${fmt(userProfile.emergencyGoal)}を貯める計画を立てて`,
+      '食費を節約する方法を教えて'
+    ],
+    ko: [
+      '이번 달 지출을 분석해줘',
+      '저축률을 20%로 올리려면 어떻게 해야 해?',
+      `비상금 ${fmt(userProfile.emergencyGoal)}원 모으는 계획 세워줘`,
+      '식비 절약 방법 알려줘'
+    ]
+  };
+  const queries = queriesMap[lang] || queriesMap.ko;
   return queries[idx];
 }
 
@@ -806,9 +837,16 @@ function renderGoals() {
   const sym = curSym();
   const emergencyPct = Math.round(p.emergency / p.emergencyGoal * 100);
   const goalColors = ['#534AB7','#1D9E75','#BA7517','#D85A30','#185FA5'];
-  const achievedLabel = lang === 'en' ? 'reached' : '달성';
-  const targetLabel = lang === 'en' ? 'Target' : '목표';
-  const emergencyName = lang === 'en' ? `Emergency Fund ${sym}${fmt(p.emergencyGoal)}` : `비상금 ${fmt(p.emergencyGoal)}원`;
+  const achievedLabelMap = { ko: '달성', en: 'reached', ja: '達成' };
+  const targetLabelMap = { ko: '목표', en: 'Target', ja: '目標' };
+  const achievedLabel = achievedLabelMap[lang] || achievedLabelMap.ko;
+  const targetLabel = targetLabelMap[lang] || targetLabelMap.ko;
+  const emergencyNameMap = {
+    ko: `비상금 ${fmt(p.emergencyGoal)}원`,
+    en: `Emergency Fund ${sym}${fmt(p.emergencyGoal)}`,
+    ja: `緊急資金 ${sym}${fmt(p.emergencyGoal)}`
+  };
+  const emergencyName = emergencyNameMap[lang] || emergencyNameMap.ko;
 
   // 목표 트래커 페이지
   const list = document.getElementById('goalList');
@@ -1116,7 +1154,8 @@ function addChatMsg(role, text) {
   if (role === 'ai') {
     const lbl = document.createElement('div');
     lbl.className = 'msg-label';
-    lbl.textContent = (userProfile.lang === 'en') ? 'AI Finance Coach · Claude' : 'AI 재정 코치 · Claude';
+    const lblMap = { ko: 'AI 재정 코치 · Claude', en: 'AI Finance Coach · Claude', ja: 'AI財務コーチ・Claude' };
+    lbl.textContent = lblMap[userProfile.lang] || lblMap.ko;
     wrap.appendChild(lbl);
   }
   const msg = document.createElement('div');
@@ -1172,6 +1211,25 @@ Response guidelines:
 - Keep it concise (3 lines or less, longer only if needed)
 - Use 1-2 emojis for friendliness
 - Suggest one actionable next step`;
+  } else if (lang === 'ja') {
+    const expSummary = expenses.length
+      ? '最近の支出: ' + expenses.slice(0,5).map(e => `${e.name} ${sym}${fmt(convertKrw(e.amt)/(FX_RATES[p.currency]||1))}(${e.cat})`).join(', ')
+      : 'まだ支出が記録されていません';
+    systemPrompt = `あなたは親しみやすく実用的な個人financeコーチです。必ず日本語で答えてください。
+ユーザー名: ${p.name}
+現在の財務状況:
+- 今月の支出: ${sym}${fmt(totalSpend)} (${expenses.length}件記録)
+- ${expSummary}
+- 貯蓄率: ${savingRate}%（目標20%）
+- 緊急資金: ${sym}${fmt(p.emergency)}（目標${sym}${fmt(p.emergencyGoal)}の${emergencyPct}%）
+- その他の目標: ${goalsDesc}
+
+回答の原則:
+- 温かく率直にアドバイスする
+- 具体的な金額と期間を含める
+- 3行以内で簡潔に（必要な場合はもう少し長くても良い）
+- 親しみを持たせるために絵文字を1〜2個使う
+- 実行可能な次のアクションを1つ提案する`;
   } else {
     const expSummary = expenses.length
       ? '최근 지출: ' + expenses.slice(0,5).map(e => `${e.name} ${e.amt.toLocaleString()}원(${e.cat})`).join(', ')
@@ -1209,15 +1267,19 @@ Response guidelines:
       })
     });
     const data = await res.json();
-    const fallback = lang === 'en' ? 'Please try again in a moment.' : '잠시 후 다시 시도해주세요.';
+    const fallbackMap = { ko: '잠시 후 다시 시도해주세요.', en: 'Please try again in a moment.', ja: 'しばらくしてからもう一度お試しください。' };
+    const fallback = fallbackMap[lang] || fallbackMap.ko;
     const reply = data.content?.[0]?.text || fallback;
     setTyping(false);
     addChatMsg('ai', reply);
   } catch(e) {
     setTyping(false);
-    const errMsg = (userProfile.lang === 'en')
-      ? 'A connection error occurred. Please try again in a moment.'
-      : '연결 오류가 발생했어요. 잠시 후 다시 시도해주세요.';
+    const errMsgMap = {
+      ko: '연결 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
+      en: 'A connection error occurred. Please try again in a moment.',
+      ja: '接続エラーが発生しました。しばらくしてからもう一度お試しください。'
+    };
+    const errMsg = errMsgMap[userProfile.lang] || errMsgMap.ko;
     addChatMsg('ai', errMsg);
   }
 }
