@@ -572,6 +572,13 @@ textarea.sms-input:focus { border-color: var(--purple); }
           <span style="font-size:13px;color:var(--text2);" id="st-emergency-goal-unit">원</span>
         </div>
       </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="st-payday-label">급여일 (매월)</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input id="st-payday" type="number" min="1" max="31" style="flex:1;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:13px;color:var(--text2);" id="st-payday-unit">일</span>
+        </div>
+      </div>
       <button onclick="saveSettings()" id="st-save-btn" style="width:100%;padding:14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">저장하기</button>
     </div>
 
@@ -624,11 +631,12 @@ const DEFAULT_GOALS = [
 ];
 let userProfile = JSON.parse(localStorage.getItem('mc_profile') || 'null') || {
   name: '종훈', income: 3000000, saving: 500000, emergency: 850000, emergencyGoal: 3000000,
-  goals: DEFAULT_GOALS, lang: 'ko', currency: 'KRW'
+  goals: DEFAULT_GOALS, lang: 'ko', currency: 'KRW', payday: 25
 };
 if (!userProfile.goals) userProfile.goals = DEFAULT_GOALS;
 if (!userProfile.lang) userProfile.lang = 'ko';
 if (!userProfile.currency) userProfile.currency = 'KRW';
+if (!userProfile.payday) userProfile.payday = 25;
 let nextGoalId = Math.max(0, ...userProfile.goals.map(g=>g.id)) + 1;
 
 // 환율 (KRW 기준, 대략값 — 실시간 연동은 추후 API 적용 가능)
@@ -657,7 +665,8 @@ const I18N = {
     imOcrTitle: '영수증 OCR', imOcrSub: '사진으로 자동 인식', imSmsTitle: '카드 문자', imSmsSub: '승인 문자 붙여넣기',
     imLocTitle: '위치 감지', imLocSub: '주변 장소 자동분류', imManualTitle: '직접 입력', imManualSub: '빠른 선택',
     goalsAddBtn: '목표 추가 · 수정하기 →', langCurTitle: '🌐 언어 및 화폐', langLabel: '언어', currencyLabel: '화폐 단위',
-    curKrw: '₩ 원 (KRW)', curUsd: '$ 달러 (USD)', curJpy: '¥ 엔 (JPY)', curEur: '€ 유로 (EUR)'
+    curKrw: '₩ 원 (KRW)', curUsd: '$ 달러 (USD)', curJpy: '¥ 엔 (JPY)', curEur: '€ 유로 (EUR)',
+    paydayLabel: '급여일 (매월)', paydayUnit: '일'
   },
   en: {
     greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
@@ -680,7 +689,8 @@ const I18N = {
     imOcrTitle: 'Receipt OCR', imOcrSub: 'Auto-detect from photo', imSmsTitle: 'Card SMS', imSmsSub: 'Paste approval text',
     imLocTitle: 'Location Detect', imLocSub: 'Auto-categorize nearby places', imManualTitle: 'Manual Entry', imManualSub: 'Quick select',
     goalsAddBtn: 'Add / Edit Goals →', langCurTitle: '🌐 Language & Currency', langLabel: 'Language', currencyLabel: 'Currency',
-    curKrw: '₩ Korean Won (KRW)', curUsd: '$ US Dollar (USD)', curJpy: '¥ Japanese Yen (JPY)', curEur: '€ Euro (EUR)'
+    curKrw: '₩ Korean Won (KRW)', curUsd: '$ US Dollar (USD)', curJpy: '¥ Japanese Yen (JPY)', curEur: '€ Euro (EUR)',
+    paydayLabel: 'Payday (monthly)', paydayUnit: 'th'
   },
   ja: {
     greeting: 'こんにちは', monthSpend: '今月の支出', savingRate: '貯蓄率', emergency: '緊急資金',
@@ -703,7 +713,8 @@ const I18N = {
     imOcrTitle: 'レシートOCR', imOcrSub: '写真で自動認識', imSmsTitle: 'カード通知', imSmsSub: '承認メッセージを貼り付け',
     imLocTitle: '位置検出', imLocSub: '周辺の場所を自動分類', imManualTitle: '手動入力', imManualSub: 'クイック選択',
     goalsAddBtn: '目標を追加・編集する →', langCurTitle: '🌐 言語と通貨', langLabel: '言語', currencyLabel: '通貨単位',
-    curKrw: '₩ 韓国ウォン (KRW)', curUsd: '$ 米ドル (USD)', curJpy: '¥ 日本円 (JPY)', curEur: '€ ユーロ (EUR)'
+    curKrw: '₩ 韓国ウォン (KRW)', curUsd: '$ 米ドル (USD)', curJpy: '¥ 日本円 (JPY)', curEur: '€ ユーロ (EUR)',
+    paydayLabel: '給料日（毎月）', paydayUnit: '日'
   }
 };
 
@@ -825,8 +836,7 @@ function applyI18n() {
   setText('ins2-title', t('ins2Title'));
   setText('ins2-body', t('ins2Body'));
   setText('ins3-badge', t('ins3Badge'));
-  setText('ins3-title', t('ins3Title'));
-  setText('ins3-body', t('ins3Body'));
+  updatePaydayInsight(lang);
   setText('ins3-btn', t('ins3Btn'));
   if (!localStorage.getItem('mc_profile_has_expenses')) {
     setText('m-spend-sub', t('budgetWait'));
@@ -849,10 +859,51 @@ function applyI18n() {
   setText('st-cur-usd', t('curUsd'));
   setText('st-cur-jpy', t('curJpy'));
   setText('st-cur-eur', t('curEur'));
+  setText('st-payday-label', t('paydayLabel'));
+  setText('st-payday-unit', t('paydayUnit'));
 }
 
 function getInsightPrompt(idx) {
   return idx === 1 ? t('insPrompt1') : t('insPrompt3');
+}
+
+function daysUntilPayday() {
+  const today = new Date();
+  const payday = userProfile.payday || 25;
+  let target = new Date(today.getFullYear(), today.getMonth(), payday);
+  if (target <= today) {
+    target = new Date(today.getFullYear(), today.getMonth() + 1, payday);
+  }
+  const diffMs = target - today;
+  return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+}
+
+function updatePaydayInsight(lang) {
+  const dDay = daysUntilPayday();
+  const p = userProfile;
+  const sym = curSym();
+  const totalSpend = expenses.reduce((s,e)=>s+e.amt,0);
+  const monthlyBudget = p.income - p.saving;
+  const remaining = Math.max(0, monthlyBudget - totalSpend);
+  const dailyBudget = dDay > 0 ? Math.round(convertKrw(remaining) / dDay) : 0;
+  const dailyBudgetDisplay = userProfile.currency === 'KRW'
+    ? Math.round(dailyBudget / 10000) + '만'
+    : dailyBudget.toLocaleString(undefined, {maximumFractionDigits: 1});
+
+  const titleMap = {
+    ko: `급여일까지 D-${dDay}`,
+    en: `D-${dDay} to Payday`,
+    ja: `給料日まであと${dDay}日`
+  };
+  const bodyMap = {
+    ko: `남은 예산에서 하루 ${dailyBudgetDisplay}${userProfile.currency==='KRW'?'원':''} 이내로 지출하면 이번 달 목표 달성 가능해요.`,
+    en: `Keep spending under ${sym}${dailyBudgetDisplay}/day and you'll hit this month's goal.`,
+    ja: `残りの予算で1日${sym}${dailyBudgetDisplay}以内に抑えれば、今月の目標を達成できます。`
+  };
+
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('ins3-title', titleMap[lang] || titleMap.ko);
+  setText('ins3-body', bodyMap[lang] || bodyMap.ko);
 }
 
 function getChipText(idx) {
@@ -912,6 +963,7 @@ function applyProfile() {
   document.getElementById('m-emergency').textContent = curSym() + fmt(p.emergency);
   document.getElementById('m-emergency-sub').textContent = '목표의 ' + emergencyPct + '%';
   renderGoals();
+  updatePaydayInsight(p.lang || 'ko');
 }
 
 function renderGoals() {
@@ -1037,7 +1089,9 @@ function saveSettings() {
   const saving = parseInt(document.getElementById('st-saving').value) || userProfile.saving;
   const emergency = parseInt(document.getElementById('st-emergency').value) || userProfile.emergency;
   const emergencyGoal = parseInt(document.getElementById('st-emergency-goal').value) || userProfile.emergencyGoal;
-  userProfile = { name: userProfile.name, income, saving, emergency, emergencyGoal };
+  const paydayInput = parseInt(document.getElementById('st-payday').value);
+  const payday = (paydayInput >= 1 && paydayInput <= 31) ? paydayInput : userProfile.payday;
+  userProfile = { ...userProfile, income, saving, emergency, emergencyGoal, payday };
   localStorage.setItem('mc_profile', JSON.stringify(userProfile));
   applyProfile();
   showToast('설정이 저장됐어요!');
@@ -1050,6 +1104,7 @@ function openSettings() {
   document.getElementById('st-saving').value = userProfile.saving;
   document.getElementById('st-emergency').value = userProfile.emergency;
   document.getElementById('st-emergency-goal').value = userProfile.emergencyGoal;
+  document.getElementById('st-payday').value = userProfile.payday || 25;
   document.getElementById('st-lang').value = userProfile.lang || 'ko';
   document.getElementById('st-currency').value = userProfile.currency || 'KRW';
 }
