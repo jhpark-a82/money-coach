@@ -512,15 +512,15 @@ textarea.sms-input:focus { border-color: var(--purple); }
     <div class="page" id="pageGoals">
       <div id="goalList"></div>
       <button class="add-goal" onclick="goPage('Settings', document.querySelectorAll('.bnav-item')[4]); document.querySelectorAll('.bnav-item')[4].classList.add('active');">
-        <i class="ti ti-plus"></i> 목표 추가 · 수정하기 →
+        <i class="ti ti-plus"></i> <span id="goals-page-add-btn">목표 추가 · 수정하기 →</span>
       </button>
     </div>
 
   <div id="pageSettings" class="page">
     <div class="card" style="margin-bottom:12px;">
-      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;">🌐 언어 및 화폐</div>
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;" id="st-langcur-title">🌐 언어 및 화폐</div>
       <div style="margin-bottom:14px;">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">언어</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="st-lang-label">언어</div>
         <select id="st-lang" onchange="changeLang(this.value)" style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;font-family:var(--font-sans);">
           <option value="ko">한국어</option>
           <option value="en">English</option>
@@ -528,12 +528,12 @@ textarea.sms-input:focus { border-color: var(--purple); }
         </select>
       </div>
       <div style="margin-bottom:4px;">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">화폐 단위</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="st-currency-label">화폐 단위</div>
         <select id="st-currency" onchange="changeCurrency(this.value)" style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;font-family:var(--font-sans);">
-          <option value="KRW">₩ 원 (KRW)</option>
-          <option value="USD">$ 달러 (USD)</option>
-          <option value="JPY">¥ 엔 (JPY)</option>
-          <option value="EUR">€ 유로 (EUR)</option>
+          <option value="KRW" id="st-cur-krw">₩ 원 (KRW)</option>
+          <option value="USD" id="st-cur-usd">$ 달러 (USD)</option>
+          <option value="JPY" id="st-cur-jpy">¥ 엔 (JPY)</option>
+          <option value="EUR" id="st-cur-eur">€ 유로 (EUR)</option>
         </select>
       </div>
     </div>
@@ -655,7 +655,9 @@ const I18N = {
     ins3Badge: '코치 팁', ins3Title: '급여일까지 D-8', ins3Body: '남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.', ins3Btn: '절약 계획 세우기 →',
     insPrompt1: '카페 지출을 줄이는 구체적인 방법을 알려줘', insPrompt3: '남은 예산으로 이번 달을 버티는 절약 계획을 세워줘',
     imOcrTitle: '영수증 OCR', imOcrSub: '사진으로 자동 인식', imSmsTitle: '카드 문자', imSmsSub: '승인 문자 붙여넣기',
-    imLocTitle: '위치 감지', imLocSub: '주변 장소 자동분류', imManualTitle: '직접 입력', imManualSub: '빠른 선택'
+    imLocTitle: '위치 감지', imLocSub: '주변 장소 자동분류', imManualTitle: '직접 입력', imManualSub: '빠른 선택',
+    goalsAddBtn: '목표 추가 · 수정하기 →', langCurTitle: '🌐 언어 및 화폐', langLabel: '언어', currencyLabel: '화폐 단위',
+    curKrw: '₩ 원 (KRW)', curUsd: '$ 달러 (USD)', curJpy: '¥ 엔 (JPY)', curEur: '€ 유로 (EUR)'
   },
   en: {
     greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
@@ -676,7 +678,9 @@ const I18N = {
     ins3Badge: 'Coach Tip', ins3Title: 'D-8 to Payday', ins3Body: "Keep spending under $20/day and you'll hit this month's goal.", ins3Btn: 'Build a savings plan →',
     insPrompt1: 'Give me specific ways to cut my cafe spending', insPrompt3: 'Help me plan how to save money for the rest of this month',
     imOcrTitle: 'Receipt OCR', imOcrSub: 'Auto-detect from photo', imSmsTitle: 'Card SMS', imSmsSub: 'Paste approval text',
-    imLocTitle: 'Location Detect', imLocSub: 'Auto-categorize nearby places', imManualTitle: 'Manual Entry', imManualSub: 'Quick select'
+    imLocTitle: 'Location Detect', imLocSub: 'Auto-categorize nearby places', imManualTitle: 'Manual Entry', imManualSub: 'Quick select',
+    goalsAddBtn: 'Add / Edit Goals →', langCurTitle: '🌐 Language & Currency', langLabel: 'Language', currencyLabel: 'Currency',
+    curKrw: '₩ Korean Won (KRW)', curUsd: '$ US Dollar (USD)', curJpy: '¥ Japanese Yen (JPY)', curEur: '€ Euro (EUR)'
   },
   ja: {
     greeting: 'こんにちは', monthSpend: '今月の支出', savingRate: '貯蓄率', emergency: '緊急資金',
@@ -697,7 +701,9 @@ const I18N = {
     ins3Badge: 'コーチのヒント', ins3Title: '給料日まであと8日', ins3Body: '残りの予算で1日2.7万円以内に抑えれば、今月の目標を達成できます。', ins3Btn: '節約プランを立てる →',
     insPrompt1: 'カフェの支出を減らす具体的な方法を教えて', insPrompt3: '残りの予算で今月を乗り切る節約プランを立てて',
     imOcrTitle: 'レシートOCR', imOcrSub: '写真で自動認識', imSmsTitle: 'カード通知', imSmsSub: '承認メッセージを貼り付け',
-    imLocTitle: '位置検出', imLocSub: '周辺の場所を自動分類', imManualTitle: '手動入力', imManualSub: 'クイック選択'
+    imLocTitle: '位置検出', imLocSub: '周辺の場所を自動分類', imManualTitle: '手動入力', imManualSub: 'クイック選択',
+    goalsAddBtn: '目標を追加・編集する →', langCurTitle: '🌐 言語と通貨', langLabel: '言語', currencyLabel: '通貨単位',
+    curKrw: '₩ 韓国ウォン (KRW)', curUsd: '$ 米ドル (USD)', curJpy: '¥ 日本円 (JPY)', curEur: '€ ユーロ (EUR)'
   }
 };
 
@@ -835,6 +841,14 @@ function applyI18n() {
   setText('im-loc-sub', t('imLocSub'));
   setText('im-manual-title', t('imManualTitle'));
   setText('im-manual-sub', t('imManualSub'));
+  setText('goals-page-add-btn', t('goalsAddBtn'));
+  setText('st-langcur-title', t('langCurTitle'));
+  setText('st-lang-label', t('langLabel'));
+  setText('st-currency-label', t('currencyLabel'));
+  setText('st-cur-krw', t('curKrw'));
+  setText('st-cur-usd', t('curUsd'));
+  setText('st-cur-jpy', t('curJpy'));
+  setText('st-cur-eur', t('curEur'));
 }
 
 function getInsightPrompt(idx) {
