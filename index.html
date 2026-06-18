@@ -295,8 +295,8 @@ textarea.sms-input:focus { border-color: var(--purple); }
 
   <!-- Home Nav -->
   <div class="nav" id="navHome">
-    <div class="nav-title">안녕하세요, 종훈님 👋</div>
-    <div class="nav-sub">오늘도 재정 목표를 향해 나아가볼게요</div>
+    <div class="nav-title" id="home-greeting">안녕하세요, 종훈님 👋</div>
+    <div class="nav-sub" id="home-greeting-sub">오늘도 재정 목표를 향해 나아가볼게요</div>
   </div>
   <div class="nav" id="navInput" style="display:none">
     <div class="nav-title">지출 입력</div>
@@ -321,61 +321,61 @@ textarea.sms-input:focus { border-color: var(--purple); }
     <div class="page active" id="pageHome">
       <div class="metric-grid">
         <div class="metric">
-          <div class="metric-label">이번 달 지출</div>
+          <div class="metric-label" id="ml-spend">이번 달 지출</div>
           <div class="metric-value" id="m-spend">₩0</div>
           <div class="metric-sub warn" id="m-spend-sub">예산 입력 대기</div>
         </div>
         <div class="metric">
-          <div class="metric-label">저축률</div>
+          <div class="metric-label" id="ml-saving">저축률</div>
           <div class="metric-value" id="m-saving-rate">12%</div>
           <div class="metric-sub warn" id="m-saving-sub">목표 20%</div>
         </div>
         <div class="metric">
-          <div class="metric-label">비상금</div>
+          <div class="metric-label" id="ml-emergency">비상금</div>
           <div class="metric-value" id="m-emergency">₩85만</div>
           <div class="metric-sub neg" id="m-emergency-sub">목표의 28%</div>
         </div>
         <div class="metric">
-          <div class="metric-label">절약 기록</div>
+          <div class="metric-label" id="ml-count">절약 기록</div>
           <div class="metric-value" id="m-count">0건</div>
-          <div class="metric-sub pos">이번 달 입력</div>
+          <div class="metric-sub pos" id="m-count-sub">이번 달 입력</div>
         </div>
       </div>
 
-      <div class="sec-label">AI 인사이트</div>
+      <div class="sec-label" id="sec-insight">AI 인사이트</div>
 
       <div class="insight">
         <div class="insight-top">
-          <span class="badge b-warn"><i class="ti ti-alert-triangle"></i> 주의</span>
-          <span class="insight-title">카페 지출 급증</span>
+          <span class="badge b-warn"><i class="ti ti-alert-triangle"></i> <span id="ins1-badge">주의</span></span>
+          <span class="insight-title" id="ins1-title">카페 지출 급증</span>
         </div>
-        <div class="insight-body">이번 달 카페 지출이 40% 늘었어요. 주 3회 방문 패턴이 감지됩니다.</div>
-        <button class="go-coach" onclick="goCoach('카페 지출을 줄이는 구체적인 방법을 알려줘')">코치에게 물어보기 →</button>
-      </div>
-
-      <div class="insight">
-        <div class="insight-top">
-          <span class="badge b-ok"><i class="ti ti-check"></i> 잘하고 있어요</span>
-          <span class="insight-title">구독 서비스 정리</span>
-        </div>
-        <div class="insight-body">미사용 구독 2건을 해지해서 월 1.5만원을 절약했어요!</div>
+        <div class="insight-body" id="ins1-body">이번 달 카페 지출이 40% 늘었어요. 주 3회 방문 패턴이 감지됩니다.</div>
+        <button class="go-coach" id="ins1-btn" onclick="goCoach(getInsightPrompt(1))">코치에게 물어보기 →</button>
       </div>
 
       <div class="insight">
         <div class="insight-top">
-          <span class="badge b-tip"><i class="ti ti-bulb"></i> 코치 팁</span>
-          <span class="insight-title">급여일까지 D-8</span>
+          <span class="badge b-ok"><i class="ti ti-check"></i> <span id="ins2-badge">잘하고 있어요</span></span>
+          <span class="insight-title" id="ins2-title">구독 서비스 정리</span>
         </div>
-        <div class="insight-body">남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.</div>
-        <button class="go-coach" onclick="goCoach('남은 예산으로 이번 달을 버티는 절약 계획을 세워줘')">절약 계획 세우기 →</button>
+        <div class="insight-body" id="ins2-body">미사용 구독 2건을 해지해서 월 1.5만원을 절약했어요!</div>
       </div>
 
-      <div class="sec-label">최근 지출</div>
+      <div class="insight">
+        <div class="insight-top">
+          <span class="badge b-tip"><i class="ti ti-bulb"></i> <span id="ins3-badge">코치 팁</span></span>
+          <span class="insight-title" id="ins3-title">급여일까지 D-8</span>
+        </div>
+        <div class="insight-body" id="ins3-body">남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.</div>
+        <button class="go-coach" id="ins3-btn" onclick="goCoach(getInsightPrompt(3))">절약 계획 세우기 →</button>
+      </div>
+
+      <div class="sec-label" id="sec-recent">최근 지출</div>
       <div class="card" style="padding: 8px 16px;">
         <div id="homeExpList">
           <div style="text-align:center; padding:24px; color:var(--text2); font-size:13px;">
             <i class="ti ti-receipt-off" style="font-size:28px; display:block; margin-bottom:6px;"></i>
-            아직 입력된 지출이 없어요
+            <span id="home-empty-label">아직 입력된 지출이 없어요</span>
           </div>
         </div>
       </div>
@@ -386,23 +386,23 @@ textarea.sms-input:focus { border-color: var(--purple); }
       <div class="input-methods">
         <div class="imethod" onclick="showPanel('ocr',this)" style="color:var(--purple)">
           <i class="ti ti-camera-scan"></i>
-          <div class="im-title">영수증 OCR</div>
-          <div class="im-sub">사진으로 자동 인식</div>
+          <div class="im-title" id="im-ocr-title">영수증 OCR</div>
+          <div class="im-sub" id="im-ocr-sub">사진으로 자동 인식</div>
         </div>
         <div class="imethod" onclick="showPanel('sms',this)" style="color:var(--teal)">
           <i class="ti ti-message-2"></i>
-          <div class="im-title">카드 문자</div>
-          <div class="im-sub">승인 문자 붙여넣기</div>
+          <div class="im-title" id="im-sms-title">카드 문자</div>
+          <div class="im-sub" id="im-sms-sub">승인 문자 붙여넣기</div>
         </div>
         <div class="imethod" onclick="showPanel('loc',this)" style="color:var(--amber)">
           <i class="ti ti-map-pin"></i>
-          <div class="im-title">위치 감지</div>
-          <div class="im-sub">주변 장소 자동분류</div>
+          <div class="im-title" id="im-loc-title">위치 감지</div>
+          <div class="im-sub" id="im-loc-sub">주변 장소 자동분류</div>
         </div>
         <div class="imethod" onclick="showPanel('manual',this)" style="color:var(--coral)">
           <i class="ti ti-pencil"></i>
-          <div class="im-title">직접 입력</div>
-          <div class="im-sub">빠른 선택</div>
+          <div class="im-title" id="im-manual-title">직접 입력</div>
+          <div class="im-sub" id="im-manual-sub">빠른 선택</div>
         </div>
       </div>
 
@@ -647,7 +647,15 @@ const I18N = {
     finTitle: '💰 기본 재정 정보', incomeLabel: '월 수입 (세후)', savingLabel: '월 목표 저축액',
     emergencyLabel: '현재 비상금', emergencyGoalLabel: '비상금 목표액', saveBtn: '저장하기',
     goalTitle: '🎯 목표 관리', addGoalBtn: '새 목표 추가',
-    emergencyEditLabel: '🛡 비상금 (현재 금액)', currentAmtLabel: '현재 금액', targetAmtLabel: '목표 금액'
+    emergencyEditLabel: '🛡 비상금 (현재 금액)', currentAmtLabel: '현재 금액', targetAmtLabel: '목표 금액',
+    greetingSub: '오늘도 재정 목표를 향해 나아가볼게요', budgetWait: '예산 입력 대기', savingTargetSub: '목표 ',
+    countSub: '이번 달 입력', emptyExp: '아직 입력된 지출이 없어요',
+    ins1Badge: '주의', ins1Title: '카페 지출 급증', ins1Body: '이번 달 카페 지출이 40% 늘었어요. 주 3회 방문 패턴이 감지됩니다.', ins1Btn: '코치에게 물어보기 →',
+    ins2Badge: '잘하고 있어요', ins2Title: '구독 서비스 정리', ins2Body: '미사용 구독 2건을 해지해서 월 1.5만원을 절약했어요!',
+    ins3Badge: '코치 팁', ins3Title: '급여일까지 D-8', ins3Body: '남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.', ins3Btn: '절약 계획 세우기 →',
+    insPrompt1: '카페 지출을 줄이는 구체적인 방법을 알려줘', insPrompt3: '남은 예산으로 이번 달을 버티는 절약 계획을 세워줘',
+    imOcrTitle: '영수증 OCR', imOcrSub: '사진으로 자동 인식', imSmsTitle: '카드 문자', imSmsSub: '승인 문자 붙여넣기',
+    imLocTitle: '위치 감지', imLocSub: '주변 장소 자동분류', imManualTitle: '직접 입력', imManualSub: '빠른 선택'
   },
   en: {
     greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
@@ -660,7 +668,15 @@ const I18N = {
     finTitle: '💰 Financial Info', incomeLabel: 'Monthly Income (after tax)', savingLabel: 'Monthly Savings Target',
     emergencyLabel: 'Current Emergency Fund', emergencyGoalLabel: 'Emergency Fund Target', saveBtn: 'Save',
     goalTitle: '🎯 Manage Goals', addGoalBtn: 'Add New Goal',
-    emergencyEditLabel: '🛡 Emergency Fund (current)', currentAmtLabel: 'Current', targetAmtLabel: 'Target'
+    emergencyEditLabel: '🛡 Emergency Fund (current)', currentAmtLabel: 'Current', targetAmtLabel: 'Target',
+    greetingSub: "Let's work toward your financial goals today", budgetWait: 'Awaiting budget', savingTargetSub: 'Target ',
+    countSub: 'logged this month', emptyExp: 'No expenses logged yet',
+    ins1Badge: 'Alert', ins1Title: 'Cafe Spending Spike', ins1Body: 'Your cafe spending is up 40% this month. A 3x/week visit pattern detected.', ins1Btn: 'Ask the coach →',
+    ins2Badge: 'Doing great', ins2Title: 'Subscriptions Cleaned Up', ins2Body: 'You canceled 2 unused subscriptions, saving about $11/month!',
+    ins3Badge: 'Coach Tip', ins3Title: 'D-8 to Payday', ins3Body: "Keep spending under $20/day and you'll hit this month's goal.", ins3Btn: 'Build a savings plan →',
+    insPrompt1: 'Give me specific ways to cut my cafe spending', insPrompt3: 'Help me plan how to save money for the rest of this month',
+    imOcrTitle: 'Receipt OCR', imOcrSub: 'Auto-detect from photo', imSmsTitle: 'Card SMS', imSmsSub: 'Paste approval text',
+    imLocTitle: 'Location Detect', imLocSub: 'Auto-categorize nearby places', imManualTitle: 'Manual Entry', imManualSub: 'Quick select'
   },
   ja: {
     greeting: 'こんにちは', monthSpend: '今月の支出', savingRate: '貯蓄率', emergency: '緊急資金',
@@ -673,7 +689,15 @@ const I18N = {
     finTitle: '💰 基本財務情報', incomeLabel: '月収（税後）', savingLabel: '月間目標貯蓄額',
     emergencyLabel: '現在の緊急資金', emergencyGoalLabel: '緊急資金の目標額', saveBtn: '保存する',
     goalTitle: '🎯 目標管理', addGoalBtn: '新しい目標を追加',
-    emergencyEditLabel: '🛡 緊急資金（現在の金額）', currentAmtLabel: '現在の金額', targetAmtLabel: '目標金額'
+    emergencyEditLabel: '🛡 緊急資金（現在の金額）', currentAmtLabel: '現在の金額', targetAmtLabel: '目標金額',
+    greetingSub: '今日も財務目標に向かって頑張りましょう', budgetWait: '予算入力待ち', savingTargetSub: '目標 ',
+    countSub: '今月の記録', emptyExp: 'まだ支出が記録されていません',
+    ins1Badge: '注意', ins1Title: 'カフェ支出が急増', ins1Body: '今月のカフェ支出が40%増加しました。週3回の訪問パターンが検出されています。', ins1Btn: 'コーチに聞く →',
+    ins2Badge: '順調です', ins2Title: 'サブスク整理完了', ins2Body: '未使用のサブスク2件を解約し、月1.5万円節約しました！',
+    ins3Badge: 'コーチのヒント', ins3Title: '給料日まであと8日', ins3Body: '残りの予算で1日2.7万円以内に抑えれば、今月の目標を達成できます。', ins3Btn: '節約プランを立てる →',
+    insPrompt1: 'カフェの支出を減らす具体的な方法を教えて', insPrompt3: '残りの予算で今月を乗り切る節約プランを立てて',
+    imOcrTitle: 'レシートOCR', imOcrSub: '写真で自動認識', imSmsTitle: 'カード通知', imSmsSub: '承認メッセージを貼り付け',
+    imLocTitle: '位置検出', imLocSub: '周辺の場所を自動分類', imManualTitle: '手動入力', imManualSub: 'クイック選択'
   }
 };
 
@@ -770,6 +794,51 @@ function applyI18n() {
   setText('st-save-btn', t('saveBtn'));
   setText('st-goal-title', t('goalTitle'));
   setText('st-add-goal-label', t('addGoalBtn'));
+
+  // 홈 화면
+  const greetingMap = {
+    ko: `${t('greeting')}, ${userProfile.name}님 👋`,
+    en: `${t('greeting')}, ${userProfile.name}! 👋`,
+    ja: `${t('greeting')}、${userProfile.name}さん 👋`
+  };
+  setText('home-greeting', greetingMap[lang] || greetingMap.ko);
+  setText('home-greeting-sub', t('greetingSub'));
+  setText('ml-spend', t('monthSpend'));
+  setText('ml-saving', t('savingRate'));
+  setText('ml-emergency', t('emergency'));
+  setText('ml-count', t('savingsRecord'));
+  setText('m-count-sub', t('countSub'));
+  setText('sec-insight', t('aiInsight'));
+  setText('sec-recent', t('recentExpense'));
+  setText('home-empty-label', t('emptyExp'));
+  setText('ins1-badge', t('ins1Badge'));
+  setText('ins1-title', t('ins1Title'));
+  setText('ins1-body', t('ins1Body'));
+  setText('ins1-btn', t('ins1Btn'));
+  setText('ins2-badge', t('ins2Badge'));
+  setText('ins2-title', t('ins2Title'));
+  setText('ins2-body', t('ins2Body'));
+  setText('ins3-badge', t('ins3Badge'));
+  setText('ins3-title', t('ins3Title'));
+  setText('ins3-body', t('ins3Body'));
+  setText('ins3-btn', t('ins3Btn'));
+  if (!localStorage.getItem('mc_profile_has_expenses')) {
+    setText('m-spend-sub', t('budgetWait'));
+  }
+
+  // 입력 화면 카드
+  setText('im-ocr-title', t('imOcrTitle'));
+  setText('im-ocr-sub', t('imOcrSub'));
+  setText('im-sms-title', t('imSmsTitle'));
+  setText('im-sms-sub', t('imSmsSub'));
+  setText('im-loc-title', t('imLocTitle'));
+  setText('im-loc-sub', t('imLocSub'));
+  setText('im-manual-title', t('imManualTitle'));
+  setText('im-manual-sub', t('imManualSub'));
+}
+
+function getInsightPrompt(idx) {
+  return idx === 1 ? t('insPrompt1') : t('insPrompt3');
 }
 
 function getChipText(idx) {
