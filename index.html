@@ -4,6 +4,22 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>머니코치 — 개인 재정 AI 코치</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#534AB7" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="머니코치" />
+<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+<!-- OG 태그 (인스타 링크 공유 시 썸네일) -->
+<meta property="og:title" content="머니코치 — AI 재정 코치" />
+<meta property="og:description" content="AI가 당신의 지출을 분석하고 재정 목표를 함께 세워드려요" />
+<meta property="og:image" content="/icons/icon-512.png" />
+<meta property="og:url" content="https://money-coach-app.vercel.app" />
+<meta name="twitter:card" content="summary" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
@@ -194,6 +210,8 @@ textarea.sms-input:focus { border-color: var(--purple); }
 .dot:nth-child(2) { animation-delay: 0.2s; }
 .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes blink { 0%,80%,100% { opacity: 0.25; } 40% { opacity: 1; } }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,59,92,0.4); } 50% { box-shadow: 0 0 0 12px rgba(255,59,92,0); } }
+@keyframes bounceIn { 0% { transform:scale(0.3);opacity:0; } 50% { transform:scale(1.1); } 70% { transform:scale(0.9); } 100% { transform:scale(1);opacity:1; } }
 
 .chat-input-area { padding: 10px 0; }
 .chips-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
@@ -241,6 +259,38 @@ textarea.sms-input:focus { border-color: var(--purple); }
 
 <div class="phone-frame">
   <div class="toast" id="toast"></div>
+
+  <!-- 🎉 축하 오버레이 (Pro) -->
+  <div id="celebrationOverlay" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(83,74,183,0.92);pointer-events:auto;" onclick="closeCelebration()">
+    <canvas id="confettiCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+      <div id="celebrationEmoji" style="font-size:72px;margin-bottom:16px;">🎉</div>
+      <div id="celebrationTitle" style="font-size:22px;font-weight:700;color:#fff;text-align:center;margin-bottom:8px;"></div>
+      <div id="celebrationSub" style="font-size:14px;color:rgba(255,255,255,0.85);text-align:center;line-height:1.6;"></div>
+      <div style="margin-top:28px;font-size:12px;color:rgba(255,255,255,0.5);">탭해서 닫기</div>
+    </div>
+  </div>
+
+  <!-- 💎 Pro 업그레이드 모달 -->
+  <div id="proModal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);" onclick="closeProModal()">
+    <div style="position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:28px 24px 44px;" onclick="event.stopPropagation()">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:40px;margin-bottom:8px;">💎</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;" id="pro-modal-title">머니코치 Pro</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;" id="pro-modal-desc">더 강력한 재정 코칭 경험</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> AI 코치 무제한 대화 (무료: 월 5회)</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> 절약 축하 풀스크린 애니메이션 🎉</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> 월간 절약 스트릭 뱃지 🔥</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> AI 자동 칭찬 & 맞춤 코칭</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> 월간 재정 리포트</div>
+      </div>
+      <button onclick="activatePro()" style="width:100%;padding:14px;background:linear-gradient(135deg,#534AB7,#7C6FE0);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);margin-bottom:10px;" id="pro-cta-btn">월 ₩4,900으로 시작하기</button>
+      <button onclick="closeProModal()" style="width:100%;padding:12px;background:transparent;color:var(--text2);border:none;font-size:14px;cursor:pointer;font-family:var(--font-sans);" id="pro-dismiss-btn">나중에</button>
+    </div>
+  </div>
+
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-inner">
       <div class="scan-ring"></div>
@@ -363,6 +413,7 @@ textarea.sms-input:focus { border-color: var(--purple); }
           <div class="metric-label" id="ml-count">절약 기록</div>
           <div class="metric-value" id="m-count">0건</div>
           <div class="metric-sub pos" id="m-count-sub">이번 달 입력</div>
+          <div id="streak-badge" style="display:none;margin-top:4px;font-size:10px;font-weight:600;color:var(--amber);background:#FEF3C7;padding:2px 7px;border-radius:20px;width:fit-content;"></div>
         </div>
       </div>
 
@@ -430,27 +481,71 @@ textarea.sms-input:focus { border-color: var(--purple); }
         </div>
       </div>
 
-      <div class="imethod" onclick="showPanel('saving',this)" style="color:var(--teal); margin-bottom:16px;">
+      <div class="imethod" onclick="showPanel('saving',this)" style="color:var(--teal); margin-bottom:8px;">
         <i class="ti ti-piggy-bank"></i>
         <div class="im-title" id="im-saving-title">절약 기록</div>
         <div class="im-sub" id="im-saving-sub">구독 해지, 절약한 내역 기록</div>
       </div>
 
+      <div class="imethod" onclick="showPanel('voice',this)" style="color:#E8468A; margin-bottom:16px;">
+        <i class="ti ti-microphone"></i>
+        <div class="im-title" id="im-voice-title">음성 입력</div>
+        <div class="im-sub" id="im-voice-sub">말하면 자동 기록</div>
+      </div>
+
+      <!-- Voice Panel -->
+      <div class="input-panel" id="panel-voice">
+        <div style="font-size:13px;font-weight:500;color:var(--text2);margin-bottom:16px;" id="voice-panel-label">말하면 AI가 자동으로 기록해요</div>
+
+        <!-- 마이크 버튼 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:20px;">
+          <button id="voiceMicBtn" onclick="toggleVoice()" style="width:72px;height:72px;border-radius:50%;background:#E8468A;border:none;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(232,70,138,0.4);transition:all 0.2s;">
+            <i class="ti ti-microphone" id="voiceMicIcon"></i>
+          </button>
+          <div id="voiceStatus" style="font-size:13px;color:var(--text2);" id="voice-status-label">탭해서 말하기</div>
+        </div>
+
+        <!-- 인식된 텍스트 -->
+        <div id="voiceTranscript" style="display:none;background:var(--surface2);border-radius:var(--r-md);padding:12px;margin-bottom:12px;font-size:14px;color:var(--text);line-height:1.5;min-height:48px;"></div>
+
+        <!-- AI 분석 결과 -->
+        <div class="ocr-result" id="voiceResult">
+          <div class="result-row"><span class="rl" id="voice-rl-name">내용</span><span class="rv" id="vr-name">—</span></div>
+          <div class="result-row"><span class="rl" id="voice-rl-amt">금액</span><span class="rv" id="vr-amt">—</span></div>
+          <div class="result-row"><span class="rl" id="voice-rl-cat">분류</span><span class="rv" id="vr-cat">—</span></div>
+          <div class="result-row"><span class="rl" id="voice-rl-type">유형</span><span class="rv" id="vr-type">—</span></div>
+        </div>
+
+        <button class="add-btn" id="voiceAddBtn" onclick="addFromVoice()" disabled style="margin-top:12px;">추가하기</button>
+
+        <!-- 예시 힌트 -->
+        <div style="margin-top:14px;padding:10px 12px;background:var(--surface2);border-radius:var(--r-md);">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;" id="voice-hint-label">💡 이렇게 말해보세요</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.8;" id="voice-hint-body">
+            "스타벅스 아메리카노 4500원"<br>
+            "어제 점심 국밥 8천원"<br>
+            "넷플릭스 구독 해지했어"
+          </div>
+        </div>
+      </div>
+
       <!-- OCR Panel -->
       <div class="input-panel" id="panel-ocr">
-        <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:12px;">영수증 촬영 · OCR 자동 인식</div>
-        <div class="drop-zone" id="ocrDrop" onclick="runOCR()">
+        <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:12px;">영수증 · 은행 잔액 화면 분석</div>
+        <input type="file" id="ocrFileInput" accept="image/*" capture="environment" style="display:none" onchange="handleOcrFile(event)" />
+        <div class="drop-zone" id="ocrDrop" onclick="document.getElementById('ocrFileInput').click()">
           <i class="ti ti-photo-scan"></i>
-          <p>탭해서 영수증 촬영</p>
+          <p>탭해서 사진 선택 또는 촬영</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:4px;">영수증, 은행 잔액 화면 모두 가능</p>
         </div>
-        <div class="scanning" id="ocrScanning"><div class="scan-ring"></div><p>영수증 분석 중...</p></div>
+        <div class="scanning" id="ocrScanning"><div class="scan-ring"></div><p>AI가 이미지 분석 중...</p></div>
         <div class="ocr-result" id="ocrResult">
-          <div class="result-row"><span class="rl">가게명</span><span class="rv">스타벅스 대전터미널점</span></div>
-          <div class="result-row"><span class="rl">금액</span><span class="rv">₩6,800</span></div>
-          <div class="result-row"><span class="rl">날짜</span><span class="rv">2025.06.13</span></div>
-          <div class="result-row"><span class="rl">카테고리</span><span class="auto-badge">카페 · 자동분류</span></div>
+          <div class="result-row"><span class="rl">인식 결과</span><span class="rv" id="ocr-name">—</span></div>
+          <div class="result-row"><span class="rl">금액</span><span class="rv" id="ocr-amt">—</span></div>
+          <div class="result-row"><span class="rl">카테고리</span><span class="rv" id="ocr-cat">—</span></div>
+          <div class="result-row"><span class="rl">유형</span><span class="rv" id="ocr-type">—</span></div>
         </div>
-        <button class="add-btn" id="ocrAddBtn" onclick="addExp('스타벅스 대전터미널점',6800,'카페','ocr')" disabled style="margin-top:12px;">지출 추가</button>
+        <button class="add-btn" id="ocrAddBtn" onclick="addFromOcr()" disabled style="margin-top:12px;">추가하기</button>
       </div>
 
       <!-- SMS Panel -->
@@ -654,6 +749,23 @@ const CAT_FG   = { '식비':'#0F6E56','카페':'#854F0B','교통':'#3C3489','쇼
 const SRC_CLS  = { ocr:'s-ocr', sms:'s-sms', loc:'s-loc', manual:'s-manual' };
 const SRC_LBL  = { ocr:'OCR', sms:'문자', loc:'위치', manual:'수동' };
 
+// ── Pro/Free 플랜 시스템 ──────────────────────────────────────
+const PRO_FEATURES = {
+  celebration: true,   // 풀스크린 축하 애니메이션
+  savingEquiv: true,   // 일상 환산 ("커피 N잔")
+  streak: true,        // 스트릭 시스템
+  aiPraise: true,      // AI 자동 칭찬
+  coachUnlimited: true // AI 코치 무제한
+};
+const FREE_COACH_LIMIT = 5; // 무료 월 코치 횟수
+
+function isPro() { return !!localStorage.getItem('mc_pro'); }
+function getCoachCount() { return parseInt(localStorage.getItem('mc_coach_count_' + new Date().toISOString().slice(0,7)) || '0'); }
+function incCoachCount() {
+  const key = 'mc_coach_count_' + new Date().toISOString().slice(0,7);
+  localStorage.setItem(key, getCoachCount() + 1);
+}
+
 let expenses = [];
 let savings = JSON.parse(localStorage.getItem('mc_savings') || '[]');
 let pendingLoc = null;
@@ -706,6 +818,11 @@ const I18N = {
     obNameLabel: '이름', obIncomeLabel: '월 수입 (세후)', obSavingLabel: '월 목표 저축액',
     obEmergencyLabel: '현재 비상금', obEmergencyGoalLabel: '비상금 목표액', obSubmitBtn: '시작하기 →',
     profileTitle: '👤 프로필', nameLabel: '이름',
+    notifBannerTitle: '📱 알림 받기', notifBannerDesc: '목표 달성, 주간 리포트를 알림으로 받아보세요',
+    notifAllow: '허용하기', notifDismiss: '나중에',
+    imVoiceTitle: '음성 입력', imVoiceSub: '말하면 자동 기록',
+    voicePanelLabel: '말하면 AI가 자동으로 기록해요', voiceHintLabel: '💡 이렇게 말해보세요',
+    voiceHintBody: '"스타벅스 아메리카노 4500원"<br>"어제 점심 국밥 8천원"<br>"넷플릭스 구독 해지했어"',
     locSoonTitle: '위치 감지 기능 준비 중', locSoonDesc: '실제 GPS 기반 주변 장소 감지 기능을<br>준비하고 있어요. 곧 만나요!',
     imSavingTitle: '절약 기록', imSavingSub: '구독 해지, 절약한 내역 기록',
     savingQuickLabel: '자주 쓰는 항목', savingChipSub: '구독 서비스 해지', savingChipPhone: '통신비 절감', savingChipCoupon: '쿠폰 사용',
@@ -738,6 +855,11 @@ const I18N = {
     obNameLabel: 'Name', obIncomeLabel: 'Monthly Income (after tax)', obSavingLabel: 'Monthly Savings Target',
     obEmergencyLabel: 'Current Emergency Fund', obEmergencyGoalLabel: 'Emergency Fund Target', obSubmitBtn: 'Get Started →',
     profileTitle: '👤 Profile', nameLabel: 'Name',
+    notifBannerTitle: '📱 Enable Notifications', notifBannerDesc: 'Get notified when you hit goals and for weekly reports',
+    notifAllow: 'Allow', notifDismiss: 'Later',
+    imVoiceTitle: 'Voice Input', imVoiceSub: 'Speak to record',
+    voicePanelLabel: 'Speak and AI records it automatically', voiceHintLabel: '💡 Try saying',
+    voiceHintBody: '"Starbucks latte $5"<br>"Lunch at the office $12"<br>"Canceled Netflix subscription"',
     locSoonTitle: 'Location Detection Coming Soon', locSoonDesc: "We're building real GPS-based<br>nearby place detection. Stay tuned!",
     imSavingTitle: 'Savings', imSavingSub: 'Log subscriptions canceled, money saved',
     savingQuickLabel: 'Quick add', savingChipSub: 'Canceled subscription', savingChipPhone: 'Cut phone bill', savingChipCoupon: 'Used coupon',
@@ -770,6 +892,11 @@ const I18N = {
     obNameLabel: 'お名前', obIncomeLabel: '月収（税後）', obSavingLabel: '月間目標貯蓄額',
     obEmergencyLabel: '現在の緊急資金', obEmergencyGoalLabel: '緊急資金の目標額', obSubmitBtn: '始める →',
     profileTitle: '👤 プロフィール', nameLabel: 'お名前',
+    notifBannerTitle: '📱 通知を受け取る', notifBannerDesc: '目標達成時や週次レポートを通知でお知らせします',
+    notifAllow: '許可する', notifDismiss: 'あとで',
+    imVoiceTitle: '音声入力', imVoiceSub: '話すと自動記録',
+    voicePanelLabel: '話すとAIが自動で記録します', voiceHintLabel: '💡 こう話してみてください',
+    voiceHintBody: '"スタバのラテ 450円"<br>"昨日の昼ごはん 800円"<br>"ネットフリックス解約した"',
     locSoonTitle: '位置検出機能を準備中', locSoonDesc: '実際のGPSベースの周辺施設検出機能を<br>準備しています。お楽しみに！',
     imSavingTitle: '節約記録', imSavingSub: 'サブスク解約・節約した内容を記録',
     savingQuickLabel: 'よく使う項目', savingChipSub: 'サブスク解約', savingChipPhone: '通信費削減', savingChipCoupon: 'クーポン利用',
@@ -855,6 +982,10 @@ function applyI18n() {
   const unit = unitMap[lang] !== undefined ? unitMap[lang] : '원';
   const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setText('st-profile-title', t('profileTitle'));
+  setText('notif-banner-title', t('notifBannerTitle'));
+  setText('notif-banner-desc', t('notifBannerDesc'));
+  setText('notif-allow-btn', t('notifAllow'));
+  setText('notif-dismiss-btn', t('notifDismiss'));
   setText('st-name-label', t('nameLabel'));
   setText('st-fin-title', t('finTitle'));
   setText('st-income-label', t('incomeLabel'));
@@ -915,6 +1046,12 @@ function applyI18n() {
   setText('im-manual-sub', t('imManualSub'));
   setText('im-saving-title', t('imSavingTitle'));
   setText('im-saving-sub', t('imSavingSub'));
+  setText('im-voice-title', t('imVoiceTitle'));
+  setText('im-voice-sub', t('imVoiceSub'));
+  setText('voice-panel-label', t('voicePanelLabel'));
+  setText('voice-hint-label', t('voiceHintLabel'));
+  const vhb = document.getElementById('voice-hint-body');
+  if (vhb) vhb.innerHTML = t('voiceHintBody');
   setText('saving-quick-label', t('savingQuickLabel'));
   setText('saving-chip-sub', t('savingChipSub'));
   setText('saving-chip-phone', t('savingChipPhone'));
@@ -1254,6 +1391,7 @@ window.addEventListener('DOMContentLoaded', () => {
   applyProfile();
   applyI18n();
   updateMetrics();
+  renderStreakBadge();
 });
 
 function saveSettings() {
@@ -1268,6 +1406,7 @@ function saveSettings() {
   localStorage.setItem('mc_profile', JSON.stringify(userProfile));
   applyProfile();
   applyI18n();
+  checkGoalNotifications();
   showToast('설정이 저장됐어요!');
   goPage('Home', document.querySelectorAll('.bnav-item')[0]);
   document.querySelectorAll('.bnav-item')[0].classList.add('active');
@@ -1303,33 +1442,299 @@ function showPanel(id, el) {
   el.classList.add('sel');
 }
 
-function runOCR() {
+let pendingOcr = null;
+
+async function handleOcrFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // UI 상태: 스캔 중
   document.getElementById('ocrDrop').style.display = 'none';
   document.getElementById('ocrScanning').classList.add('show');
-  setTimeout(() => {
+  document.getElementById('ocrResult').classList.remove('show');
+  document.getElementById('ocrAddBtn').disabled = true;
+
+  try {
+    // 이미지를 base64로 변환
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 400,
+        system: `당신은 이미지에서 재정 정보를 추출하는 전문가입니다.
+이미지가 다음 두 가지 중 하나입니다:
+
+1. 영수증/카드전표: 가게명과 결제 금액 추출
+2. 은행앱 잔액 화면: 계좌 잔액 추출
+
+반드시 JSON만 반환 (마크다운 없이):
+{
+  "type": "expense" 또는 "balance",
+  "name": "가게명 (영수증인 경우) 또는 계좌명 (잔액인 경우)",
+  "amount": 숫자만 (원 단위, 쉼표 없이),
+  "category": "카페|식비|교통|쇼핑|의료|구독|기타 (영수증인 경우만)",
+  "description": "한 줄 설명"
+}`,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: file.type || 'image/jpeg', data: base64 } },
+            { type: 'text', text: '이 이미지에서 재정 정보를 추출해주세요.' }
+          ]
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '{}';
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    pendingOcr = parsed;
+
     document.getElementById('ocrScanning').classList.remove('show');
     document.getElementById('ocrResult').classList.add('show');
+    document.getElementById('ocr-name').textContent = parsed.name || '—';
+    document.getElementById('ocr-amt').textContent = curSym() + fmt(parseInt(parsed.amount) || 0);
+    document.getElementById('ocr-cat').textContent = parsed.category || (parsed.type === 'balance' ? '잔액' : '기타');
+    document.getElementById('ocr-type').textContent = parsed.type === 'balance' ? '💳 잔액 화면' : '🧾 영수증';
     document.getElementById('ocrAddBtn').disabled = false;
-  }, 1600);
+    document.getElementById('ocrAddBtn').textContent = parsed.type === 'balance' ? '비상금에 반영하기' : '지출 추가';
+    document.getElementById('ocrDrop').style.display = '';
+
+  } catch (e) {
+    document.getElementById('ocrScanning').classList.remove('show');
+    document.getElementById('ocrDrop').style.display = '';
+    showToast('이미지 분석 오류가 발생했어요. 다시 시도해주세요.');
+  }
+
+  // 파일 input 초기화 (같은 파일 재선택 가능하게)
+  event.target.value = '';
+}
+
+function addFromOcr() {
+  if (!pendingOcr) return;
+  const amt = parseInt(pendingOcr.amount) || 0;
+
+  if (pendingOcr.type === 'balance') {
+    // 잔액 화면이면 비상금 업데이트
+    userProfile.emergency = amt;
+    localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+    applyProfile();
+    showToast(`💳 비상금이 ${curSym()}${fmt(amt)}으로 업데이트됐어요!`);
+  } else {
+    // 영수증이면 지출 추가
+    addExp(pendingOcr.name || '영수증', amt, pendingOcr.category || '기타', 'ocr');
+  }
+
+  document.getElementById('ocrResult').classList.remove('show');
+  document.getElementById('ocrAddBtn').disabled = true;
+  pendingOcr = null;
+  goPage('Home', document.querySelectorAll('.bnav-item')[0]);
+  document.querySelectorAll('.bnav-item')[0].classList.add('active');
+}
+
+// ── 음성 입력 ─────────────────────────────────────────────────
+let _recognition = null;
+let _isListening = false;
+let _pendingVoice = null;
+
+function toggleVoice() {
+  if (_isListening) { stopVoice(); } else { startVoice(); }
+}
+
+function startVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('이 브라우저는 음성 인식을 지원하지 않아요. 크롬을 사용해주세요.');
+    return;
+  }
+  _recognition = new SpeechRecognition();
+  _recognition.lang = userProfile.lang === 'en' ? 'en-US' : (userProfile.lang === 'ja' ? 'ja-JP' : 'ko-KR');
+  _recognition.continuous = false;
+  _recognition.interimResults = true;
+
+  _recognition.onstart = () => {
+    _isListening = true;
+    const btn = document.getElementById('voiceMicBtn');
+    btn.style.background = '#ff3b5c';
+    btn.style.boxShadow = '0 0 0 8px rgba(255,59,92,0.2), 0 4px 16px rgba(255,59,92,0.4)';
+    document.getElementById('voiceMicIcon').className = 'ti ti-microphone-off';
+    setVoiceStatus('🎙 듣고 있어요...');
+    document.getElementById('voiceTranscript').style.display = 'block';
+    document.getElementById('voiceTranscript').textContent = '';
+    document.getElementById('voiceResult').classList.remove('show');
+    document.getElementById('voiceAddBtn').disabled = true;
+  };
+
+  _recognition.onresult = (event) => {
+    let text = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      text += event.results[i][0].transcript;
+    }
+    document.getElementById('voiceTranscript').textContent = text;
+  };
+
+  _recognition.onend = async () => {
+    _isListening = false;
+    resetMicBtn();
+    const transcript = document.getElementById('voiceTranscript').textContent.trim();
+    if (transcript) {
+      setVoiceStatus('🤖 AI가 분석 중...');
+      await analyzeVoice(transcript);
+    } else {
+      setVoiceStatus('탭해서 말하기');
+    }
+  };
+
+  _recognition.onerror = (event) => {
+    _isListening = false;
+    resetMicBtn();
+    if (event.error === 'not-allowed') {
+      showToast('마이크 권한이 필요해요. 브라우저 설정에서 허용해주세요.');
+    } else if (event.error !== 'no-speech') {
+      showToast('음성 인식 오류가 발생했어요.');
+    }
+    setVoiceStatus('탭해서 말하기');
+  };
+
+  _recognition.start();
+}
+
+function stopVoice() { if (_recognition) _recognition.stop(); }
+
+function resetMicBtn() {
+  const btn = document.getElementById('voiceMicBtn');
+  if (!btn) return;
+  btn.style.background = '#E8468A';
+  btn.style.boxShadow = '0 4px 16px rgba(232,70,138,0.4)';
+  document.getElementById('voiceMicIcon').className = 'ti ti-microphone';
+}
+
+function setVoiceStatus(text) {
+  const el = document.getElementById('voiceStatus');
+  if (el) el.textContent = text;
+}
+
+async function analyzeVoice(transcript) {
+  try {
+    const lang = userProfile.lang || 'ko';
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        system: `You are a financial record parser. Extract info from spoken input and return ONLY JSON (no markdown):
+{"type":"expense or saving","name":"place or item","amount":number,"category":"카페|식비|교통|쇼핑|의료|구독|기타","description":"short description"}
+- expense: buying, eating, transport, shopping
+- saving: canceled subscription, used coupon, cut costs
+- If amount unclear use 0`,
+        messages: [{ role: 'user', content: transcript }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '{}';
+    const parsed = JSON.parse(raw.replace(/\`\`\`json|\`\`\`/g, '').trim());
+    _pendingVoice = { ...parsed, transcript };
+
+    document.getElementById('vr-name').textContent = parsed.name || '—';
+    document.getElementById('vr-amt').textContent = (parsed.amount > 0) ? curSym() + fmt(parseInt(parsed.amount)) : '—';
+    document.getElementById('vr-cat').textContent = parsed.category || '기타';
+    document.getElementById('vr-type').textContent = parsed.type === 'saving' ? '💰 절약 기록' : '💳 지출';
+    document.getElementById('voiceResult').classList.add('show');
+    document.getElementById('voiceAddBtn').disabled = false;
+    setVoiceStatus('탭해서 말하기');
+  } catch(e) {
+    setVoiceStatus('탭해서 말하기');
+    showToast('분석 오류가 발생했어요. 다시 시도해주세요.');
+  }
+}
+
+function addFromVoice() {
+  if (!_pendingVoice) return;
+  const amt = parseInt(_pendingVoice.amount) || 0;
+  if (_pendingVoice.type === 'saving') {
+    const now = new Date();
+    savings.unshift({ name: _pendingVoice.name || '절약', amt, cat: _pendingVoice.category || '기타', time: now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0'), date: now.toISOString().slice(0,10) });
+    localStorage.setItem('mc_savings', JSON.stringify(savings));
+    updateMetrics(); applyI18n();
+  } else {
+    addExp(_pendingVoice.name || '음성 입력', amt, _pendingVoice.category || '기타', 'voice');
+  }
+  document.getElementById('voiceResult').classList.remove('show');
+  document.getElementById('voiceTranscript').textContent = '';
+  document.getElementById('voiceTranscript').style.display = 'none';
+  document.getElementById('voiceAddBtn').disabled = true;
+  _pendingVoice = null;
+  goPage('Home', document.querySelectorAll('.bnav-item')[0]);
+  document.querySelectorAll('.bnav-item')[0].classList.add('active');
 }
 
 function fillSms(txt) { document.getElementById('smsText').value = txt; }
 
-function parseSms() {
-  const txt = document.getElementById('smsText').value;
+async function parseSms() {
+  const txt = document.getElementById('smsText').value.trim();
   if (!txt) return;
-  const amtM = txt.match(/(\d[\d,]+)원/);
-  const amt = amtM ? parseInt(amtM[1].replace(/,/g,'')) : 0;
-  let name = '알 수 없음', cat = '기타';
-  if (txt.includes('스타벅스')) { name='스타벅스'; cat='카페'; }
-  else if (txt.includes('쿠팡')) { name='쿠팡'; cat='쇼핑'; }
-  else if (txt.includes('T-money') || txt.includes('충전')) { name='교통카드 충전'; cat='교통'; }
-  document.getElementById('sr-name').textContent = name;
-  document.getElementById('sr-amt').textContent = '₩' + amt.toLocaleString();
-  document.getElementById('sr-cat').textContent = cat + ' · 자동분류';
-  document.getElementById('smsResult').classList.add('show');
-  document.getElementById('smsAddBtn').disabled = false;
-  pendingSms = { name, amt, cat };
+
+  const btn = document.querySelector('.parse-btn');
+  btn.textContent = '분석 중...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        system: `당신은 한국 카드/은행 승인 문자를 파싱하는 전문가입니다.
+문자에서 다음 정보를 추출해 반드시 JSON만 반환하세요 (마크다운 없이):
+{
+  "name": "가게명 또는 결제처",
+  "amount": 숫자만 (원 단위, 쉼표 없이),
+  "category": "카페|식비|교통|쇼핑|의료|구독|기타 중 하나",
+  "date": "YYYY-MM-DD 형식, 없으면 오늘 날짜"
+}
+카테고리 분류 기준:
+- 카페: 스타벅스, 이디야, 카페, 커피
+- 식비: 음식점, 배달, 편의점, 마트, 식당
+- 교통: T-money, 지하철, 버스, 택시, 주유
+- 쇼핑: 쿠팡, 11번가, G마켓, 옷, 의류
+- 의료: 병원, 약국, 의원
+- 구독: 넷플릭스, 유튜브, 멜론, 왓챠`,
+        messages: [{ role: 'user', content: txt }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '{}';
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    const name = parsed.name || '알 수 없음';
+    const amt = parseInt(parsed.amount) || 0;
+    const cat = parsed.category || '기타';
+
+    document.getElementById('sr-name').textContent = name;
+    document.getElementById('sr-amt').textContent = curSym() + fmt(amt);
+    document.getElementById('sr-cat').textContent = cat + ' · AI 분류';
+    document.getElementById('smsResult').classList.add('show');
+    document.getElementById('smsAddBtn').disabled = false;
+    pendingSms = { name, amt, cat };
+
+  } catch (e) {
+    showToast('파싱 오류가 발생했어요. 다시 시도해주세요.');
+  } finally {
+    btn.textContent = '파싱하기';
+    btn.disabled = false;
+  }
 }
 
 function addFromSms() {
@@ -1407,9 +1812,11 @@ function addSaving() {
   window._savCat = null;
   applyI18n();
   updateMetrics();
-  showToast(userProfile.lang === 'en' ? 'Saving recorded!' : (userProfile.lang === 'ja' ? '節約を記録しました！' : '절약 기록이 추가됐어요!'));
+  renderStreakBadge();
   goPage('Home', document.querySelectorAll('.bnav-item')[0]);
   document.querySelectorAll('.bnav-item')[0].classList.add('active');
+  // 보상 트리거 (홈으로 이동 후 약간의 딜레이)
+  setTimeout(() => triggerSavingReward(amt, memo), 300);
 }
 
 function addExp(name, amt, cat, src) {
@@ -1456,6 +1863,223 @@ function updateMetrics() {
   document.getElementById('m-count').textContent = savings.length + '건';
 }
 
+// ── 보상 시스템 ────────────────────────────────────────────────
+
+// 일상 환산 텍스트 생성
+function savingEquivalent(amt, lang) {
+  const items = {
+    ko: [
+      { price: 4500, label: '아메리카노' },
+      { price: 8000, label: '점심 한 끼' },
+      { price: 15000, label: '치킨 한 마리' },
+      { price: 30000, label: '주유 반 통' },
+      { price: 50000, label: '외식 두 번' },
+    ],
+    en: [
+      { price: 5000, label: 'latte' },
+      { price: 10000, label: 'lunch' },
+      { price: 20000, label: 'pizza' },
+    ],
+    ja: [
+      { price: 500, label: 'コーヒー1杯' },
+      { price: 1000, label: 'ランチ' },
+    ]
+  };
+  const list = items[lang] || items.ko;
+  const match = list.slice().reverse().find(i => amt >= i.price);
+  if (!match) return null;
+  const n = Math.floor(amt / match.price);
+  if (lang === 'en') return `${n} ${match.label}${n > 1 ? 's' : ''}`;
+  if (lang === 'ja') return `${match.label} ${n}個分`;
+  return `${match.label} ${n}잔(개) 값`;
+}
+
+// 절약 스트릭 계산
+function calcSavingStreak() {
+  const today = new Date();
+  let streak = 0;
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    if (savings.some(s => s.date === dateStr)) streak++;
+    else if (i > 0) break;
+  }
+  return streak;
+}
+
+// 컨페티 애니메이션
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors = ['#534AB7','#7C6FE0','#FFD700','#FF6B6B','#4ECDC4','#45B7D1'];
+  const pieces = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    w: Math.random() * 10 + 5,
+    h: Math.random() * 6 + 3,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rotation: Math.random() * 360,
+    speed: Math.random() * 3 + 2,
+    rotSpeed: Math.random() * 4 - 2
+  }));
+
+  let frame;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x + p.w/2, p.y + p.h/2);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+      p.y += p.speed;
+      p.rotation += p.rotSpeed;
+      if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+    });
+    frame = requestAnimationFrame(draw);
+  }
+  draw();
+  setTimeout(() => { cancelAnimationFrame(frame); ctx.clearRect(0, 0, canvas.width, canvas.height); }, 3000);
+}
+
+// 축하 화면 표시 (Pro)
+function showCelebration(title, sub, emoji = '🎉') {
+  document.getElementById('celebrationEmoji').textContent = emoji;
+  document.getElementById('celebrationTitle').textContent = title;
+  document.getElementById('celebrationSub').textContent = sub;
+  document.getElementById('celebrationOverlay').style.display = 'block';
+  launchConfetti();
+  setTimeout(closeCelebration, 4000);
+}
+
+function closeCelebration() {
+  document.getElementById('celebrationOverlay').style.display = 'none';
+}
+
+// Pro 모달
+function showProModal(reason) {
+  const lang = userProfile.lang || 'ko';
+  const titles = { ko: '머니코치 Pro', en: 'Money Coach Pro', ja: 'マネーコーチ Pro' };
+  const descs = {
+    ko: reason || 'AI 코치 무제한 + 절약 축하 + 스트릭 + 월간 리포트',
+    en: reason || 'Unlimited AI coach + celebrations + streaks + monthly report',
+    ja: reason || 'AIコーチ無制限 + お祝い + ストリーク + 月次レポート'
+  };
+  const ctaBtns = { ko: '월 ₩4,900으로 시작하기', en: 'Start for ₩4,900/month', ja: '月₩4,900で始める' };
+  const dismissBtns = { ko: '나중에', en: 'Later', ja: 'あとで' };
+  document.getElementById('pro-modal-title').textContent = titles[lang];
+  document.getElementById('pro-modal-desc').textContent = descs[lang];
+  document.getElementById('pro-cta-btn').textContent = ctaBtns[lang];
+  document.getElementById('pro-dismiss-btn').textContent = dismissBtns[lang];
+  document.getElementById('proModal').style.display = 'block';
+}
+
+function closeProModal() {
+  document.getElementById('proModal').style.display = 'none';
+}
+
+function activatePro() {
+  // 실제 결제 연동 전까지 테스트용으로 Pro 활성화
+  localStorage.setItem('mc_pro', '1');
+  closeProModal();
+  const lang = userProfile.lang || 'ko';
+  showToast(lang === 'en' ? '💎 Pro activated! (beta)' : lang === 'ja' ? '💎 Pro有効化！（ベータ）' : '💎 Pro가 활성화됐어요! (베타)');
+}
+
+// 절약 기록 추가 후 보상 트리거
+function triggerSavingReward(amt, name) {
+  const lang = userProfile.lang || 'ko';
+  const streak = calcSavingStreak();
+  const equiv = savingEquivalent(amt, lang);
+
+  if (isPro()) {
+    // Pro: 풀스크린 축하
+    const streakText = streak >= 3
+      ? (lang === 'ko' ? ` 🔥 ${streak}일 연속 절약 중!` : lang === 'ja' ? ` 🔥 ${streak}日連続節約中！` : ` 🔥 ${streak}-day streak!`)
+      : '';
+    const title = lang === 'ko' ? `${curSym()}${fmt(amt)} 절약했어요!` : lang === 'ja' ? `${curSym()}${fmt(amt)} 節約しました！` : `Saved ${curSym()}${fmt(amt)}!`;
+    const sub = equiv
+      ? (lang === 'ko' ? `${equiv}${streakText}` : `${equiv}${streakText}`)
+      : streakText || name;
+    showCelebration(title, sub, streak >= 7 ? '🏆' : streak >= 3 ? '🔥' : '🎉');
+
+    // Pro AI 칭찬 (비동기, 홈으로 이동 후)
+    setTimeout(() => triggerAiPraise(amt, name, streak, lang), 500);
+  } else {
+    // Free: 기본 토스트 + Pro 유도
+    const freeMsg = lang === 'ko' ? `💰 ${curSym()}${fmt(amt)} 절약 기록 완료!` : lang === 'ja' ? `💰 ${curSym()}${fmt(amt)} 節約記録完了！` : `💰 Saved ${curSym()}${fmt(amt)}!`;
+    showToast(freeMsg);
+    // 3번째 절약 기록마다 Pro 유도
+    if (savings.length % 3 === 0) {
+      setTimeout(() => {
+        const reason = lang === 'ko' ? '축하 애니메이션과 AI 칭찬을 받아보세요 🎉' : lang === 'ja' ? 'お祝いアニメーションとAI褒め言葉を受け取りましょう 🎉' : 'Get celebration animations & AI praise 🎉';
+        showProModal(reason);
+      }, 1500);
+    }
+  }
+}
+
+// Pro AI 자동 칭찬
+async function triggerAiPraise(amt, name, streak, lang) {
+  try {
+    const streakInfo = streak >= 2 ? `${streak}일 연속 절약 중` : '';
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 150,
+        system: `당신은 친근한 재정 코치입니다. 사용자가 절약을 했을 때 진심 어린 짧은 칭찬을 해주세요.
+2~3문장, 이모지 1~2개, 구체적인 언급 포함. 언어: ${lang === 'en' ? 'English' : lang === 'ja' ? '日本語' : '한국어'}`,
+        messages: [{ role: 'user', content: `"${name}" 항목으로 ${curSym()}${fmt(amt)} 절약했어요. ${streakInfo}` }]
+      })
+    });
+    const data = await res.json();
+    const praise = data.content?.[0]?.text;
+    if (praise) {
+      // AI 코치 탭에 칭찬 메시지 추가
+      if (typeof addChatMsg === 'function') {
+        addChatMsg('ai', praise);
+      }
+    }
+  } catch(e) { /* 실패해도 조용히 무시 */ }
+}
+
+// AI 코치 횟수 제한 체크 (Free 플랜)
+function checkCoachLimit() {
+  if (isPro()) return true;
+  const count = getCoachCount();
+  if (count >= FREE_COACH_LIMIT) {
+    const lang = userProfile.lang || 'ko';
+    const reason = lang === 'ko'
+      ? `무료 플랜은 월 ${FREE_COACH_LIMIT}회 코치 대화가 제공돼요. Pro로 업그레이드하면 무제한이에요!`
+      : lang === 'ja'
+      ? `無料プランは月${FREE_COACH_LIMIT}回のコーチ会話が提供されます。Proにアップグレードすると無制限です！`
+      : `Free plan includes ${FREE_COACH_LIMIT} coach conversations/month. Go Pro for unlimited!`;
+    showProModal(reason);
+    return false;
+  }
+  return true;
+}
+
+// 스트릭 뱃지 렌더링 (홈 화면)
+function renderStreakBadge() {
+  const el = document.getElementById('streak-badge');
+  if (!el) return;
+  const streak = calcSavingStreak();
+  if (streak >= 2) {
+    el.style.display = 'inline-flex';
+    el.textContent = `🔥 ${streak}일 연속`;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1467,15 +2091,18 @@ function showToast(msg) {
 let msgHistory = [];
 
 async function sendMsg() {
+  if (!checkCoachLimit()) return;
   const input = document.getElementById('coachInput');
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
+  incCoachCount();
   addChatMsg('user', text);
   await callClaude(text);
 }
 
 function sendChip(text) {
+  if (!checkCoachLimit()) return;
   document.getElementById('coachInput').value = '';
   addChatMsg('user', text);
   callClaude(text);
@@ -1626,6 +2253,110 @@ Response guidelines:
     addChatMsg('ai', errMsg);
   }
 }
+</script>
+<!-- 알림 권한 요청 배너 -->
+<div id="notif-banner" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;z-index:300;background:var(--purple);color:#fff;border-radius:var(--r-lg);padding:14px 16px;box-shadow:0 4px 20px rgba(83,74,183,0.4);">
+  <div style="font-size:14px;font-weight:600;margin-bottom:4px;" id="notif-banner-title">📱 알림 받기</div>
+  <div style="font-size:12px;opacity:0.85;margin-bottom:12px;" id="notif-banner-desc">목표 달성, 주간 리포트를 알림으로 받아보세요</div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="requestNotifPermission()" style="flex:1;padding:8px;background:#fff;color:var(--purple);border:none;border-radius:var(--r-md);font-size:13px;font-weight:600;cursor:pointer;" id="notif-allow-btn">허용하기</button>
+    <button onclick="dismissNotifBanner()" style="padding:8px 12px;background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:var(--r-md);font-size:13px;cursor:pointer;" id="notif-dismiss-btn">나중에</button>
+  </div>
+</div>
+
+<script>
+// ── Service Worker 등록 ──────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        console.log('SW registered:', reg.scope);
+        window._swReg = reg;
+        // 알림 배너 표시 여부 판단
+        if (Notification.permission === 'default' && !localStorage.getItem('mc_notif_dismissed')) {
+          setTimeout(() => showNotifBanner(), 3000);
+        }
+      })
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// ── 알림 배너 ────────────────────────────────────────────
+function showNotifBanner() {
+  const banner = document.getElementById('notif-banner');
+  if (banner) banner.style.display = 'block';
+}
+
+function dismissNotifBanner() {
+  document.getElementById('notif-banner').style.display = 'none';
+  localStorage.setItem('mc_notif_dismissed', '1');
+}
+
+async function requestNotifPermission() {
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    document.getElementById('notif-banner').style.display = 'none';
+    localStorage.setItem('mc_notif_granted', '1');
+    showToast('✅ 알림이 설정됐어요!');
+    // 테스트 알림
+    setTimeout(() => {
+      new Notification('머니코치 👋', {
+        body: '알림이 활성화됐어요! 목표 달성 시 알려드릴게요.',
+        icon: '/icons/icon-192.png'
+      });
+    }, 1000);
+  } else {
+    dismissNotifBanner();
+    showToast('알림 설정은 언제든지 변경할 수 있어요');
+  }
+}
+
+// ── 목표 달성 알림 트리거 ────────────────────────────────
+function checkGoalNotifications() {
+  if (Notification.permission !== 'granted') return;
+  const p = userProfile;
+  if (!p || !p.goals) return;
+
+  // 비상금 체크
+  const emergencyPct = Math.round(p.emergency / p.emergencyGoal * 100);
+  const milestones = [25, 50, 75, 100];
+  milestones.forEach(m => {
+    const key = `mc_notif_emergency_${m}`;
+    if (emergencyPct >= m && !localStorage.getItem(key)) {
+      localStorage.setItem(key, '1');
+      setTimeout(() => {
+        new Notification(`🎉 비상금 ${m}% 달성!`, {
+          body: `비상금 목표의 ${m}%를 달성했어요. 계속 화이팅!`,
+          icon: '/icons/icon-192.png',
+          tag: `emergency-${m}`
+        });
+      }, 500);
+    }
+  });
+
+  // 개별 목표 체크
+  p.goals.forEach(g => {
+    const pct = Math.round(g.current / g.target * 100);
+    milestones.forEach(m => {
+      const key = `mc_notif_goal_${g.id}_${m}`;
+      if (pct >= m && !localStorage.getItem(key)) {
+        localStorage.setItem(key, '1');
+        setTimeout(() => {
+          new Notification(`🎯 ${g.name} ${m}% 달성!`, {
+            body: `${g.name} 목표의 ${m}%를 달성했어요!`,
+            icon: '/icons/icon-192.png',
+            tag: `goal-${g.id}-${m}`
+          });
+        }, 800);
+      }
+    });
+  });
+}
+
+// 앱 시작 시 + 설정 저장 시 목표 알림 체크
+window.addEventListener('load', () => {
+  setTimeout(checkGoalNotifications, 2000);
+});
 </script>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
