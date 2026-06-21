@@ -394,8 +394,8 @@ textarea.sms-input:focus { border-color: var(--purple); }
     <!-- HOME PAGE -->
     <div class="page active" id="pageHome">
       <div class="metric-grid">
-        <div class="metric">
-          <div class="metric-label" id="ml-spend">이번 달 지출</div>
+        <div class="metric" onclick="toggleExpenseList()" style="cursor:pointer;">
+          <div class="metric-label" id="ml-spend">이번 달 지출 <span style="font-size:10px;color:var(--text3);">▾</span></div>
           <div class="metric-value" id="m-spend">₩0</div>
           <div class="metric-sub warn" id="m-spend-sub">예산 입력 대기</div>
         </div>
@@ -415,6 +415,15 @@ textarea.sms-input:focus { border-color: var(--purple); }
           <div class="metric-sub pos" id="m-count-sub">이번 달 입력</div>
           <div id="streak-badge" style="display:none;margin-top:4px;font-size:10px;font-weight:600;color:var(--amber);background:#FEF3C7;padding:2px 7px;border-radius:20px;width:fit-content;"></div>
         </div>
+      </div>
+
+      <!-- 지출 목록 패널 -->
+      <div id="expenseListPanel" style="display:none;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);" id="expense-list-title">이번 달 지출 내역</div>
+          <button onclick="toggleExpenseList()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">✕</button>
+        </div>
+        <div id="expenseListBody" style="padding:0 14px 14px;"></div>
       </div>
 
       <!-- 절약 기록 목록 패널 -->
@@ -2227,13 +2236,64 @@ function saveInlineEdit() {
   showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 저장됐어요!');
 }
 
+function toggleExpenseList() {
+  const panel = document.getElementById('expenseListPanel');
+  const isOpen = panel.style.display === 'block';
+  if (isOpen) { panel.style.display = 'none'; return; }
+
+  // 열 때 절약 패널은 닫기
+  document.getElementById('savingsListPanel').style.display = 'none';
+
+  const lang = userProfile.lang || 'ko';
+  const sym = curSym();
+  const titleMap = { ko: '이번 달 지출 내역', en: 'Expenses This Month', ja: '今月の支出内訳' };
+  document.getElementById('expense-list-title').textContent = titleMap[lang] || titleMap.ko;
+
+  const body = document.getElementById('expenseListBody');
+  if (expenses.length === 0) {
+    const emptyMap = { ko: '아직 입력된 지출이 없어요\n입력 탭에서 추가해보세요!', en: 'No expenses yet.\nAdd one in the Add tab!', ja: 'まだ支出がありません。\n追加タブから記録してください！' };
+    body.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--text2);font-size:13px;white-space:pre-line;">${emptyMap[lang] || emptyMap.ko}</div>`;
+  } else {
+    const total = expenses.reduce((s, e) => s + e.amt, 0);
+    const totalLabel = { ko: `총 ${sym}${fmt(total)} 지출`, en: `Total spent: ${sym}${fmt(total)}`, ja: `合計支出: ${sym}${fmt(total)}` };
+
+    // 카테고리별 그룹핑
+    const catTotals = {};
+    expenses.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amt; });
+    const topCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+    body.innerHTML = `
+      <div style="font-size:12px;font-weight:600;color:var(--coral);margin-bottom:10px;padding:6px 10px;background:rgba(216,90,48,0.08);border-radius:var(--r-md);text-align:center;">
+        🧾 ${totalLabel[lang] || totalLabel.ko}
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        ${topCats.map(([cat, amt]) => `<span style="font-size:11px;padding:3px 8px;background:var(--surface2);border-radius:99px;color:var(--text2);">${cat} ${sym}${fmt(amt)}</span>`).join('')}
+      </div>
+      ${expenses.slice(0, 10).map(e => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border2);">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);">${e.name}</div>
+            <div style="font-size:11px;color:var(--text3);">${e.cat} · ${e.time || ''}</div>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:var(--coral);">-${sym}${fmt(e.amt)}</div>
+        </div>`).join('')}
+      ${expenses.length > 10 ? `<div style="text-align:center;font-size:12px;color:var(--text3);padding-top:8px;">+ ${expenses.length - 10}건 더 있어요</div>` : ''}
+      <button onclick="goPage('Input',document.querySelectorAll('.bnav-item')[1]);document.querySelectorAll('.bnav-item')[1].classList.add('active');showPanel('manual',document.querySelectorAll('.imethod')[3]);toggleExpenseList();"
+        style="width:100%;margin-top:12px;padding:10px;border:1.5px dashed var(--coral);border-radius:var(--r-md);background:transparent;color:var(--coral);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);">
+        + ${lang==='en'?'Add Expense':lang==='ja'?'支出を追加':'지출 추가'}
+      </button>`;
+  }
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 function toggleSavingsList() {
   const panel = document.getElementById('savingsListPanel');
   const isOpen = panel.style.display === 'block';
-  if (isOpen) {
-    panel.style.display = 'none';
-    return;
-  }
+  if (isOpen) { panel.style.display = 'none'; return; }
+
+  // 열 때 지출 패널은 닫기
+  document.getElementById('expenseListPanel').style.display = 'none';
   // 이번 달 절약 기록 렌더링
   const lang = userProfile.lang || 'ko';
   const sym = curSym();
