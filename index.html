@@ -200,7 +200,9 @@ textarea.sms-input:focus { border-color: var(--purple); }
 .coach-wrap { display: flex; flex-direction: column; height: calc(100vh - 200px); }
 .coach-msgs { flex: 1; overflow-y: auto; padding-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
 .coach-msgs::-webkit-scrollbar { display: none; }
-.msg { max-width: 85%; padding: 11px 14px; border-radius: 18px; font-size: 14px; line-height: 1.65; }
+.msg { max-width: 85%; padding: 12px 14px; border-radius: 18px; font-size: 14px; line-height: 1.7; word-break: keep-all; }
+.msg.ai strong { color: var(--purple); }
+.msg.ai em { color: var(--text2); font-style: normal; }
 .msg.ai { align-self: flex-start; background: var(--surface); border: 0.5px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
 .msg.user { align-self: flex-end; background: var(--purple); color: #fff; border-bottom-right-radius: 4px; }
 .msg-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
@@ -2740,6 +2742,28 @@ function goCoach(text) {
   }, 100);
 }
 
+function parseMarkdown(text) {
+  return text
+    // 코드 블록 (``` ```)
+    .replace(/```[\s\S]*?```/g, m => `<pre style="background:var(--surface2);padding:10px 12px;border-radius:8px;font-size:12px;overflow-x:auto;margin:6px 0;">${m.replace(/```/g,'').trim()}</pre>`)
+    // 가로줄 ---
+    .replace(/^---+$/gm, '<hr style="border:none;border-top:0.5px solid var(--border2);margin:10px 0;">')
+    // **굵게**
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // *기울임*
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // ## 제목
+    .replace(/^## (.+)$/gm, '<div style="font-size:14px;font-weight:700;color:var(--text);margin:10px 0 4px;">$1</div>')
+    // # 제목
+    .replace(/^# (.+)$/gm, '<div style="font-size:15px;font-weight:700;color:var(--text);margin:10px 0 4px;">$1</div>')
+    // - 리스트
+    .replace(/^[-•] (.+)$/gm, '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:var(--purple);flex-shrink:0;">•</span><span>$1</span></div>')
+    // 숫자 리스트
+    .replace(/^(\d+)\. (.+)$/gm, '<div style="display:flex;gap:8px;margin:3px 0;"><span style="color:var(--purple);font-weight:600;flex-shrink:0;">$1.</span><span>$2</span></div>')
+    // 줄바꿈
+    .replace(/\n/g, '<br>');
+}
+
 function addChatMsg(role, text) {
   const msgs = document.getElementById('coachMsgs');
   const typing = document.getElementById('typingDots');
@@ -2753,8 +2777,12 @@ function addChatMsg(role, text) {
   }
   const msg = document.createElement('div');
   msg.className = 'msg ' + role;
-  msg.style.whiteSpace = 'pre-wrap';
-  msg.textContent = text;
+  if (role === 'ai') {
+    msg.innerHTML = parseMarkdown(text);
+  } else {
+    msg.style.whiteSpace = 'pre-wrap';
+    msg.textContent = text;
+  }
   wrap.appendChild(msg);
   msgs.insertBefore(wrap, typing);
   msgs.scrollTop = msgs.scrollHeight;
