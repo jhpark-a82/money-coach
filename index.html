@@ -954,7 +954,7 @@ function incCoachCount() {
   localStorage.setItem(key, getCoachCount() + 1);
 }
 
-let expenses = [];
+let expenses = JSON.parse(localStorage.getItem('mc_expenses') || '[]');
 let savings = JSON.parse(localStorage.getItem('mc_savings') || '[]');
 let pendingLoc = null;
 let pendingSms = null;
@@ -1713,6 +1713,25 @@ function addGoal() {
 window.addEventListener('DOMContentLoaded', () => {
   // 결제 연동 전까지 Pro 강제 초기화 (베타 테스트용 mc_pro 제거)
   localStorage.removeItem('mc_pro');
+
+  // 이번 달 데이터만 유지 (지난 달 지출은 별도 보관 후 초기화)
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const lastMonth = localStorage.getItem('mc_last_month');
+  if (lastMonth && lastMonth !== thisMonth) {
+    // 달이 바뀌면 지난 달 데이터 아카이브 후 초기화
+    localStorage.setItem('mc_expenses_' + lastMonth, localStorage.getItem('mc_expenses') || '[]');
+    localStorage.setItem('mc_savings_' + lastMonth, localStorage.getItem('mc_savings') || '[]');
+    localStorage.removeItem('mc_expenses');
+    localStorage.removeItem('mc_savings');
+    expenses = [];
+    savings = [];
+  }
+  localStorage.setItem('mc_last_month', thisMonth);
+
+  // 이번달 데이터 필터 (날짜 있는 항목만)
+  expenses = expenses.filter(e => !e.date || e.date.startsWith(thisMonth));
+  savings = savings.filter(s => !s.date || s.date.startsWith(thisMonth));
+
   if (localStorage.getItem('mc_profile')) {
     document.getElementById('welcome').style.display = 'none';
     document.getElementById('onboarding').style.display = 'none';
@@ -2346,6 +2365,7 @@ function addExp(name, amt, cat, src) {
   const now = new Date();
   const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
   expenses.unshift({ name, amt, cat, src, time: t, date: now.toISOString().slice(0,10) });
+  localStorage.setItem('mc_expenses', JSON.stringify(expenses));
   renderHomeExp();
   updateMetrics();
   updateSavingsInsight(userProfile.lang || 'ko');
