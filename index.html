@@ -409,12 +409,21 @@ textarea.sms-input:focus { border-color: var(--purple); }
           <div class="metric-value" id="m-emergency">₩85만</div>
           <div class="metric-sub neg" id="m-emergency-sub">목표의 28%</div>
         </div>
-        <div class="metric">
-          <div class="metric-label" id="ml-count">절약 기록</div>
+        <div class="metric" onclick="toggleSavingsList()" style="cursor:pointer;">
+          <div class="metric-label" id="ml-count">절약 기록 <span style="font-size:10px;color:var(--text3);">▾</span></div>
           <div class="metric-value" id="m-count">0건</div>
           <div class="metric-sub pos" id="m-count-sub">이번 달 입력</div>
           <div id="streak-badge" style="display:none;margin-top:4px;font-size:10px;font-weight:600;color:var(--amber);background:#FEF3C7;padding:2px 7px;border-radius:20px;width:fit-content;"></div>
         </div>
+      </div>
+
+      <!-- 절약 기록 목록 패널 -->
+      <div id="savingsListPanel" style="display:none;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);" id="savings-list-title">이번 달 절약 내역</div>
+          <button onclick="toggleSavingsList()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">✕</button>
+        </div>
+        <div id="savingsListBody" style="padding:0 14px 14px;"></div>
       </div>
 
       <!-- 인라인 편집 패널 -->
@@ -2216,6 +2225,50 @@ function saveInlineEdit() {
   checkGoalNotifications();
   const lang = userProfile.lang || 'ko';
   showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 저장됐어요!');
+}
+
+function toggleSavingsList() {
+  const panel = document.getElementById('savingsListPanel');
+  const isOpen = panel.style.display === 'block';
+  if (isOpen) {
+    panel.style.display = 'none';
+    return;
+  }
+  // 이번 달 절약 기록 렌더링
+  const lang = userProfile.lang || 'ko';
+  const sym = curSym();
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const monthSavings = savings.filter(s => s.date && s.date.startsWith(thisMonth));
+
+  const titleMap = { ko: '이번 달 절약 내역', en: 'Savings This Month', ja: '今月の節約内訳' };
+  document.getElementById('savings-list-title').textContent = titleMap[lang] || titleMap.ko;
+
+  const body = document.getElementById('savingsListBody');
+  if (monthSavings.length === 0) {
+    const emptyMap = { ko: '아직 절약 기록이 없어요\n입력 탭에서 추가해보세요!', en: 'No savings recorded yet.\nAdd one in the Add tab!', ja: 'まだ節約記録がありません。\n追加タブから記録してみてください！' };
+    body.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--text2);font-size:13px;white-space:pre-line;">${emptyMap[lang] || emptyMap.ko}</div>`;
+  } else {
+    const total = monthSavings.reduce((s, e) => s + e.amt, 0);
+    const totalLabel = { ko: `총 ${sym}${fmt(total)} 절약`, en: `Total saved: ${sym}${fmt(total)}`, ja: `合計節約: ${sym}${fmt(total)}` };
+    body.innerHTML = `
+      <div style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:10px;padding:6px 10px;background:rgba(29,158,117,0.08);border-radius:var(--r-md);text-align:center;">
+        💰 ${totalLabel[lang] || totalLabel.ko}
+      </div>
+      ${monthSavings.map(s => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border2);">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);">${s.name}</div>
+            <div style="font-size:11px;color:var(--text3);">${s.date} ${s.time || ''}</div>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:var(--teal);">+${sym}${fmt(s.amt)}</div>
+        </div>`).join('')}
+      <button onclick="goPage('Input',document.querySelectorAll('.bnav-item')[1]);document.querySelectorAll('.bnav-item')[1].classList.add('active');showPanel('saving',document.querySelectorAll('.imethod')[4]);toggleSavingsList();" 
+        style="width:100%;margin-top:12px;padding:10px;border:1.5px dashed var(--teal);border-radius:var(--r-md);background:transparent;color:var(--teal);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);">
+        + ${lang==='en'?'Add Savings':lang==='ja'?'節約を追加':'절약 기록 추가'}
+      </button>`;
+  }
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function renderStreakBadge() {
