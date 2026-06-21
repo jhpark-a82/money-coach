@@ -427,6 +427,12 @@ textarea.sms-input:focus { border-color: var(--purple); }
         </div>
       </div>
 
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="sec-label" style="margin-bottom:0;" id="sec-goals-home">목표 현황</div>
+        <button onclick="goPage('Goals', document.querySelectorAll('.bnav-item')[3]); document.querySelectorAll('.bnav-item')[3].classList.add('active');" style="background:none;border:none;font-size:12px;color:var(--purple);cursor:pointer;font-family:var(--font-sans);" id="sec-goals-more">전체 보기 →</button>
+      </div>
+      <div id="homeGoalList" style="margin-bottom:14px;"></div>
+
       <div class="sec-label" id="sec-insight">AI 인사이트</div>
 
       <div class="insight">
@@ -454,12 +460,6 @@ textarea.sms-input:focus { border-color: var(--purple); }
         <div class="insight-body" id="ins3-body">남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.</div>
         <button class="go-coach" id="ins3-btn" onclick="goCoach(getInsightPrompt(3))">절약 계획 세우기 →</button>
       </div>
-
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="sec-label" style="margin-bottom:0;" id="sec-goals-home">목표 현황</div>
-        <button onclick="goPage('Goals', document.querySelectorAll('.bnav-item')[3]); document.querySelectorAll('.bnav-item')[3].classList.add('active');" style="background:none;border:none;font-size:12px;color:var(--purple);cursor:pointer;font-family:var(--font-sans);" id="sec-goals-more">전체 보기 →</button>
-      </div>
-      <div id="homeGoalList" style="margin-bottom:14px;"></div>
 
       <div class="sec-label" id="sec-recent">최근 지출</div>
       <div class="card" style="padding: 8px 16px;">
