@@ -399,13 +399,13 @@ textarea.sms-input:focus { border-color: var(--purple); }
           <div class="metric-value" id="m-spend">₩0</div>
           <div class="metric-sub warn" id="m-spend-sub">예산 입력 대기</div>
         </div>
-        <div class="metric">
-          <div class="metric-label" id="ml-saving">저축률</div>
+        <div class="metric" onclick="openInlineEdit('income')" style="cursor:pointer;position:relative;">
+          <div class="metric-label" id="ml-saving">저축률 <span style="font-size:10px;color:var(--text3);">✏️</span></div>
           <div class="metric-value" id="m-saving-rate">12%</div>
           <div class="metric-sub warn" id="m-saving-sub">목표 20%</div>
         </div>
-        <div class="metric">
-          <div class="metric-label" id="ml-emergency">비상금</div>
+        <div class="metric" onclick="openInlineEdit('emergency')" style="cursor:pointer;position:relative;">
+          <div class="metric-label" id="ml-emergency">비상금 <span style="font-size:10px;color:var(--text3);">✏️</span></div>
           <div class="metric-value" id="m-emergency">₩85만</div>
           <div class="metric-sub neg" id="m-emergency-sub">목표의 28%</div>
         </div>
@@ -414,6 +414,16 @@ textarea.sms-input:focus { border-color: var(--purple); }
           <div class="metric-value" id="m-count">0건</div>
           <div class="metric-sub pos" id="m-count-sub">이번 달 입력</div>
           <div id="streak-badge" style="display:none;margin-top:4px;font-size:10px;font-weight:600;color:var(--amber);background:#FEF3C7;padding:2px 7px;border-radius:20px;width:fit-content;"></div>
+        </div>
+      </div>
+
+      <!-- 인라인 편집 패널 -->
+      <div id="inlineEditPanel" style="display:none;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;" id="inline-edit-title">빠른 수정</div>
+        <div id="inline-edit-body"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button onclick="saveInlineEdit()" style="flex:1;padding:10px;background:var(--purple);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-sans);" id="inline-save-btn">저장</button>
+          <button onclick="closeInlineEdit()" style="padding:10px 16px;background:var(--surface2);color:var(--text2);border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;font-family:var(--font-sans);" id="inline-cancel-btn">취소</button>
         </div>
       </div>
 
@@ -982,6 +992,12 @@ function applyI18n() {
   const unit = unitMap[lang] !== undefined ? unitMap[lang] : '원';
   const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setText('st-profile-title', t('profileTitle'));
+  // 인라인 편집 버튼 다국어
+  const lang2 = userProfile.lang || 'ko';
+  const inlineSaveBtn = document.getElementById('inline-save-btn');
+  const inlineCancelBtn = document.getElementById('inline-cancel-btn');
+  if (inlineSaveBtn) inlineSaveBtn.textContent = lang2==='en'?'Save':lang2==='ja'?'保存':'저장';
+  if (inlineCancelBtn) inlineCancelBtn.textContent = lang2==='en'?'Cancel':lang2==='ja'?'キャンセル':'취소';
   setText('notif-banner-title', t('notifBannerTitle'));
   setText('notif-banner-desc', t('notifBannerDesc'));
   setText('notif-allow-btn', t('notifAllow'));
@@ -2068,6 +2084,99 @@ function checkCoachLimit() {
 }
 
 // 스트릭 뱃지 렌더링 (홈 화면)
+// ── 홈 화면 인라인 편집 ──────────────────────────────────────
+let _inlineEditType = null;
+
+function openInlineEdit(type) {
+  _inlineEditType = type;
+  const lang = userProfile.lang || 'ko';
+  const sym = curSym();
+  const unitMap = { ko: '원', en: '', ja: '円' };
+  const unit = unitMap[lang] || '원';
+
+  const panel = document.getElementById('inlineEditPanel');
+  const title = document.getElementById('inline-edit-title');
+  const body = document.getElementById('inline-edit-body');
+
+  // 이미 열려있으면 닫기
+  if (panel.style.display === 'block' && _inlineEditType === type) {
+    closeInlineEdit();
+    return;
+  }
+
+  if (type === 'emergency') {
+    const titleMap = { ko: '💰 비상금 업데이트', en: '💰 Update Emergency Fund', ja: '💰 緊急資金の更新' };
+    title.textContent = titleMap[lang] || titleMap.ko;
+    body.innerHTML = `
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:5px;" id="ile-cur-label">${lang==='en'?'Current Amount':lang==='ja'?'現在の金額':'현재 비상금'}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">${sym}</span>
+          <input id="ile-emergency" type="number" value="${userProfile.emergency}" style="flex:1;padding:9px 12px;border:1.5px solid var(--purple);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:16px;font-weight:600;outline:none;" />
+          <span style="font-size:12px;color:var(--text2);">${unit}</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:5px;">${lang==='en'?'Target Amount':lang==='ja'?'目標金額':'비상금 목표액'}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">${sym}</span>
+          <input id="ile-emergencyGoal" type="number" value="${userProfile.emergencyGoal}" style="flex:1;padding:9px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:12px;color:var(--text2);">${unit}</span>
+        </div>
+      </div>`;
+    setTimeout(() => document.getElementById('ile-emergency')?.focus(), 100);
+
+  } else if (type === 'income') {
+    const titleMap = { ko: '📊 수입 · 저축 목표 수정', en: '📊 Edit Income & Savings', ja: '📊 収入・貯蓄目標を編集' };
+    title.textContent = titleMap[lang] || titleMap.ko;
+    body.innerHTML = `
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:5px;">${lang==='en'?'Monthly Income (after tax)':lang==='ja'?'月収（税後）':'월 수입 (세후)'}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">${sym}</span>
+          <input id="ile-income" type="number" value="${userProfile.income}" style="flex:1;padding:9px 12px;border:1.5px solid var(--purple);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:16px;font-weight:600;outline:none;" />
+          <span style="font-size:12px;color:var(--text2);">${unit}</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:5px;">${lang==='en'?'Monthly Savings Target':lang==='ja'?'月間目標貯蓄額':'월 목표 저축액'}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text2);">${sym}</span>
+          <input id="ile-saving" type="number" value="${userProfile.saving}" style="flex:1;padding:9px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;" />
+          <span style="font-size:12px;color:var(--text2);">${unit}</span>
+        </div>
+      </div>`;
+    setTimeout(() => document.getElementById('ile-income')?.focus(), 100);
+  }
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeInlineEdit() {
+  document.getElementById('inlineEditPanel').style.display = 'none';
+  _inlineEditType = null;
+}
+
+function saveInlineEdit() {
+  if (_inlineEditType === 'emergency') {
+    const emergency = parseInt(document.getElementById('ile-emergency').value) || userProfile.emergency;
+    const emergencyGoal = parseInt(document.getElementById('ile-emergencyGoal').value) || userProfile.emergencyGoal;
+    userProfile = { ...userProfile, emergency, emergencyGoal };
+  } else if (_inlineEditType === 'income') {
+    const income = parseInt(document.getElementById('ile-income').value) || userProfile.income;
+    const saving = parseInt(document.getElementById('ile-saving').value) || userProfile.saving;
+    userProfile = { ...userProfile, income, saving };
+  }
+  localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+  closeInlineEdit();
+  applyProfile();
+  applyI18n();
+  checkGoalNotifications();
+  const lang = userProfile.lang || 'ko';
+  showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 저장됐어요!');
+}
+
 function renderStreakBadge() {
   const el = document.getElementById('streak-badge');
   if (!el) return;
