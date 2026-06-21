@@ -455,6 +455,12 @@ textarea.sms-input:focus { border-color: var(--purple); }
         <button class="go-coach" id="ins3-btn" onclick="goCoach(getInsightPrompt(3))">절약 계획 세우기 →</button>
       </div>
 
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="sec-label" style="margin-bottom:0;" id="sec-goals-home">목표 현황</div>
+        <button onclick="goPage('Goals', document.querySelectorAll('.bnav-item')[3]); document.querySelectorAll('.bnav-item')[3].classList.add('active');" style="background:none;border:none;font-size:12px;color:var(--purple);cursor:pointer;font-family:var(--font-sans);" id="sec-goals-more">전체 보기 →</button>
+      </div>
+      <div id="homeGoalList" style="margin-bottom:14px;"></div>
+
       <div class="sec-label" id="sec-recent">최근 지출</div>
       <div class="card" style="padding: 8px 16px;">
         <div id="homeExpList">
@@ -833,6 +839,7 @@ const I18N = {
     imVoiceTitle: '음성 입력', imVoiceSub: '말하면 자동 기록',
     voicePanelLabel: '말하면 AI가 자동으로 기록해요', voiceHintLabel: '💡 이렇게 말해보세요',
     voiceHintBody: '"스타벅스 아메리카노 4500원"<br>"어제 점심 국밥 8천원"<br>"넷플릭스 구독 해지했어"',
+    goalsHomeTitle: '목표 현황', goalsHomeMore: '전체 보기 →',
     locSoonTitle: '위치 감지 기능 준비 중', locSoonDesc: '실제 GPS 기반 주변 장소 감지 기능을<br>준비하고 있어요. 곧 만나요!',
     imSavingTitle: '절약 기록', imSavingSub: '구독 해지, 절약한 내역 기록',
     savingQuickLabel: '자주 쓰는 항목', savingChipSub: '구독 서비스 해지', savingChipPhone: '통신비 절감', savingChipCoupon: '쿠폰 사용',
@@ -870,6 +877,7 @@ const I18N = {
     imVoiceTitle: 'Voice Input', imVoiceSub: 'Speak to record',
     voicePanelLabel: 'Speak and AI records it automatically', voiceHintLabel: '💡 Try saying',
     voiceHintBody: '"Starbucks latte $5"<br>"Lunch at the office $12"<br>"Canceled Netflix subscription"',
+    goalsHomeTitle: 'Goal Summary', goalsHomeMore: 'See all →',
     locSoonTitle: 'Location Detection Coming Soon', locSoonDesc: "We're building real GPS-based<br>nearby place detection. Stay tuned!",
     imSavingTitle: 'Savings', imSavingSub: 'Log subscriptions canceled, money saved',
     savingQuickLabel: 'Quick add', savingChipSub: 'Canceled subscription', savingChipPhone: 'Cut phone bill', savingChipCoupon: 'Used coupon',
@@ -907,6 +915,7 @@ const I18N = {
     imVoiceTitle: '音声入力', imVoiceSub: '話すと自動記録',
     voicePanelLabel: '話すとAIが自動で記録します', voiceHintLabel: '💡 こう話してみてください',
     voiceHintBody: '"スタバのラテ 450円"<br>"昨日の昼ごはん 800円"<br>"ネットフリックス解約した"',
+    goalsHomeTitle: '目標サマリー', goalsHomeMore: 'すべて見る →',
     locSoonTitle: '位置検出機能を準備中', locSoonDesc: '実際のGPSベースの周辺施設検出機能を<br>準備しています。お楽しみに！',
     imSavingTitle: '節約記録', imSavingSub: 'サブスク解約・節約した内容を記録',
     savingQuickLabel: 'よく使う項目', savingChipSub: 'サブスク解約', savingChipPhone: '通信費削減', savingChipCoupon: 'クーポン利用',
@@ -1035,6 +1044,8 @@ function applyI18n() {
   setText('m-count-sub', t('countSub'));
   setText('sec-insight', t('aiInsight'));
   setText('sec-recent', t('recentExpense'));
+  setText('sec-goals-home', t('goalsHomeTitle'));
+  setText('sec-goals-more', t('goalsHomeMore'));
   setText('home-empty-label', t('emptyExp'));
   setText('ins1-badge', t('ins1Badge'));
   setText('ins1-title', t('ins1Title'));
@@ -1321,6 +1332,36 @@ function renderGoals() {
       </div>`;
     });
     list.innerHTML = html;
+  }
+
+  // 홈 화면 목표 요약
+  const homeGoalList = document.getElementById('homeGoalList');
+  if (homeGoalList) {
+    const allGoals = [
+      { name: emergencyName, pct: Math.min(emergencyPct, 100), current: p.emergency, target: p.emergencyGoal, color: '#534AB7', icon: 'ti-shield-check' },
+      ...p.goals.map((g, i) => ({
+        name: g.name, pct: Math.min(Math.round(g.current / g.target * 100), 100),
+        current: g.current, target: g.target,
+        color: g.color || goalColors[i % goalColors.length], icon: g.icon
+      }))
+    ];
+    homeGoalList.innerHTML = allGoals.map(g => `
+      <div style="background:var(--surface);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:8px;border:0.5px solid var(--border2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px;">
+            <i class="ti ${g.icon}" style="color:${g.color};font-size:14px;"></i>
+            ${g.name}
+          </div>
+          <div style="font-size:13px;font-weight:600;color:${g.color};">${g.pct}%</div>
+        </div>
+        <div style="height:5px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:5px;">
+          <div style="height:100%;width:${g.pct}%;background:${g.color};border-radius:99px;transition:width 0.4s ease;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);">
+          <span>${sym}${fmt(g.current)} ${achievedLabel}</span>
+          <span>${targetLabel}: ${sym}${fmt(g.target)}</span>
+        </div>
+      </div>`).join('');
   }
 
   // 설정 페이지 목표 편집 목록
