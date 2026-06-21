@@ -906,6 +906,15 @@ textarea.sms-input:focus { border-color: var(--purple); }
       <button onclick="showProModal()" style="width:100%;padding:10px;background:#fff;color:var(--purple);border:none;border-radius:var(--r-md);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);" id="st-pro-banner-btn">월 ₩4,900으로 시작하기</button>
     </div>
 
+    <!-- 피드백 -->
+    <div style="text-align:center;padding:8px 0 20px;">
+      <button onclick="openFeedback()" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font-sans);display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:99px;background:var(--surface2);" id="feedback-btn">
+        <i class="ti ti-message-heart" style="font-size:15px;color:var(--purple);"></i>
+        <span id="feedback-btn-label">피드백 보내기</span>
+      </button>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;" id="feedback-sub">불편한 점이나 원하는 기능을 알려주세요</div>
+    </div>
+
   </div>
 
   </div><!-- end content -->
@@ -1007,6 +1016,7 @@ const I18N = {
     proFAnalysisTitle: '심층 분석', proFAnalysisDesc: '지출 패턴 · 카테고리 트렌드 분석',
     proFCoachTitle: 'AI 코치 무제한', proFCoachDesc: '월 10회 → 무제한 대화',
     proFExportTitle: '데이터 내보내기', proFExportDesc: 'CSV · Excel 파일로 저장',
+    feedbackBtn: '피드백 보내기', feedbackSub: '불편한 점이나 원하는 기능을 알려주세요',
     proInputSectionLabel: '📱 고급 입력 기능',
     proFOcrTitle: '영수증 OCR', proFOcrDesc: '사진으로 지출 자동 인식',
     proFVoiceTitle: '음성 입력', proFVoiceDesc: '말하면 AI가 자동 기록',
@@ -1059,6 +1069,7 @@ const I18N = {
     proFAnalysisTitle: 'Deep Analysis', proFAnalysisDesc: 'Spending patterns · Category trends',
     proFCoachTitle: 'Unlimited AI Coach', proFCoachDesc: '10/month → Unlimited',
     proFExportTitle: 'Data Export', proFExportDesc: 'Save as CSV · Excel',
+    feedbackBtn: 'Send Feedback', feedbackSub: 'Tell us what you want or what\'s broken',
     proInputSectionLabel: '📱 Advanced Input',
     proFOcrTitle: 'Receipt OCR', proFOcrDesc: 'Auto-detect expenses from photos',
     proFVoiceTitle: 'Voice Input', proFVoiceDesc: 'Speak and AI records it',
@@ -1111,6 +1122,7 @@ const I18N = {
     proFAnalysisTitle: '詳細分析', proFAnalysisDesc: '支出パターン・カテゴリトレンド分析',
     proFCoachTitle: 'AIコーチ無制限', proFCoachDesc: '月10回→無制限',
     proFExportTitle: 'データエクスポート', proFExportDesc: 'CSV・Excelファイルで保存',
+    feedbackBtn: 'フィードバックを送る', feedbackSub: '不便な点や欲しい機能を教えてください',
     proInputSectionLabel: '📱 高度な入力機能',
     proFOcrTitle: 'レシートOCR', proFOcrDesc: '写真で支出を自動認識',
     proFVoiceTitle: '音声入力', proFVoiceDesc: '話すとAIが自動記録',
@@ -1242,6 +1254,8 @@ function applyI18n() {
   setText('st-save-btn', t('saveBtn'));
   setText('st-goal-title', t('goalTitle'));
   setText('st-add-goal-label', t('addGoalBtn'));
+  setText('feedback-btn-label', t('feedbackBtn'));
+  setText('feedback-sub', t('feedbackSub'));
   setText('st-pro-features-title', t('stProFeaturesTitle'));
   setText('pro-f-weekly-title', t('proFWeeklyTitle'));
   setText('pro-f-weekly-desc', t('proFWeeklyDesc'));
@@ -1793,6 +1807,17 @@ function saveSettings() {
   } else {
     showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 설정이 저장됐어요!');
   }
+}
+
+// ── 피드백 ──────────────────────────────────────────────────
+const FEEDBACK_URL = 'YOUR_GOOGLE_FORM_URL'; // 구글 폼 URL을 여기에 입력하세요
+
+function openFeedback() {
+  if (FEEDBACK_URL === 'YOUR_GOOGLE_FORM_URL') {
+    showToast('피드백 폼을 준비 중이에요! 곧 연결할게요 😊');
+    return;
+  }
+  window.open(FEEDBACK_URL, '_blank');
 }
 
 function openSettings() {
