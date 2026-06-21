@@ -2146,6 +2146,13 @@ function checkCoachLimit() {
 // ── 홈 화면 인라인 편집 ──────────────────────────────────────
 let _inlineEditType = null;
 
+function closeAllHomePanels() {
+  document.getElementById('expenseListPanel').style.display = 'none';
+  document.getElementById('savingsListPanel').style.display = 'none';
+  document.getElementById('inlineEditPanel').style.display = 'none';
+  _inlineEditType = null;
+}
+
 function openInlineEdit(type) {
   _inlineEditType = type;
   const lang = userProfile.lang || 'ko';
@@ -2162,6 +2169,7 @@ function openInlineEdit(type) {
     closeInlineEdit();
     return;
   }
+  closeAllHomePanels();
 
   if (type === 'emergency') {
     const titleMap = { ko: '💰 비상금 업데이트', en: '💰 Update Emergency Fund', ja: '💰 緊急資金の更新' };
@@ -2241,8 +2249,7 @@ function toggleExpenseList() {
   const isOpen = panel.style.display === 'block';
   if (isOpen) { panel.style.display = 'none'; return; }
 
-  // 열 때 절약 패널은 닫기
-  document.getElementById('savingsListPanel').style.display = 'none';
+  closeAllHomePanels();
 
   const lang = userProfile.lang || 'ko';
   const sym = curSym();
@@ -2292,8 +2299,7 @@ function toggleSavingsList() {
   const isOpen = panel.style.display === 'block';
   if (isOpen) { panel.style.display = 'none'; return; }
 
-  // 열 때 지출 패널은 닫기
-  document.getElementById('expenseListPanel').style.display = 'none';
+  closeAllHomePanels();
   // 이번 달 절약 기록 렌더링
   const lang = userProfile.lang || 'ko';
   const sym = curSym();
