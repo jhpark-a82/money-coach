@@ -2154,7 +2154,6 @@ function closeAllHomePanels() {
 }
 
 function openInlineEdit(type) {
-  _inlineEditType = type;
   const lang = userProfile.lang || 'ko';
   const sym = curSym();
   const unitMap = { ko: '원', en: '', ja: '円' };
@@ -2164,12 +2163,15 @@ function openInlineEdit(type) {
   const title = document.getElementById('inline-edit-title');
   const body = document.getElementById('inline-edit-body');
 
-  // 이미 열려있으면 닫기
+  // 이미 같은 패널이 열려있으면 닫기
   if (panel.style.display === 'block' && _inlineEditType === type) {
-    closeInlineEdit();
+    closeAllHomePanels();
     return;
   }
+
+  // 다른 패널 모두 닫고 열기
   closeAllHomePanels();
+  _inlineEditType = type;
 
   if (type === 'emergency') {
     const titleMap = { ko: '💰 비상금 업데이트', en: '💰 Update Emergency Fund', ja: '💰 緊急資金の更新' };
