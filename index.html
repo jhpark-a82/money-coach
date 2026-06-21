@@ -1287,13 +1287,13 @@ function saveOnboarding() {
 }
 
 function fmt(v) {
-  const converted = convertKrw(v);
+  const converted = Math.round(convertKrw(v));
   if (userProfile.currency === 'KRW') {
-    if (converted < 100000) return Math.round(converted).toLocaleString();
+    if (converted < 100000) return converted.toLocaleString();
     if (converted < 100000000) return Math.floor(converted / 10000) + '만';
     return Math.floor(converted / 100000000) + '억';
   }
-  return converted.toLocaleString(undefined, {maximumFractionDigits: 1});
+  return convertKrw(v).toLocaleString(undefined, {maximumFractionDigits: 1});
 }
 function curSym() { return CUR_SYMBOL[userProfile.currency] || '\u20a9'; }
 
