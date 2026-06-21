@@ -279,12 +279,12 @@ textarea.sms-input:focus { border-color: var(--purple); }
         <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;" id="pro-modal-title">머니코치 Pro</div>
         <div style="font-size:13px;color:var(--text2);line-height:1.6;" id="pro-modal-desc">더 강력한 재정 코칭 경험</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> AI 코치 무제한 대화 (무료: 월 5회)</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> 절약 축하 풀스크린 애니메이션 🎉</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> 월간 절약 스트릭 뱃지 🔥</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> AI 자동 칭찬 & 맞춤 코칭</div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> 월간 재정 리포트</div>
+      <div id="pro-features-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> <span id="pro-f1">AI 코치 무제한 대화 <span style="color:var(--text3);font-size:11px;">(무료: 월 10회)</span></span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> <span id="pro-f2">주간 · 월간 리포트 자동 작성 📊</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> <span id="pro-f3">리포트 알림 서비스 🔔</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> <span id="pro-f4">지출 패턴 심층 분석 🔍</span></div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);"><span style="color:var(--purple);font-size:16px;">✓</span> <span id="pro-f5">데이터 내보내기 (CSV/Excel) 📥</span></div>
       </div>
       <button onclick="activatePro()" style="width:100%;padding:14px;background:linear-gradient(135deg,#534AB7,#7C6FE0);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);margin-bottom:10px;" id="pro-cta-btn">월 ₩4,900으로 시작하기</button>
       <button onclick="closeProModal()" style="width:100%;padding:12px;background:transparent;color:var(--text2);border:none;font-size:14px;cursor:pointer;font-family:var(--font-sans);" id="pro-dismiss-btn">나중에</button>
@@ -752,6 +752,25 @@ textarea.sms-input:focus { border-color: var(--purple); }
         <i class="ti ti-plus"></i> <span id="st-add-goal-label">새 목표 추가</span>
       </button>
     </div>
+
+    <!-- 데이터 내보내기 (Pro) -->
+    <div class="card" style="margin-bottom:12px;" id="st-export-card">
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;" id="st-export-title">📥 데이터 내보내기</div>
+      <div id="st-export-body">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6;" id="st-export-desc">지출 · 절약 기록을 CSV로 내보내세요</div>
+        <button onclick="exportData()" style="width:100%;padding:11px;background:var(--surface2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--r-md);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:6px;" id="st-export-btn">
+          <i class="ti ti-file-spreadsheet"></i> <span id="st-export-btn-label">CSV 내보내기</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pro 업그레이드 배너 (무료 사용자에게만 표시) -->
+    <div id="st-pro-banner" style="display:none;background:linear-gradient(135deg,#534AB7,#7C6FE0);border-radius:var(--r-lg);padding:18px 16px;margin-bottom:12px;">
+      <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;" id="st-pro-banner-title">💎 머니코치 Pro</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px;line-height:1.5;" id="st-pro-banner-desc">주간/월간 리포트 · 심층 분석 · 무제한 AI 코치 · 데이터 내보내기</div>
+      <button onclick="showProModal()" style="width:100%;padding:10px;background:#fff;color:var(--purple);border:none;border-radius:var(--r-md);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);" id="st-pro-banner-btn">월 ₩4,900으로 시작하기</button>
+    </div>
+
   </div>
 
   </div><!-- end content -->
@@ -791,7 +810,7 @@ const PRO_FEATURES = {
   aiPraise: true,      // AI 자동 칭찬
   coachUnlimited: true // AI 코치 무제한
 };
-const FREE_COACH_LIMIT = 5; // 무료 월 코치 횟수
+const FREE_COACH_LIMIT = 10; // 무료 월 코치 횟수
 
 function isPro() { return !!localStorage.getItem('mc_pro'); }
 function getCoachCount() { return parseInt(localStorage.getItem('mc_coach_count_' + new Date().toISOString().slice(0,7)) || '0'); }
@@ -845,7 +864,10 @@ const I18N = {
     insPrompt1: '카페 지출을 줄이는 구체적인 방법을 알려줘', insPrompt3: '남은 예산으로 이번 달을 버티는 절약 계획을 세워줘',
     imOcrTitle: '영수증 OCR', imOcrSub: '사진으로 자동 인식', imSmsTitle: '카드 문자', imSmsSub: '승인 문자 붙여넣기',
     imLocTitle: '위치 감지', imLocSub: '준비 중 🚧', imManualTitle: '직접 입력', imManualSub: '빠른 선택',
-    goalsAddBtn: '목표 추가 · 수정하기 →', langCurTitle: '🌐 언어 및 화폐', langLabel: '언어', currencyLabel: '화폐 단위',
+    goalsAddBtn: '목표 추가 · 수정하기 →',
+    stExportTitle: '📥 데이터 내보내기', stExportDesc: '지출 · 절약 기록을 CSV로 내보내세요',
+    stProBannerTitle: '💎 머니코치 Pro', stProBannerDesc: '주간/월간 리포트 · 심층 분석 · 무제한 AI 코치 · 데이터 내보내기', stProBannerBtn: '월 ₩4,900으로 시작하기',
+    langCurTitle: '🌐 언어 및 화폐', langLabel: '언어', currencyLabel: '화폐 단위',
     curKrw: '₩ 원 (KRW)', curUsd: '$ 달러 (USD)', curJpy: '¥ 엔 (JPY)', curEur: '€ 유로 (EUR)',
     paydayLabel: '급여일 (매월)', paydayUnit: '일',
     obTitle: '기본 정보 입력', obSub: '기본 정보를 입력하면 맞춤형 재정 코칭을 받을 수 있어요',
@@ -883,7 +905,10 @@ const I18N = {
     insPrompt1: 'Give me specific ways to cut my cafe spending', insPrompt3: 'Help me plan how to save money for the rest of this month',
     imOcrTitle: 'Receipt OCR', imOcrSub: 'Auto-detect from photo', imSmsTitle: 'Card SMS', imSmsSub: 'Paste approval text',
     imLocTitle: 'Location Detect', imLocSub: 'Coming soon 🚧', imManualTitle: 'Manual Entry', imManualSub: 'Quick select',
-    goalsAddBtn: 'Add / Edit Goals →', langCurTitle: '🌐 Language & Currency', langLabel: 'Language', currencyLabel: 'Currency',
+    goalsAddBtn: 'Add / Edit Goals →',
+    stExportTitle: '📥 Export Data', stExportDesc: 'Export your expenses & savings as CSV',
+    stProBannerTitle: '💎 Money Coach Pro', stProBannerDesc: 'Weekly/Monthly reports · Deep analysis · Unlimited AI · Data export', stProBannerBtn: 'Start for ₩4,900/month',
+    langCurTitle: '🌐 Language & Currency', langLabel: 'Language', currencyLabel: 'Currency',
     curKrw: '₩ Korean Won (KRW)', curUsd: '$ US Dollar (USD)', curJpy: '¥ Japanese Yen (JPY)', curEur: '€ Euro (EUR)',
     paydayLabel: 'Payday (monthly)', paydayUnit: 'th',
     obTitle: 'Enter Your Info', obSub: 'Enter your basic info to get personalized financial coaching',
@@ -921,7 +946,10 @@ const I18N = {
     insPrompt1: 'カフェの支出を減らす具体的な方法を教えて', insPrompt3: '残りの予算で今月を乗り切る節約プランを立てて',
     imOcrTitle: 'レシートOCR', imOcrSub: '写真で自動認識', imSmsTitle: 'カード通知', imSmsSub: '承認メッセージを貼り付け',
     imLocTitle: '位置検出', imLocSub: '近日公開 🚧', imManualTitle: '手動入力', imManualSub: 'クイック選択',
-    goalsAddBtn: '目標を追加・編集する →', langCurTitle: '🌐 言語と通貨', langLabel: '言語', currencyLabel: '通貨単位',
+    goalsAddBtn: '目標を追加・編集する →',
+    stExportTitle: '📥 データエクスポート', stExportDesc: '支出・節約記録をCSVでエクスポート',
+    stProBannerTitle: '💎 マネーコーチ Pro', stProBannerDesc: '週次/月次レポート · 詳細分析 · 無制限AIコーチ · データエクスポート', stProBannerBtn: '月₩4,900で始める',
+    langCurTitle: '🌐 言語と通貨', langLabel: '言語', currencyLabel: '通貨単位',
     curKrw: '₩ 韓国ウォン (KRW)', curUsd: '$ 米ドル (USD)', curJpy: '¥ 日本円 (JPY)', curEur: '€ ユーロ (EUR)',
     paydayLabel: '給料日（毎月）', paydayUnit: '日',
     obTitle: '基本情報を入力', obSub: '基本情報を入力すると、あなたに合った財務コーチングが受けられます',
@@ -1046,6 +1074,11 @@ function applyI18n() {
   setText('st-save-btn', t('saveBtn'));
   setText('st-goal-title', t('goalTitle'));
   setText('st-add-goal-label', t('addGoalBtn'));
+  setText('st-export-title', t('stExportTitle'));
+  setText('st-export-desc', t('stExportDesc'));
+  setText('st-pro-banner-title', t('stProBannerTitle'));
+  setText('st-pro-banner-desc', t('stProBannerDesc'));
+  setText('st-pro-banner-btn', t('stProBannerBtn'));
 
   // 홈 화면
   const greetingMap = {
@@ -1496,6 +1529,63 @@ function openSettings() {
   document.getElementById('st-payday').value = userProfile.payday || 25;
   document.getElementById('st-lang').value = userProfile.lang || 'ko';
   document.getElementById('st-currency').value = userProfile.currency || 'KRW';
+
+  // Pro 배너 표시 (무료 사용자만)
+  const banner = document.getElementById('st-pro-banner');
+  if (banner) banner.style.display = isPro() ? 'none' : 'block';
+
+  // 내보내기 버튼 (Pro만 활성화, 무료는 잠금 표시)
+  const exportBtn = document.getElementById('st-export-btn');
+  const lang = userProfile.lang || 'ko';
+  if (exportBtn) {
+    if (!isPro()) {
+      exportBtn.style.opacity = '0.5';
+      const label = document.getElementById('st-export-btn-label');
+      if (label) label.textContent = lang === 'en' ? '🔒 Pro only' : lang === 'ja' ? '🔒 Pro限定' : '🔒 Pro 전용';
+    } else {
+      exportBtn.style.opacity = '1';
+      const label = document.getElementById('st-export-btn-label');
+      if (label) label.textContent = lang === 'en' ? 'Export CSV' : lang === 'ja' ? 'CSVエクスポート' : 'CSV 내보내기';
+    }
+  }
+}
+
+function exportData() {
+  if (!isPro()) {
+    const lang = userProfile.lang || 'ko';
+    const reason = lang === 'ko' ? '데이터 내보내기는 Pro 기능이에요. 업그레이드하면 CSV/Excel로 내보낼 수 있어요!'
+      : lang === 'ja' ? 'データエクスポートはPro機能です。アップグレードするとCSV/Excelでエクスポートできます！'
+      : 'Data export is a Pro feature. Upgrade to export as CSV/Excel!';
+    showProModal(reason);
+    return;
+  }
+
+  // CSV 생성
+  const lang = userProfile.lang || 'ko';
+  const rows = [];
+  const header = lang === 'en'
+    ? ['Type','Name','Amount','Category','Date','Time']
+    : lang === 'ja'
+    ? ['タイプ','名称','金額','カテゴリ','日付','時刻']
+    : ['유형','항목','금액','카테고리','날짜','시간'];
+  rows.push(header.join(','));
+
+  expenses.forEach(e => {
+    rows.push([lang==='en'?'Expense':lang==='ja'?'支出':'지출', `"${e.name}"`, e.amt, e.cat, e.date||'', e.time||''].join(','));
+  });
+  savings.forEach(s => {
+    rows.push([lang==='en'?'Saving':lang==='ja'?'節約':'절약', `"${s.name}"`, s.amt, s.cat, s.date||'', s.time||''].join(','));
+  });
+
+  const csv = '\uFEFF' + rows.join('\n'); // BOM for Excel 한글 지원
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `머니코치_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(lang === 'en' ? '📥 CSV downloaded!' : lang === 'ja' ? '📥 CSVをダウンロードしました！' : '📥 CSV 다운로드 완료!');
 }
 
 function goPage(name, el) {
@@ -2041,14 +2131,45 @@ function showProModal(reason) {
   const lang = userProfile.lang || 'ko';
   const titles = { ko: '머니코치 Pro', en: 'Money Coach Pro', ja: 'マネーコーチ Pro' };
   const descs = {
-    ko: reason || 'AI 코치 무제한 + 절약 축하 + 스트릭 + 월간 리포트',
-    en: reason || 'Unlimited AI coach + celebrations + streaks + monthly report',
-    ja: reason || 'AIコーチ無制限 + お祝い + ストリーク + 月次レポート'
+    ko: reason || `AI 코치 무제한 · 주간/월간 리포트 · 심층 분석 · 데이터 내보내기`,
+    en: reason || `Unlimited AI coach · Weekly/Monthly reports · Deep analysis · Data export`,
+    ja: reason || `AIコーチ無制限 · 週次/月次レポート · 詳細分析 · データエクスポート`
   };
   const ctaBtns = { ko: '월 ₩4,900으로 시작하기', en: 'Start for ₩4,900/month', ja: '月₩4,900で始める' };
   const dismissBtns = { ko: '나중에', en: 'Later', ja: 'あとで' };
+
+  // 피처 목록 다국어
+  const features = {
+    ko: [
+      `AI 코치 무제한 대화 <span style="color:var(--text3);font-size:11px;">(무료: 월 10회)</span>`,
+      '주간 · 월간 리포트 자동 작성 📊',
+      '리포트 알림 서비스 🔔',
+      '지출 패턴 심층 분석 🔍',
+      '데이터 내보내기 (CSV/Excel) 📥'
+    ],
+    en: [
+      `Unlimited AI Coach <span style="color:var(--text3);font-size:11px;">(Free: 10/month)</span>`,
+      'Weekly & Monthly auto reports 📊',
+      'Report push notifications 🔔',
+      'Deep spending pattern analysis 🔍',
+      'Data export (CSV/Excel) 📥'
+    ],
+    ja: [
+      `AIコーチ無制限 <span style="color:var(--text3);font-size:11px;">（無料：月10回）</span>`,
+      '週次・月次レポート自動生成 📊',
+      'レポート通知サービス 🔔',
+      '支出パターン詳細分析 🔍',
+      'データエクスポート（CSV/Excel）📥'
+    ]
+  };
+  const fList = features[lang] || features.ko;
+  ['pro-f1','pro-f2','pro-f3','pro-f4','pro-f5'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = fList[i];
+  });
+
   document.getElementById('pro-modal-title').textContent = titles[lang];
-  document.getElementById('pro-modal-desc').textContent = descs[lang];
+  document.getElementById('pro-modal-desc').textContent = descs[lang] || descs.ko;
   document.getElementById('pro-cta-btn').textContent = ctaBtns[lang];
   document.getElementById('pro-dismiss-btn').textContent = dismissBtns[lang];
   document.getElementById('proModal').style.display = 'block';
@@ -2072,30 +2193,19 @@ function triggerSavingReward(amt, name) {
   const streak = calcSavingStreak();
   const equiv = savingEquivalent(amt, lang);
 
-  if (isPro()) {
-    // Pro: 풀스크린 축하
-    const streakText = streak >= 3
-      ? (lang === 'ko' ? ` 🔥 ${streak}일 연속 절약 중!` : lang === 'ja' ? ` 🔥 ${streak}日連続節約中！` : ` 🔥 ${streak}-day streak!`)
-      : '';
-    const title = lang === 'ko' ? `${curSym()}${fmt(amt)} 절약했어요!` : lang === 'ja' ? `${curSym()}${fmt(amt)} 節約しました！` : `Saved ${curSym()}${fmt(amt)}!`;
-    const sub = equiv
-      ? (lang === 'ko' ? `${equiv}${streakText}` : `${equiv}${streakText}`)
-      : streakText || name;
-    showCelebration(title, sub, streak >= 7 ? '🏆' : streak >= 3 ? '🔥' : '🎉');
+  // 무료/유료 모두 풀스크린 축하 애니메이션
+  const streakText = streak >= 3
+    ? (lang === 'ko' ? ` 🔥 ${streak}일 연속 절약 중!` : lang === 'ja' ? ` 🔥 ${streak}日連続節約中！` : ` 🔥 ${streak}-day streak!`)
+    : '';
+  const title = lang === 'ko' ? `${curSym()}${fmt(amt)} 절약했어요!`
+    : lang === 'ja' ? `${curSym()}${fmt(amt)} 節約しました！`
+    : `Saved ${curSym()}${fmt(amt)}!`;
+  const sub = equiv ? `${equiv}${streakText}` : streakText || name;
+  showCelebration(title, sub, streak >= 7 ? '🏆' : streak >= 3 ? '🔥' : '🎉');
 
-    // Pro AI 칭찬 (비동기, 홈으로 이동 후)
+  // Pro만 AI 자동 칭찬 (코치 탭에 메시지 추가)
+  if (isPro()) {
     setTimeout(() => triggerAiPraise(amt, name, streak, lang), 500);
-  } else {
-    // Free: 기본 토스트 + Pro 유도
-    const freeMsg = lang === 'ko' ? `💰 ${curSym()}${fmt(amt)} 절약 기록 완료!` : lang === 'ja' ? `💰 ${curSym()}${fmt(amt)} 節約記録完了！` : `💰 Saved ${curSym()}${fmt(amt)}!`;
-    showToast(freeMsg);
-    // 3번째 절약 기록마다 Pro 유도
-    if (savings.length % 3 === 0) {
-      setTimeout(() => {
-        const reason = lang === 'ko' ? '축하 애니메이션과 AI 칭찬을 받아보세요 🎉' : lang === 'ja' ? 'お祝いアニメーションとAI褒め言葉を受け取りましょう 🎉' : 'Get celebration animations & AI praise 🎉';
-        showProModal(reason);
-      }, 1500);
-    }
   }
 }
 
