@@ -216,6 +216,7 @@ textarea.sms-input:focus { border-color: var(--purple); }
 .chat-input-area { padding: 10px 0; }
 .chips-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
 .chips-row::-webkit-scrollbar { display: none; }
+#homeGoalList > div::-webkit-scrollbar { display: none; }
 .chip { white-space: nowrap; padding: 6px 12px; border: 0.5px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 12px; color: var(--text2); cursor: pointer; flex-shrink: 0; }
 .chip:hover { border-color: var(--purple); color: var(--purple); }
 .chat-row { display: flex; gap: 8px; }
@@ -1542,23 +1543,31 @@ function renderGoals() {
         color: g.color || goalColors[i % goalColors.length], icon: g.icon
       }))
     ];
-    homeGoalList.innerHTML = allGoals.map(g => `
-      <div style="background:var(--surface);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:8px;border:0.5px solid var(--border2);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px;">
-            <i class="ti ${g.icon}" style="color:${g.color};font-size:14px;"></i>
-            ${g.name}
-          </div>
-          <div style="font-size:13px;font-weight:600;color:${g.color};">${g.pct}%</div>
-        </div>
-        <div style="height:5px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:5px;">
-          <div style="height:100%;width:${g.pct}%;background:${g.color};border-radius:99px;transition:width 0.4s ease;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);">
-          <span>${sym}${fmt(g.current)} ${achievedLabel}</span>
-          <span>${targetLabel}: ${sym}${fmt(g.target)}</span>
-        </div>
-      </div>`).join('');
+    const circumference = 2 * Math.PI * 26; // r=26
+    homeGoalList.innerHTML = `
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+        ${allGoals.map(g => {
+          const filled = (g.pct / 100) * circumference;
+          const emoji = g.pct >= 100 ? '🏆' : g.pct >= 75 ? '🔥' : g.pct >= 50 ? '💪' : '🎯';
+          const bgLight = g.color + '18';
+          return `
+          <div onclick="goPage('Goals', document.querySelectorAll('.bnav-item')[3]); document.querySelectorAll('.bnav-item')[3].classList.add('active');"
+            style="flex:0 0 130px;background:var(--surface);border-radius:16px;padding:14px 12px;border:1.5px solid ${g.color}22;cursor:pointer;text-align:center;box-shadow:0 2px 8px ${g.color}15;">
+            <svg width="60" height="60" viewBox="0 0 60 60" style="margin-bottom:8px;">
+              <circle cx="30" cy="30" r="26" fill="${bgLight}" stroke="${g.color}22" stroke-width="1"/>
+              <circle cx="30" cy="30" r="26" fill="none" stroke="${g.color}22" stroke-width="5"/>
+              <circle cx="30" cy="30" r="26" fill="none" stroke="${g.color}" stroke-width="5"
+                stroke-dasharray="${filled} ${circumference - filled}"
+                stroke-linecap="round" transform="rotate(-90 30 30)"/>
+              <text x="30" y="27" text-anchor="middle" font-size="11" font-weight="700" fill="${g.color}">${g.pct}%</text>
+              <text x="30" y="40" text-anchor="middle" font-size="14">${emoji}</text>
+            </svg>
+            <div style="font-size:12px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:106px;">${g.name}</div>
+            <div style="font-size:10px;color:var(--text2);">${sym}${fmt(g.current)}</div>
+            <div style="font-size:9px;color:var(--text3);">${targetLabel} ${sym}${fmt(g.target)}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
   }
 
   // 설정 페이지 목표 편집 목록
