@@ -2228,10 +2228,12 @@ function addSaving() {
 function addExp(name, amt, cat, src) {
   const now = new Date();
   const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-  expenses.unshift({ name, amt, cat, src, time: t });
+  expenses.unshift({ name, amt, cat, src, time: t, date: now.toISOString().slice(0,10) });
   renderHomeExp();
   updateMetrics();
-  showToast('지출이 추가됐어요!');
+  updateSavingsInsight(userProfile.lang || 'ko');
+  const lang = userProfile.lang || 'ko';
+  showToast(lang === 'en' ? 'Expense added!' : lang === 'ja' ? '支出を追加しました！' : '지출이 추가됐어요!');
   // reset ocr
   if (src === 'ocr') {
     document.getElementById('ocrResult').classList.remove('show');
@@ -2244,8 +2246,9 @@ function addExp(name, amt, cat, src) {
 
 function renderHomeExp() {
   const el = document.getElementById('homeExpList');
+  if (!el) return; // 최근 지출 섹션 없으면 무시
   if (!expenses.length) {
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:13px;"><i class="ti ti-receipt-off" style="font-size:28px;display:block;margin-bottom:6px;"></i>아직 입력된 지출이 없어요</div>';
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:13px;"><i class="ti ti-receipt-off" style="font-size:28px;display:block;margin-bottom:6px;"></i><span id="home-empty-label">아직 입력된 지출이 없어요</span></div>';
     return;
   }
   el.innerHTML = expenses.slice(0,5).map(e => `
@@ -2257,16 +2260,16 @@ function renderHomeExp() {
         <div class="exp-name">${e.name}<span class="src-pill ${SRC_CLS[e.src]}">${SRC_LBL[e.src]}</span></div>
         <div class="exp-cat">${e.cat} · ${e.time}</div>
       </div>
-      <div class="exp-amt">-₩${e.amt.toLocaleString()}</div>
+      <div class="exp-amt">-${curSym()}${fmt(e.amt)}</div>
     </div>
   `).join('');
 }
 
 function updateMetrics() {
   const total = expenses.reduce((s,e) => s+e.amt, 0);
-  document.getElementById('m-spend').textContent = '₩' + total.toLocaleString();
-  document.getElementById('m-spend-sub').textContent = expenses.length + '건 입력됨';
-  document.getElementById('m-count').textContent = savings.length + '건';
+  document.getElementById('m-spend').textContent = curSym() + fmt(total);
+  document.getElementById('m-spend-sub').textContent = expenses.length + (userProfile.lang === 'en' ? ' entries' : userProfile.lang === 'ja' ? '件入力済み' : '건 입력됨');
+  document.getElementById('m-count').textContent = savings.length + (userProfile.lang === 'en' ? '' : userProfile.lang === 'ja' ? '件' : '건');
 }
 
 // ── 보상 시스템 ────────────────────────────────────────────────
