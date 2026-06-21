@@ -374,7 +374,7 @@ textarea.sms-input:focus { border-color: var(--purple); }
   </div>
   <div class="nav" id="navInput" style="display:none">
     <div class="nav-title">지출 입력</div>
-    <div class="nav-sub">4가지 방법으로 빠르게 추가</div>
+    <div class="nav-sub">5가지 방법으로 빠르게 추가</div>
   </div>
   <div class="nav" id="navCoach" style="display:none">
     <div class="nav-title">AI 재정 코치</div>
@@ -797,6 +797,74 @@ textarea.sms-input:focus { border-color: var(--purple); }
       </button>
     </div>
 
+    <!-- Pro 기능 섹션 -->
+    <div class="card" style="margin-bottom:12px;" id="st-pro-features-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);" id="st-pro-features-title">💎 Pro 기능</div>
+        <div id="st-pro-features-badge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:linear-gradient(135deg,#534AB7,#7C6FE0);color:#fff;">PRO</div>
+      </div>
+
+      <!-- 주간 리포트 -->
+      <div onclick="openProFeature('weekly')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(83,74,183,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📊</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-weekly-title">주간 리포트</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-weekly-desc">매주 월요일 자동 생성 · 알림</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-weekly-icon"></i>
+      </div>
+
+      <!-- 월간 리포트 -->
+      <div onclick="openProFeature('monthly')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(29,158,117,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📅</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-monthly-title">월간 리포트</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-monthly-desc">매월 1일 자동 생성 · 알림</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-monthly-icon"></i>
+      </div>
+
+      <!-- 심층 분석 -->
+      <div onclick="openProFeature('analysis')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(186,117,23,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">🔍</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-analysis-title">심층 분석</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-analysis-desc">지출 패턴 · 카테고리 트렌드 분석</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-analysis-icon"></i>
+      </div>
+
+      <!-- AI 코치 무제한 -->
+      <div onclick="openProFeature('coach')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(232,70,138,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-coach-title">AI 코치 무제한</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-coach-desc">월 10회 → 무제한 대화</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-coach-icon"></i>
+      </div>
+
+      <!-- 데이터 내보내기 -->
+      <div onclick="openProFeature('export')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(24,95,165,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📥</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-export-title">데이터 내보내기</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-export-desc">CSV · Excel 파일로 저장</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-export-icon"></i>
+      </div>
+    </div>
+
     <!-- 데이터 내보내기 (Pro) -->
     <div class="card" style="margin-bottom:12px;" id="st-export-card">
       <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;" id="st-export-title">📥 데이터 내보내기</div>
@@ -891,7 +959,7 @@ const I18N = {
   ko: {
     greeting: '안녕하세요', monthSpend: '이번 달 지출', savingRate: '저축률', emergency: '비상금',
     savingsRecord: '절약 기록', aiInsight: 'AI 인사이트', recentExpense: '최근 지출',
-    inputTitle: '지출 입력', inputSub: '4가지 방법으로 빠르게 추가',
+    inputTitle: '지출 입력', inputSub: '5가지 방법으로 빠르게 추가',
     coachTitle: 'AI 재정 코치', coachSub: 'Claude 기반 · 실시간 분석',
     goalsTitle: '목표 트래커', goalsSub: '재정 목표 달성 현황',
     settingsTitle: '내 정보 설정', settingsSub: '수입, 저축 목표, 비상금 수정',
@@ -910,6 +978,12 @@ const I18N = {
     imOcrTitle: '영수증 OCR', imOcrSub: '사진으로 자동 인식', imSmsTitle: '카드 문자', imSmsSub: '승인 문자 붙여넣기',
     imLocTitle: '위치 감지', imLocSub: '준비 중 🚧', imManualTitle: '직접 입력', imManualSub: '빠른 선택',
     goalsAddBtn: '목표 추가 · 수정하기 →',
+    stProFeaturesTitle: '💎 Pro 기능',
+    proFWeeklyTitle: '주간 리포트', proFWeeklyDesc: '매주 월요일 자동 생성 · 알림',
+    proFMonthlyTitle: '월간 리포트', proFMonthlyDesc: '매월 1일 자동 생성 · 알림',
+    proFAnalysisTitle: '심층 분석', proFAnalysisDesc: '지출 패턴 · 카테고리 트렌드 분석',
+    proFCoachTitle: 'AI 코치 무제한', proFCoachDesc: '월 10회 → 무제한 대화',
+    proFExportTitle: '데이터 내보내기', proFExportDesc: 'CSV · Excel 파일로 저장',
     stExportTitle: '📥 데이터 내보내기', stExportDesc: '지출 · 절약 기록을 CSV로 내보내세요',
     stProBannerTitle: '💎 머니코치 Pro', stProBannerDesc: '주간/월간 리포트 · 심층 분석 · 무제한 AI 코치 · 데이터 내보내기', stProBannerBtn: '월 ₩4,900으로 시작하기',
     langCurTitle: '🌐 언어 및 화폐', langLabel: '언어', currencyLabel: '화폐 단위',
@@ -933,7 +1007,7 @@ const I18N = {
   en: {
     greeting: 'Hello', monthSpend: 'This Month', savingRate: 'Saving Rate', emergency: 'Emergency Fund',
     savingsRecord: 'Entries', aiInsight: 'AI Insights', recentExpense: 'Recent Expenses',
-    inputTitle: 'Add Expense', inputSub: '4 quick ways to add',
+    inputTitle: 'Add Expense', inputSub: '5 quick ways to add',
     coachTitle: 'AI Finance Coach', coachSub: 'Powered by Claude · Real-time',
     goalsTitle: 'Goal Tracker', goalsSub: 'Your financial goals progress',
     settingsTitle: 'Settings', settingsSub: 'Edit income, savings, emergency fund',
@@ -952,6 +1026,12 @@ const I18N = {
     imOcrTitle: 'Receipt OCR', imOcrSub: 'Auto-detect from photo', imSmsTitle: 'Card SMS', imSmsSub: 'Paste approval text',
     imLocTitle: 'Location Detect', imLocSub: 'Coming soon 🚧', imManualTitle: 'Manual Entry', imManualSub: 'Quick select',
     goalsAddBtn: 'Add / Edit Goals →',
+    stProFeaturesTitle: '💎 Pro Features',
+    proFWeeklyTitle: 'Weekly Report', proFWeeklyDesc: 'Auto-generated every Monday · with notifications',
+    proFMonthlyTitle: 'Monthly Report', proFMonthlyDesc: 'Auto-generated on the 1st · with notifications',
+    proFAnalysisTitle: 'Deep Analysis', proFAnalysisDesc: 'Spending patterns · Category trends',
+    proFCoachTitle: 'Unlimited AI Coach', proFCoachDesc: '10/month → Unlimited',
+    proFExportTitle: 'Data Export', proFExportDesc: 'Save as CSV · Excel',
     stExportTitle: '📥 Export Data', stExportDesc: 'Export your expenses & savings as CSV',
     stProBannerTitle: '💎 Money Coach Pro', stProBannerDesc: 'Weekly/Monthly reports · Deep analysis · Unlimited AI · Data export', stProBannerBtn: 'Start for ₩4,900/month',
     langCurTitle: '🌐 Language & Currency', langLabel: 'Language', currencyLabel: 'Currency',
@@ -975,7 +1055,7 @@ const I18N = {
   ja: {
     greeting: 'こんにちは', monthSpend: '今月の支出', savingRate: '貯蓄率', emergency: '緊急資金',
     savingsRecord: '記録件数', aiInsight: 'AIインサイト', recentExpense: '最近の支出',
-    inputTitle: '支出を入力', inputSub: '4つの方法で簡単に追加',
+    inputTitle: '支出を入力', inputSub: '5つの方法で簡単に追加',
     coachTitle: 'AI財務コーチ', coachSub: 'Claude搭載・リアルタイム分析',
     goalsTitle: '目標トラッカー', goalsSub: '財務目標の達成状況',
     settingsTitle: '設定', settingsSub: '収入・貯蓄目標・緊急資金を編集',
@@ -994,6 +1074,12 @@ const I18N = {
     imOcrTitle: 'レシートOCR', imOcrSub: '写真で自動認識', imSmsTitle: 'カード通知', imSmsSub: '承認メッセージを貼り付け',
     imLocTitle: '位置検出', imLocSub: '近日公開 🚧', imManualTitle: '手動入力', imManualSub: 'クイック選択',
     goalsAddBtn: '目標を追加・編集する →',
+    stProFeaturesTitle: '💎 Pro機能',
+    proFWeeklyTitle: '週次レポート', proFWeeklyDesc: '毎週月曜日に自動生成・通知',
+    proFMonthlyTitle: '月次レポート', proFMonthlyDesc: '毎月1日に自動生成・通知',
+    proFAnalysisTitle: '詳細分析', proFAnalysisDesc: '支出パターン・カテゴリトレンド分析',
+    proFCoachTitle: 'AIコーチ無制限', proFCoachDesc: '月10回→無制限',
+    proFExportTitle: 'データエクスポート', proFExportDesc: 'CSV・Excelファイルで保存',
     stExportTitle: '📥 データエクスポート', stExportDesc: '支出・節約記録をCSVでエクスポート',
     stProBannerTitle: '💎 マネーコーチ Pro', stProBannerDesc: '週次/月次レポート · 詳細分析 · 無制限AIコーチ · データエクスポート', stProBannerBtn: '月₩4,900で始める',
     langCurTitle: '🌐 言語と通貨', langLabel: '言語', currencyLabel: '通貨単位',
@@ -1123,6 +1209,17 @@ function applyI18n() {
   setText('st-add-goal-label', t('addGoalBtn'));
   setText('st-export-title', t('stExportTitle'));
   setText('st-export-desc', t('stExportDesc'));
+  setText('st-pro-features-title', t('stProFeaturesTitle'));
+  setText('pro-f-weekly-title', t('proFWeeklyTitle'));
+  setText('pro-f-weekly-desc', t('proFWeeklyDesc'));
+  setText('pro-f-monthly-title', t('proFMonthlyTitle'));
+  setText('pro-f-monthly-desc', t('proFMonthlyDesc'));
+  setText('pro-f-analysis-title', t('proFAnalysisTitle'));
+  setText('pro-f-analysis-desc', t('proFAnalysisDesc'));
+  setText('pro-f-coach-title', t('proFCoachTitle'));
+  setText('pro-f-coach-desc', t('proFCoachDesc'));
+  setText('pro-f-export-title', t('proFExportTitle'));
+  setText('pro-f-export-desc', t('proFExportDesc'));
   setText('st-pro-banner-title', t('stProBannerTitle'));
   setText('st-pro-banner-desc', t('stProBannerDesc'));
   setText('st-pro-banner-btn', t('stProBannerBtn'));
@@ -1598,6 +1695,7 @@ function openSettings() {
   // Pro 배너 표시 (무료 사용자만)
   const banner = document.getElementById('st-pro-banner');
   if (banner) banner.style.display = isPro() ? 'none' : 'block';
+  updateProFeatureIcons();
 
   // 현재 플랜 상태 카드
   const lang = userProfile.lang || 'ko';
@@ -1631,6 +1729,49 @@ function openSettings() {
       if (label) label.textContent = lang === 'en' ? 'Export CSV' : lang === 'ja' ? 'CSVエクスポート' : 'CSV 내보내기';
     }
   }
+}
+
+function openProFeature(feature) {
+  if (isPro()) {
+    // Pro면 해당 기능으로 바로 이동 또는 실행
+    const lang = userProfile.lang || 'ko';
+    if (feature === 'export') { exportData(); return; }
+    if (feature === 'coach') {
+      goPage('Coach', document.querySelectorAll('.bnav-item')[2]);
+      document.querySelectorAll('.bnav-item')[2].classList.add('active');
+      return;
+    }
+    // 리포트/분석은 준비 중
+    const comingSoon = lang === 'en' ? '🚧 Coming soon!' : lang === 'ja' ? '🚧 近日公開！' : '🚧 준비 중이에요!';
+    showToast(comingSoon);
+    return;
+  }
+  // 무료면 Pro 모달
+  const lang = userProfile.lang || 'ko';
+  const featureReasons = {
+    weekly: { ko: '주간 리포트는 Pro 기능이에요. 매주 자동으로 지출 요약을 받아보세요!', en: 'Weekly reports are a Pro feature. Get automatic weekly spending summaries!', ja: '週次レポートはPro機能です。毎週自動で支出サマリーを受け取りましょう！' },
+    monthly: { ko: '월간 리포트는 Pro 기능이에요. 한 달 재정 흐름을 한눈에 확인하세요!', en: 'Monthly reports are a Pro feature. See your full monthly financial overview!', ja: '月次レポートはPro機能です。1ヶ月の家計の流れを一目で確認しましょう！' },
+    analysis: { ko: '심층 분석은 Pro 기능이에요. AI가 지출 패턴과 트렌드를 분석해드려요!', en: 'Deep analysis is a Pro feature. AI analyzes your spending patterns and trends!', ja: '詳細分析はPro機能です。AIが支出パターンとトレンドを分析します！' },
+    coach: { ko: `AI 코치는 무료 월 ${FREE_COACH_LIMIT}회예요. Pro로 업그레이드하면 무제한으로 대화할 수 있어요!`, en: `AI Coach is limited to ${FREE_COACH_LIMIT}/month on free. Go Pro for unlimited!`, ja: `AIコーチは無料で月${FREE_COACH_LIMIT}回です。Proにアップグレードすると無制限になります！` },
+    export: { ko: '데이터 내보내기는 Pro 기능이에요. CSV/Excel로 내 재정 데이터를 저장하세요!', en: 'Data export is a Pro feature. Save your financial data as CSV/Excel!', ja: 'データエクスポートはPro機能です。CSV/Excelで家計データを保存しましょう！' }
+  };
+  const reason = (featureReasons[feature] || {})[lang] || '';
+  showProModal(reason);
+}
+
+function updateProFeatureIcons() {
+  const features = ['weekly', 'monthly', 'analysis', 'coach', 'export'];
+  features.forEach(f => {
+    const icon = document.getElementById(`pro-f-${f}-icon`);
+    if (!icon) return;
+    if (isPro()) {
+      icon.className = 'ti ti-chevron-right';
+      icon.style.color = 'var(--text3)';
+    } else {
+      icon.className = 'ti ti-lock';
+      icon.style.color = 'var(--text3)';
+    }
+  });
 }
 
 function exportData() {
