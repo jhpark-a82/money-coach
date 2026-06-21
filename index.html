@@ -2735,8 +2735,24 @@ function toggleExpenseList() {
 
   const body = document.getElementById('expenseListBody');
   if (expenses.length === 0) {
-    const emptyMap = { ko: '아직 입력된 지출이 없어요\n입력 탭에서 추가해보세요!', en: 'No expenses yet.\nAdd one in the Add tab!', ja: 'まだ支出がありません。\n追加タブから記録してください！' };
-    body.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--text2);font-size:13px;white-space:pre-line;">${emptyMap[lang] || emptyMap.ko}</div>`;
+    const namePH = { ko: '예) 스타벅스, 점심', en: 'e.g. Starbucks, Lunch', ja: '例）スタバ、昼食' };
+    const amtPH = { ko: '금액 (숫자만)', en: 'Amount', ja: '金額' };
+    const addLbl = { ko: '+ 지출 추가', en: '+ Add Expense', ja: '+ 支出を追加' };
+    const emptyLbl = { ko: '아직 없어요. 바로 입력해보세요!', en: 'No expenses yet. Add one here!', ja: 'まだ支出がありません。ここから追加！' };
+    const cats = ['식비','카페','교통','쇼핑','의료','기타'];
+    window._quickCat = '기타';
+    body.innerHTML = `
+      <div style="padding:4px 0 12px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;text-align:center;">${emptyLbl[lang]||emptyLbl.ko}</div>
+        <input id="quick-exp-name" type="text" placeholder="${namePH[lang]||namePH.ko}"
+          style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
+        <input id="quick-exp-amt" type="number" placeholder="${amtPH[lang]||amtPH.ko}"
+          style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+          ${cats.map(c => `<button onclick="document.querySelectorAll('.quick-cat-btn').forEach(b=>{b.style.background='var(--surface2)';b.style.color='var(--text2)'});this.style.background='var(--coral)';this.style.color='#fff';window._quickCat='${c}';" class="quick-cat-btn" style="padding:5px 10px;background:var(--surface2);color:var(--text2);border:none;border-radius:99px;font-size:12px;cursor:pointer;font-family:var(--font-sans);">${c}</button>`).join('')}
+        </div>
+        <button onclick="submitQuickExpense()" style="width:100%;padding:11px;background:var(--coral);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">${addLbl[lang]||addLbl.ko}</button>
+      </div>`;
   } else {
     const total = expenses.reduce((s, e) => s + e.amt, 0);
     const totalLabel = { ko: `총 ${sym}${fmt(total)} 지출`, en: `Total spent: ${sym}${fmt(total)}`, ja: `合計支出: ${sym}${fmt(total)}` };
@@ -2769,6 +2785,29 @@ function toggleExpenseList() {
   }
   panel.style.display = 'block';
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function submitQuickExpense() {
+  const name = (document.getElementById('quick-exp-name')?.value || '').trim();
+  const amt = parseInt(document.getElementById('quick-exp-amt')?.value || '0');
+  const cat = window._quickCat || '기타';
+  const lang = userProfile.lang || 'ko';
+
+  if (!name) {
+    showToast(lang === 'en' ? 'Please enter a name' : lang === 'ja' ? '名前を入力してください' : '항목명을 입력해주세요');
+    document.getElementById('quick-exp-name')?.focus();
+    return;
+  }
+  if (!amt || amt <= 0) {
+    showToast(lang === 'en' ? 'Please enter an amount' : lang === 'ja' ? '金額を入力してください' : '금액을 입력해주세요');
+    document.getElementById('quick-exp-amt')?.focus();
+    return;
+  }
+
+  addExp(name, amt, cat, 'manual');
+  // addExp가 홈으로 이동시키므로 패널 닫기
+  document.getElementById('expenseListPanel').style.display = 'none';
+  window._quickCat = '기타';
 }
 
 function toggleSavingsList() {
