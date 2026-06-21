@@ -2735,23 +2735,47 @@ function toggleExpenseList() {
 
   const body = document.getElementById('expenseListBody');
   if (expenses.length === 0) {
-    const namePH = { ko: '예) 스타벅스, 점심', en: 'e.g. Starbucks, Lunch', ja: '例）スタバ、昼食' };
-    const amtPH = { ko: '금액 (숫자만)', en: 'Amount', ja: '金額' };
     const addLbl = { ko: '+ 지출 추가', en: '+ Add Expense', ja: '+ 支出を追加' };
-    const emptyLbl = { ko: '아직 없어요. 바로 입력해보세요!', en: 'No expenses yet. Add one here!', ja: 'まだ支出がありません。ここから追加！' };
-    const cats = ['식비','카페','교통','쇼핑','의료','기타'];
-    window._quickCat = '기타';
+    const amtPH = { ko: '금액 (숫자만)', en: 'Amount', ja: '金額' };
+    const emptyLbl = { ko: '카테고리를 선택하면 자주 쓰는 항목이 나타나요', en: 'Pick a category to see common items', ja: 'カテゴリを選ぶと項目が表示されます' };
+    const QUICK_ITEMS = {
+      '식비': ['편의점','마트','배달음식','식당','점심','저녁'],
+      '카페': ['스타벅스','이디야','투썸플레이스','커피','음료','카페'],
+      '교통': ['지하철','버스','택시','주유','KTX','교통카드'],
+      '쇼핑': ['쿠팡','무신사','올리브영','다이소','의류','잡화'],
+      '의료': ['병원','약국','치과','헬스장','약'],
+      '기타': ['구독','통신비','공과금','렌탈','기타']
+    };
+    window._quickCat = null;
+    window._quickName = null;
     body.innerHTML = `
       <div style="padding:4px 0 12px;">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;text-align:center;">${emptyLbl[lang]||emptyLbl.ko}</div>
-        <input id="quick-exp-name" type="text" placeholder="${namePH[lang]||namePH.ko}"
-          style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
-        <input id="quick-exp-amt" type="number" placeholder="${amtPH[lang]||amtPH.ko}"
-          style="width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;outline:none;margin-bottom:8px;box-sizing:border-box;" />
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-          ${cats.map(c => `<button onclick="document.querySelectorAll('.quick-cat-btn').forEach(b=>{b.style.background='var(--surface2)';b.style.color='var(--text2)'});this.style.background='var(--coral)';this.style.color='#fff';window._quickCat='${c}';" class="quick-cat-btn" style="padding:5px 10px;background:var(--surface2);color:var(--text2);border:none;border-radius:99px;font-size:12px;cursor:pointer;font-family:var(--font-sans);">${c}</button>`).join('')}
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;text-align:center;" id="quick-guide">${emptyLbl[lang]||emptyLbl.ko}</div>
+
+        <!-- 카테고리 버튼 -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          ${Object.keys(QUICK_ITEMS).map(c => `
+            <button onclick="selectQuickCat('${c}')" id="qcat-${c}"
+              style="padding:6px 12px;background:var(--surface2);color:var(--text2);border:none;border-radius:99px;font-size:13px;cursor:pointer;font-family:var(--font-sans);font-weight:500;">${c}</button>
+          `).join('')}
         </div>
-        <button onclick="submitQuickExpense()" style="width:100%;padding:11px;background:var(--coral);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">${addLbl[lang]||addLbl.ko}</button>
+
+        <!-- 항목 칩 (카테고리 선택 후 표시) -->
+        <div id="quick-items-wrap" style="display:none;margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">항목 선택</div>
+          <div id="quick-items" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
+
+        <!-- 선택된 항목 + 금액 -->
+        <div id="quick-selected-wrap" style="display:none;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <div id="quick-selected-name" style="padding:8px 14px;background:var(--coral);color:#fff;border-radius:99px;font-size:13px;font-weight:600;"></div>
+            <button onclick="resetQuickExpense()" style="background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;">✕</button>
+          </div>
+          <input id="quick-exp-amt" type="number" placeholder="${amtPH[lang]||amtPH.ko}"
+            style="width:100%;padding:10px 12px;border:1.5px solid var(--coral);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:15px;font-weight:600;outline:none;margin-bottom:10px;box-sizing:border-box;" />
+          <button onclick="submitQuickExpense()" style="width:100%;padding:11px;background:var(--coral);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">${addLbl[lang]||addLbl.ko}</button>
+        </div>
       </div>`;
   } else {
     const total = expenses.reduce((s, e) => s + e.amt, 0);
@@ -2788,14 +2812,13 @@ function toggleExpenseList() {
 }
 
 function submitQuickExpense() {
-  const name = (document.getElementById('quick-exp-name')?.value || '').trim();
+  const name = window._quickName || '';
   const amt = parseInt(document.getElementById('quick-exp-amt')?.value || '0');
   const cat = window._quickCat || '기타';
   const lang = userProfile.lang || 'ko';
 
   if (!name) {
-    showToast(lang === 'en' ? 'Please enter a name' : lang === 'ja' ? '名前を入力してください' : '항목명을 입력해주세요');
-    document.getElementById('quick-exp-name')?.focus();
+    showToast(lang === 'en' ? 'Please select an item' : lang === 'ja' ? '項目を選択してください' : '항목을 선택해주세요');
     return;
   }
   if (!amt || amt <= 0) {
@@ -2805,9 +2828,78 @@ function submitQuickExpense() {
   }
 
   addExp(name, amt, cat, 'manual');
-  // addExp가 홈으로 이동시키므로 패널 닫기
   document.getElementById('expenseListPanel').style.display = 'none';
-  window._quickCat = '기타';
+  window._quickCat = null;
+  window._quickName = null;
+}
+
+function selectQuickCat(cat) {
+  window._quickCat = cat;
+  window._quickName = null;
+
+  // 카테고리 버튼 강조
+  document.querySelectorAll('[id^="qcat-"]').forEach(b => {
+    b.style.background = 'var(--surface2)';
+    b.style.color = 'var(--text2)';
+  });
+  const btn = document.getElementById('qcat-' + cat);
+  if (btn) { btn.style.background = 'var(--coral)'; btn.style.color = '#fff'; }
+
+  // 항목 칩 렌더링
+  const ITEMS = {
+    '식비': ['편의점','마트','배달음식','식당','점심','저녁'],
+    '카페': ['스타벅스','이디야','투썸플레이스','커피','음료','카페'],
+    '교통': ['지하철','버스','택시','주유','KTX','교통카드'],
+    '쇼핑': ['쿠팡','무신사','올리브영','다이소','의류','잡화'],
+    '의료': ['병원','약국','치과','헬스장','약'],
+    '기타': ['구독','통신비','공과금','렌탈','기타']
+  };
+  const items = ITEMS[cat] || [];
+  const wrap = document.getElementById('quick-items');
+  if (wrap) {
+    wrap.innerHTML = items.map(item => `
+      <button onclick="selectQuickItem('${item}')"
+        style="padding:6px 12px;background:var(--surface2);color:var(--text2);border:none;border-radius:99px;font-size:13px;cursor:pointer;font-family:var(--font-sans);">${item}</button>
+    `).join('');
+  }
+  const itemsWrap = document.getElementById('quick-items-wrap');
+  if (itemsWrap) itemsWrap.style.display = 'block';
+
+  // 선택 초기화
+  const selWrap = document.getElementById('quick-selected-wrap');
+  if (selWrap) selWrap.style.display = 'none';
+  const guide = document.getElementById('quick-guide');
+  if (guide) guide.textContent = '항목을 선택해주세요';
+}
+
+function selectQuickItem(item) {
+  window._quickName = item;
+
+  // 항목 버튼 강조
+  document.querySelectorAll('#quick-items button').forEach(b => {
+    b.style.background = b.textContent.trim() === item ? 'var(--coral)' : 'var(--surface2)';
+    b.style.color = b.textContent.trim() === item ? '#fff' : 'var(--text2)';
+  });
+
+  // 선택된 항목 표시 + 금액 입력창 노출
+  const selName = document.getElementById('quick-selected-name');
+  if (selName) selName.textContent = item;
+  const selWrap = document.getElementById('quick-selected-wrap');
+  if (selWrap) selWrap.style.display = 'block';
+  const guide = document.getElementById('quick-guide');
+  if (guide) guide.textContent = '금액을 입력하고 추가하세요';
+  setTimeout(() => document.getElementById('quick-exp-amt')?.focus(), 100);
+}
+
+function resetQuickExpense() {
+  window._quickName = null;
+  document.getElementById('quick-selected-wrap').style.display = 'none';
+  document.querySelectorAll('#quick-items button').forEach(b => {
+    b.style.background = 'var(--surface2)';
+    b.style.color = 'var(--text2)';
+  });
+  const guide = document.getElementById('quick-guide');
+  if (guide) guide.textContent = '항목을 선택해주세요';
 }
 
 function toggleSavingsList() {
