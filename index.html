@@ -703,6 +703,19 @@ textarea.sms-input:focus { border-color: var(--purple); }
     </div>
 
   <div id="pageSettings" class="page">
+
+    <!-- 현재 플랜 상태 -->
+    <div class="card" style="margin-bottom:12px;" id="st-plan-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;" id="st-plan-title">현재 플랜</div>
+          <div style="font-size:12px;color:var(--text2);" id="st-plan-status">무료 플랜</div>
+        </div>
+        <div id="st-plan-badge" style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--surface2);color:var(--text2);">FREE</div>
+      </div>
+      <div id="st-plan-coach-count" style="font-size:11px;color:var(--text3);margin-top:8px;"></div>
+    </div>
+
     <div class="card" style="margin-bottom:12px;">
       <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:14px;" id="st-langcur-title">🌐 언어 및 화폐</div>
       <div style="margin-bottom:14px;">
@@ -1584,9 +1597,27 @@ function openSettings() {
   const banner = document.getElementById('st-pro-banner');
   if (banner) banner.style.display = isPro() ? 'none' : 'block';
 
+  // 현재 플랜 상태 카드
+  const lang = userProfile.lang || 'ko';
+  const planBadge = document.getElementById('st-plan-badge');
+  const planStatus = document.getElementById('st-plan-status');
+  const planCoachCount = document.getElementById('st-plan-coach-count');
+  const planTitle = document.getElementById('st-plan-title');
+  if (isPro()) {
+    if (planBadge) { planBadge.textContent = 'PRO'; planBadge.style.background = 'linear-gradient(135deg,#534AB7,#7C6FE0)'; planBadge.style.color = '#fff'; }
+    if (planStatus) planStatus.textContent = lang === 'en' ? '✅ Pro subscriber' : lang === 'ja' ? '✅ Pro会員' : '✅ Pro 구독 중';
+    if (planTitle) planTitle.textContent = lang === 'en' ? 'Current Plan' : lang === 'ja' ? '現在のプラン' : '현재 플랜';
+    if (planCoachCount) planCoachCount.textContent = lang === 'en' ? 'AI Coach: Unlimited' : lang === 'ja' ? 'AIコーチ：無制限' : 'AI 코치: 무제한';
+  } else {
+    if (planBadge) { planBadge.textContent = 'FREE'; planBadge.style.background = 'var(--surface2)'; planBadge.style.color = 'var(--text2)'; }
+    if (planStatus) planStatus.textContent = lang === 'en' ? 'Free plan' : lang === 'ja' ? '無料プラン' : '무료 플랜';
+    if (planTitle) planTitle.textContent = lang === 'en' ? 'Current Plan' : lang === 'ja' ? '現在のプラン' : '현재 플랜';
+    const used = getCoachCount();
+    if (planCoachCount) planCoachCount.textContent = lang === 'en' ? `AI Coach: ${used}/${FREE_COACH_LIMIT} used this month` : lang === 'ja' ? `AIコーチ：今月 ${used}/${FREE_COACH_LIMIT}回使用済み` : `AI 코치: 이번 달 ${used}/${FREE_COACH_LIMIT}회 사용`;
+  }
+
   // 내보내기 버튼 (Pro만 활성화, 무료는 잠금 표시)
   const exportBtn = document.getElementById('st-export-btn');
-  const lang = userProfile.lang || 'ko';
   if (exportBtn) {
     if (!isPro()) {
       exportBtn.style.opacity = '0.5';
