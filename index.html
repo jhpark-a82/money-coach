@@ -512,39 +512,50 @@ textarea.sms-input:focus { border-color: var(--purple); }
 
     <!-- INPUT PAGE -->
     <div class="page" id="pageInput">
-      <div class="input-methods">
-        <div class="imethod" onclick="showPanel('ocr',this)" style="color:var(--purple)">
+
+      <!-- 지출 입력 섹션 -->
+      <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.5px;margin-bottom:8px;" id="input-sec-label">지출 입력</div>
+      <div class="input-methods" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:8px;">
+        <div class="imethod" onclick="showPanelPro('ocr',this,'pro')" style="color:var(--purple);position:relative;">
+          <div id="im-ocr-pro-badge" style="display:none;position:absolute;top:6px;right:6px;font-size:9px;background:var(--purple);color:#fff;padding:1px 5px;border-radius:99px;font-weight:600;">PRO</div>
           <i class="ti ti-camera-scan"></i>
           <div class="im-title" id="im-ocr-title">영수증 OCR</div>
           <div class="im-sub" id="im-ocr-sub">사진으로 자동 인식</div>
         </div>
-        <div class="imethod" onclick="showPanel('sms',this)" style="color:var(--teal)">
+        <div class="imethod" onclick="showPanel('sms',this)" style="color:var(--teal);">
           <i class="ti ti-message-2"></i>
           <div class="im-title" id="im-sms-title">카드 문자</div>
           <div class="im-sub" id="im-sms-sub">승인 문자 붙여넣기</div>
         </div>
-        <div class="imethod" onclick="showPanel('loc',this)" style="color:var(--amber)">
+        <div class="imethod" onclick="showPanelPro('loc',this,'pro')" style="color:var(--amber);position:relative;">
+          <div id="im-loc-pro-badge" style="display:none;position:absolute;top:6px;right:6px;font-size:9px;background:var(--amber);color:#fff;padding:1px 5px;border-radius:99px;font-weight:600;">PRO</div>
           <i class="ti ti-map-pin"></i>
           <div class="im-title" id="im-loc-title">위치 감지</div>
-          <div class="im-sub" id="im-loc-sub">주변 장소 자동분류</div>
+          <div class="im-sub" id="im-loc-sub">준비 중 🚧</div>
         </div>
-        <div class="imethod" onclick="showPanel('manual',this)" style="color:var(--coral)">
+        <div class="imethod" onclick="showPanel('manual',this)" style="color:var(--coral);">
           <i class="ti ti-pencil"></i>
           <div class="im-title" id="im-manual-title">직접 입력</div>
           <div class="im-sub" id="im-manual-sub">빠른 선택</div>
         </div>
+        <div class="imethod" onclick="showPanelPro('voice',this,'pro')" style="color:#E8468A;position:relative;">
+          <div id="im-voice-pro-badge" style="display:none;position:absolute;top:6px;right:6px;font-size:9px;background:#E8468A;color:#fff;padding:1px 5px;border-radius:99px;font-weight:600;">PRO</div>
+          <i class="ti ti-microphone"></i>
+          <div class="im-title" id="im-voice-title">음성 입력</div>
+          <div class="im-sub" id="im-voice-sub">말하면 자동 기록</div>
+        </div>
       </div>
 
-      <div class="imethod" onclick="showPanel('saving',this)" style="color:var(--teal); margin-bottom:8px;">
+      <!-- 구분선 + 절약 기록 -->
+      <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+        <div style="flex:1;height:0.5px;background:var(--border2);"></div>
+        <span style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.5px;" id="input-saving-sec-label">절약 기록</span>
+        <div style="flex:1;height:0.5px;background:var(--border2);"></div>
+      </div>
+      <div class="imethod" onclick="showPanel('saving',this)" style="color:var(--teal);margin-bottom:16px;">
         <i class="ti ti-piggy-bank"></i>
         <div class="im-title" id="im-saving-title">절약 기록</div>
         <div class="im-sub" id="im-saving-sub">구독 해지, 절약한 내역 기록</div>
-      </div>
-
-      <div class="imethod" onclick="showPanel('voice',this)" style="color:#E8468A; margin-bottom:16px;">
-        <i class="ti ti-microphone"></i>
-        <div class="im-title" id="im-voice-title">음성 입력</div>
-        <div class="im-sub" id="im-voice-sub">말하면 자동 기록</div>
       </div>
 
       <!-- Voice Panel -->
@@ -882,6 +893,7 @@ const I18N = {
     ins2Badge: '잘하고 있어요', ins2Title: '구독 서비스 정리', ins2Body: '미사용 구독 2건을 해지해서 월 1.5만원을 절약했어요!',
     ins3Badge: '코치 팁', ins3Title: '급여일까지 D-8', ins3Body: '남은 예산에서 하루 2.7만원 이내로 지출하면 이번 달 목표 달성 가능해요.', ins3Btn: '절약 계획 세우기 →',
     insPrompt1: '카페 지출을 줄이는 구체적인 방법을 알려줘', insPrompt3: '남은 예산으로 이번 달을 버티는 절약 계획을 세워줘',
+    inputSecLabel: '지출 입력', inputSavingSecLabel: '절약 기록',
     imOcrTitle: '영수증 OCR', imOcrSub: '사진으로 자동 인식', imSmsTitle: '카드 문자', imSmsSub: '승인 문자 붙여넣기',
     imLocTitle: '위치 감지', imLocSub: '준비 중 🚧', imManualTitle: '직접 입력', imManualSub: '빠른 선택',
     goalsAddBtn: '목표 추가 · 수정하기 →',
@@ -923,6 +935,7 @@ const I18N = {
     ins2Badge: 'Doing great', ins2Title: 'Subscriptions Cleaned Up', ins2Body: 'You canceled 2 unused subscriptions, saving about $11/month!',
     ins3Badge: 'Coach Tip', ins3Title: 'D-8 to Payday', ins3Body: "Keep spending under $20/day and you'll hit this month's goal.", ins3Btn: 'Build a savings plan →',
     insPrompt1: 'Give me specific ways to cut my cafe spending', insPrompt3: 'Help me plan how to save money for the rest of this month',
+    inputSecLabel: 'Expenses', inputSavingSecLabel: 'Savings',
     imOcrTitle: 'Receipt OCR', imOcrSub: 'Auto-detect from photo', imSmsTitle: 'Card SMS', imSmsSub: 'Paste approval text',
     imLocTitle: 'Location Detect', imLocSub: 'Coming soon 🚧', imManualTitle: 'Manual Entry', imManualSub: 'Quick select',
     goalsAddBtn: 'Add / Edit Goals →',
@@ -964,6 +977,7 @@ const I18N = {
     ins2Badge: '順調です', ins2Title: 'サブスク整理完了', ins2Body: '未使用のサブスク2件を解約し、月1.5万円節約しました！',
     ins3Badge: 'コーチのヒント', ins3Title: '給料日まであと8日', ins3Body: '残りの予算で1日2.7万円以内に抑えれば、今月の目標を達成できます。', ins3Btn: '節約プランを立てる →',
     insPrompt1: 'カフェの支出を減らす具体的な方法を教えて', insPrompt3: '残りの予算で今月を乗り切る節約プランを立てて',
+    inputSecLabel: '支出入力', inputSavingSecLabel: '節約記録',
     imOcrTitle: 'レシートOCR', imOcrSub: '写真で自動認識', imSmsTitle: 'カード通知', imSmsSub: '承認メッセージを貼り付け',
     imLocTitle: '位置検出', imLocSub: '近日公開 🚧', imManualTitle: '手動入力', imManualSub: 'クイック選択',
     goalsAddBtn: '目標を追加・編集する →',
@@ -1133,6 +1147,8 @@ function applyI18n() {
   // 입력 화면 카드
   setText('im-ocr-title', t('imOcrTitle'));
   setText('im-ocr-sub', t('imOcrSub'));
+  setText('input-sec-label', t('inputSecLabel'));
+  setText('input-saving-sec-label', t('inputSavingSecLabel'));
   setText('im-sms-title', t('imSmsTitle'));
   setText('im-sms-sub', t('imSmsSub'));
   setText('im-loc-title', t('imLocTitle'));
@@ -1533,6 +1549,7 @@ window.addEventListener('DOMContentLoaded', () => {
   applyI18n();
   updateMetrics();
   renderStreakBadge();
+  initProBadges();
 });
 
 function saveSettings() {
@@ -1630,6 +1647,7 @@ function goPage(name, el) {
   document.getElementById('page'+name).classList.add('active');
   document.getElementById('nav'+name).style.display = '';
   if (name === 'Settings') openSettings();
+  if (name === 'Input') initProBadges();
   if (el) el.classList.add('active');
 }
 
@@ -1638,6 +1656,45 @@ function showPanel(id, el) {
   document.querySelectorAll('.imethod').forEach(m => m.classList.remove('sel'));
   document.getElementById('panel-'+id).classList.add('show');
   el.classList.add('sel');
+}
+
+function showPanelPro(id, el, _) {
+  if (!isPro()) {
+    const lang = userProfile.lang || 'ko';
+    const featureNames = {
+      ocr: { ko: '영수증 OCR', en: 'Receipt OCR', ja: 'レシートOCR' },
+      loc: { ko: '위치 감지', en: 'Location Detect', ja: '位置検出' },
+      voice: { ko: '음성 입력', en: 'Voice Input', ja: '音声入力' }
+    };
+    const name = (featureNames[id] || {})[lang] || id;
+    const reason = lang === 'ko' ? `${name}은 Pro 전용 기능이에요. 업그레이드하면 바로 사용할 수 있어요!`
+      : lang === 'ja' ? `${name}はPro限定機能です。アップグレードするとすぐ使えます！`
+      : `${name} is a Pro feature. Upgrade to use it right away!`;
+    showProModal(reason);
+    return;
+  }
+  showPanel(id, el);
+}
+
+function initProBadges() {
+  const proItems = ['im-ocr-pro-badge', 'im-loc-pro-badge', 'im-voice-pro-badge'];
+  proItems.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isPro() ? 'none' : 'flex';
+  });
+  // 잠긴 카드 시각적 흐림 처리
+  const lockCards = ['ocr', 'loc', 'voice'];
+  document.querySelectorAll('.imethod').forEach(card => {
+    card.style.opacity = '1';
+  });
+  if (!isPro()) {
+    lockCards.forEach(type => {
+      const badge = document.getElementById(`im-${type}-pro-badge`);
+      if (badge && badge.parentElement) {
+        badge.parentElement.style.opacity = '0.65';
+      }
+    });
+  }
 }
 
 let pendingOcr = null;
