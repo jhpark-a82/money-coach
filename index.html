@@ -1596,9 +1596,25 @@ function renderGoals() {
 }
 
 function updateEmergency(val) {
+  const prev = userProfile.emergency;
+  const prevPct = Math.round(prev / userProfile.emergencyGoal * 100);
   userProfile.emergency = parseInt(val) || 0;
   localStorage.setItem('mc_profile', JSON.stringify(userProfile));
   applyProfile();
+
+  const newPct = Math.round(userProfile.emergency / userProfile.emergencyGoal * 100);
+  if (userProfile.emergency > prev) {
+    const lang = userProfile.lang || 'ko';
+    const sym = curSym();
+    const milestones = [25, 50, 75, 100];
+    const hit = milestones.find(m => newPct >= m && prevPct < m);
+    if (hit) {
+      const emoji = hit === 100 ? '🏆' : hit >= 75 ? '🔥' : '🎉';
+      const title = lang === 'en' ? `Emergency Fund ${hit}%!` : lang === 'ja' ? `緊急資金${hit}%達成！` : `비상금 ${hit}% 달성!`;
+      const sub = lang === 'en' ? `+${sym}${fmt(userProfile.emergency - prev)} added!` : lang === 'ja' ? `+${sym}${fmt(userProfile.emergency - prev)}増加！` : `+${sym}${fmt(userProfile.emergency - prev)} 증가!`;
+      setTimeout(() => showCelebration(title, sub, emoji), 300);
+    }
+  }
 }
 
 function updateGoal(id, field, val) {
@@ -1654,6 +1670,12 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function saveSettings() {
+  const lang = userProfile.lang || 'ko';
+  const sym = curSym();
+  const prevEmergency = userProfile.emergency;
+  const prevEmergencyPct = Math.round(prevEmergency / userProfile.emergencyGoal * 100);
+  const prevSavingRate = Math.round(userProfile.saving / userProfile.income * 100);
+
   const name = document.getElementById('st-name').value.trim() || userProfile.name;
   const income = parseInt(document.getElementById('st-income').value) || userProfile.income;
   const saving = parseInt(document.getElementById('st-saving').value) || userProfile.saving;
@@ -1666,9 +1688,33 @@ function saveSettings() {
   applyProfile();
   applyI18n();
   checkGoalNotifications();
-  showToast('설정이 저장됐어요!');
   goPage('Home', document.querySelectorAll('.bnav-item')[0]);
   document.querySelectorAll('.bnav-item')[0].classList.add('active');
+
+  // 증가 보상 체크
+  const newEmergencyPct = Math.round(emergency / emergencyGoal * 100);
+  const newSavingRate = Math.round(saving / income * 100);
+  const eMilestones = [25, 50, 75, 100];
+  const sMilestones = [10, 20, 30, 50];
+  const eHit = eMilestones.find(m => newEmergencyPct >= m && prevEmergencyPct < m);
+  const sHit = sMilestones.find(m => newSavingRate >= m && prevSavingRate < m);
+
+  if (eHit) {
+    const emoji = eHit === 100 ? '🏆' : eHit >= 75 ? '🔥' : '🎉';
+    const title = lang === 'en' ? `Emergency Fund ${eHit}%!` : lang === 'ja' ? `緊急資金${eHit}%達成！` : `비상금 ${eHit}% 달성!`;
+    const sub = lang === 'en' ? `+${sym}${fmt(emergency - prevEmergency)} added!` : lang === 'ja' ? `+${sym}${fmt(emergency - prevEmergency)}増加！` : `+${sym}${fmt(emergency - prevEmergency)} 증가했어요!`;
+    setTimeout(() => showCelebration(title, sub, emoji), 400);
+  } else if (sHit) {
+    const emoji = sHit >= 50 ? '🏆' : sHit >= 30 ? '🔥' : '🎉';
+    const title = lang === 'en' ? `Saving Rate ${sHit}%!` : lang === 'ja' ? `貯蓄率${sHit}%達成！` : `저축률 ${sHit}% 달성!`;
+    const sub = lang === 'en' ? `${prevSavingRate}% → ${newSavingRate}%` : lang === 'ja' ? `${prevSavingRate}% → ${newSavingRate}%` : `${prevSavingRate}% → ${newSavingRate}%로 올랐어요!`;
+    setTimeout(() => showCelebration(title, sub, emoji), 400);
+  } else if (emergency > prevEmergency || newSavingRate > prevSavingRate) {
+    const msg = lang === 'en' ? '📈 Great progress! Keep it up!' : lang === 'ja' ? '📈 素晴らしい進歩！続けましょう！' : '📈 잘하고 있어요! 계속 화이팅!';
+    showToast(msg);
+  } else {
+    showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 설정이 저장됐어요!');
+  }
 }
 
 function openSettings() {
@@ -2585,22 +2631,94 @@ function closeInlineEdit() {
 }
 
 function saveInlineEdit() {
+  const lang = userProfile.lang || 'ko';
+  const sym = curSym();
+
   if (_inlineEditType === 'emergency') {
+    const prevEmergency = userProfile.emergency;
+    const prevPct = Math.round(prevEmergency / userProfile.emergencyGoal * 100);
     const emergency = parseInt(document.getElementById('ile-emergency').value) || userProfile.emergency;
     const emergencyGoal = parseInt(document.getElementById('ile-emergencyGoal').value) || userProfile.emergencyGoal;
     userProfile = { ...userProfile, emergency, emergencyGoal };
+    localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+    closeInlineEdit();
+    applyProfile();
+    applyI18n();
+    checkGoalNotifications();
+
+    // 증가 보상
+    const newPct = Math.round(emergency / emergencyGoal * 100);
+    const increased = emergency > prevEmergency;
+    if (increased) {
+      const diff = emergency - prevEmergency;
+      const milestones = [25, 50, 75, 100];
+      const hitMilestone = milestones.find(m => newPct >= m && prevPct < m);
+      if (hitMilestone) {
+        const emoji = hitMilestone === 100 ? '🏆' : hitMilestone >= 75 ? '🔥' : '🎉';
+        const titleMap = {
+          ko: `비상금 ${hitMilestone}% 달성!`,
+          en: `Emergency Fund ${hitMilestone}% reached!`,
+          ja: `緊急資金${hitMilestone}%達成！`
+        };
+        const subMap = {
+          ko: `+${sym}${fmt(diff)} 증가했어요. 잘 하고 있어요!`,
+          en: `+${sym}${fmt(diff)} added. Keep it up!`,
+          ja: `+${sym}${fmt(diff)}増加しました。頑張っています！`
+        };
+        setTimeout(() => showCelebration(titleMap[lang] || titleMap.ko, subMap[lang] || subMap.ko, emoji), 300);
+      } else {
+        const toastMap = {
+          ko: `💰 비상금 +${sym}${fmt(diff)} 증가! (${newPct}%)`,
+          en: `💰 Emergency fund +${sym}${fmt(diff)}! (${newPct}%)`,
+          ja: `💰 緊急資金 +${sym}${fmt(diff)}！（${newPct}%）`
+        };
+        showToast(toastMap[lang] || toastMap.ko);
+      }
+    } else {
+      showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 저장됐어요!');
+    }
+
   } else if (_inlineEditType === 'income') {
+    const prevSavingRate = Math.round(userProfile.saving / userProfile.income * 100);
     const income = parseInt(document.getElementById('ile-income').value) || userProfile.income;
     const saving = parseInt(document.getElementById('ile-saving').value) || userProfile.saving;
     userProfile = { ...userProfile, income, saving };
+    localStorage.setItem('mc_profile', JSON.stringify(userProfile));
+    closeInlineEdit();
+    applyProfile();
+    applyI18n();
+    checkGoalNotifications();
+
+    // 저축률 증가 보상
+    const newSavingRate = Math.round(saving / income * 100);
+    if (newSavingRate > prevSavingRate) {
+      const milestones = [10, 20, 30, 50];
+      const hitMilestone = milestones.find(m => newSavingRate >= m && prevSavingRate < m);
+      if (hitMilestone) {
+        const emoji = hitMilestone >= 50 ? '🏆' : hitMilestone >= 30 ? '🔥' : '🎉';
+        const titleMap = {
+          ko: `저축률 ${hitMilestone}% 달성!`,
+          en: `Saving rate ${hitMilestone}% reached!`,
+          ja: `貯蓄率${hitMilestone}%達成！`
+        };
+        const subMap = {
+          ko: `${prevSavingRate}% → ${newSavingRate}%로 올랐어요! 훌륭해요!`,
+          en: `Up from ${prevSavingRate}% to ${newSavingRate}%! Amazing!`,
+          ja: `${prevSavingRate}%から${newSavingRate}%に上がりました！素晴らしい！`
+        };
+        setTimeout(() => showCelebration(titleMap[lang] || titleMap.ko, subMap[lang] || subMap.ko, emoji), 300);
+      } else {
+        const toastMap = {
+          ko: `📈 저축률 ${prevSavingRate}% → ${newSavingRate}%로 올랐어요!`,
+          en: `📈 Saving rate up: ${prevSavingRate}% → ${newSavingRate}%!`,
+          ja: `📈 貯蓄率 ${prevSavingRate}% → ${newSavingRate}%に上がりました！`
+        };
+        showToast(toastMap[lang] || toastMap.ko);
+      }
+    } else {
+      showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 저장됐어요!');
+    }
   }
-  localStorage.setItem('mc_profile', JSON.stringify(userProfile));
-  closeInlineEdit();
-  applyProfile();
-  applyI18n();
-  checkGoalNotifications();
-  const lang = userProfile.lang || 'ko';
-  showToast(lang === 'en' ? '✅ Saved!' : lang === 'ja' ? '✅ 保存しました！' : '✅ 저장됐어요!');
 }
 
 function toggleExpenseList() {
