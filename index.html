@@ -1288,11 +1288,16 @@ function saveOnboarding() {
 
 function fmt(v) {
   const converted = convertKrw(v);
-  const sym = CUR_SYMBOL[userProfile.currency] || '\u20a9';
   if (userProfile.currency === 'KRW') {
-    return converted >= 10000 ? (converted/10000).toFixed(0)+'만' : Math.round(converted).toLocaleString();
+    if (converted < 10000) return Math.round(converted).toLocaleString();
+    if (converted < 100000) {
+      // 1만~9.9만: 소수점 1자리까지 (예: 1.3만, 3.5만)
+      const wan = converted / 10000;
+      return (Math.round(wan * 10) / 10) + '만';
+    }
+    // 10만 이상: 정수 만 단위
+    return Math.floor(converted / 10000) + '만';
   }
-  // 외화는 소수점 둘째자리까지, 천단위 콤마
   return converted.toLocaleString(undefined, {maximumFractionDigits: 1});
 }
 function curSym() { return CUR_SYMBOL[userProfile.currency] || '\u20a9'; }
