@@ -394,20 +394,40 @@ textarea.sms-input:focus { border-color: var(--purple); }
     <!-- HOME PAGE -->
     <div class="page active" id="pageHome">
       <div class="metric-grid">
+        <div class="metric" onclick="openInlineEdit('emergency')" style="cursor:pointer;position:relative;">
+          <div class="metric-label" id="ml-emergency">비상금 <span style="font-size:10px;color:var(--text3);">✏️</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="metric-value" id="m-emergency">₩85만</div>
+              <div class="metric-sub neg" id="m-emergency-sub">목표의 28%</div>
+            </div>
+            <svg id="emergency-chart" width="44" height="44" viewBox="0 0 44 44" style="flex-shrink:0;">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="var(--surface)" stroke-width="5"/>
+              <circle id="emergency-arc" cx="22" cy="22" r="18" fill="none" stroke="#534AB7" stroke-width="5"
+                stroke-dasharray="0 113" stroke-linecap="round" transform="rotate(-90 22 22)" style="transition:stroke-dasharray 0.6s ease;"/>
+              <text id="emergency-pct-text" x="22" y="26" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text)">0%</text>
+            </svg>
+          </div>
+        </div>
+        <div class="metric" onclick="openInlineEdit('income')" style="cursor:pointer;position:relative;">
+          <div class="metric-label" id="ml-saving">저축률 <span style="font-size:10px;color:var(--text3);">✏️</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="metric-value" id="m-saving-rate">12%</div>
+              <div class="metric-sub warn" id="m-saving-sub">목표 20%</div>
+            </div>
+            <svg id="saving-chart" width="44" height="44" viewBox="0 0 44 44" style="flex-shrink:0;">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="var(--surface)" stroke-width="5"/>
+              <circle id="saving-arc" cx="22" cy="22" r="18" fill="none" stroke="#1D9E75" stroke-width="5"
+                stroke-dasharray="0 113" stroke-linecap="round" transform="rotate(-90 22 22)" style="transition:stroke-dasharray 0.6s ease;"/>
+              <text id="saving-pct-text" x="22" y="26" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text)">0%</text>
+            </svg>
+          </div>
+        </div>
         <div class="metric" onclick="toggleExpenseList()" style="cursor:pointer;">
           <div class="metric-label" id="ml-spend">이번 달 지출 <span style="font-size:10px;color:var(--text3);">▾</span></div>
           <div class="metric-value" id="m-spend">₩0</div>
           <div class="metric-sub warn" id="m-spend-sub">예산 입력 대기</div>
-        </div>
-        <div class="metric" onclick="openInlineEdit('income')" style="cursor:pointer;position:relative;">
-          <div class="metric-label" id="ml-saving">저축률 <span style="font-size:10px;color:var(--text3);">✏️</span></div>
-          <div class="metric-value" id="m-saving-rate">12%</div>
-          <div class="metric-sub warn" id="m-saving-sub">목표 20%</div>
-        </div>
-        <div class="metric" onclick="openInlineEdit('emergency')" style="cursor:pointer;position:relative;">
-          <div class="metric-label" id="ml-emergency">비상금 <span style="font-size:10px;color:var(--text3);">✏️</span></div>
-          <div class="metric-value" id="m-emergency">₩85만</div>
-          <div class="metric-sub neg" id="m-emergency-sub">목표의 28%</div>
         </div>
         <div class="metric" onclick="toggleSavingsList()" style="cursor:pointer;">
           <div class="metric-label" id="ml-count">절약 기록 <span style="font-size:10px;color:var(--text3);">▾</span></div>
@@ -1333,13 +1353,26 @@ function curSym() { return CUR_SYMBOL[userProfile.currency] || '\u20a9'; }
 function applyProfile() {
   const p = userProfile;
   const savingRate = Math.round(p.saving / p.income * 100);
-  const emergencyPct = Math.round(p.emergency / p.emergencyGoal * 100);
+  const emergencyPct = Math.min(Math.round(p.emergency / p.emergencyGoal * 100), 100);
   document.getElementById('m-saving-rate').textContent = savingRate + '%';
   document.getElementById('m-saving-sub').textContent = '목표 ' + Math.round(p.income*0.2/10000) + '만원/월';
   document.getElementById('m-emergency').textContent = curSym() + fmt(p.emergency);
   document.getElementById('m-emergency-sub').textContent = '목표의 ' + emergencyPct + '%';
+  updateDonutChart('emergency-arc', 'emergency-pct-text', emergencyPct, '#534AB7');
+  updateDonutChart('saving-arc', 'saving-pct-text', Math.min(savingRate, 100), '#1D9E75');
   renderGoals();
   updatePaydayInsight(p.lang || 'ko');
+}
+
+function updateDonutChart(arcId, textId, pct, color) {
+  const circumference = 2 * Math.PI * 18; // r=18 → 약 113
+  const arc = document.getElementById(arcId);
+  const txt = document.getElementById(textId);
+  if (!arc || !txt) return;
+  const filled = (pct / 100) * circumference;
+  arc.setAttribute('stroke-dasharray', `${filled} ${circumference - filled}`);
+  arc.setAttribute('stroke', pct >= 100 ? '#F59E0B' : color); // 100% 달성 시 금색
+  txt.textContent = pct + '%';
 }
 
 function renderGoals() {
