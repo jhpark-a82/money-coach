@@ -847,7 +847,7 @@ textarea.sms-input:focus { border-color: var(--purple); }
       </div>
 
       <!-- 데이터 내보내기 -->
-      <div onclick="openProFeature('export')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);cursor:pointer;">
+      <div onclick="openProFeature('export')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);cursor:pointer;margin-bottom:0;">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(24,95,165,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📥</div>
           <div>
@@ -856,6 +856,46 @@ textarea.sms-input:focus { border-color: var(--purple); }
           </div>
         </div>
         <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-export-icon"></i>
+      </div>
+
+      <!-- 구분선 -->
+      <div style="height:0.5px;background:var(--border2);margin:12px 0;"></div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.5px;margin-bottom:10px;" id="pro-f-input-section-label">📱 고급 입력 기능</div>
+
+      <!-- 영수증 OCR -->
+      <div onclick="openProFeature('ocr')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(83,74,183,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📷</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-ocr-title">영수증 OCR</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-ocr-desc">사진으로 지출 자동 인식</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-ocr-icon"></i>
+      </div>
+
+      <!-- 음성 입력 -->
+      <div onclick="openProFeature('voice')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(232,70,138,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">🎙</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-voice-title">음성 입력</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-voice-desc">말하면 AI가 자동 기록</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-voice-icon"></i>
+      </div>
+
+      <!-- 위치 감지 -->
+      <div onclick="openProFeature('location')" style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:var(--r-md);cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:rgba(186,117,23,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📍</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);" id="pro-f-location-title">위치 감지</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:1px;" id="pro-f-location-desc">주변 장소 자동 분류 (준비 중)</div>
+          </div>
+        </div>
+        <i class="ti ti-lock" style="color:var(--text3);font-size:14px;" id="pro-f-location-icon"></i>
       </div>
     </div>
 
@@ -967,6 +1007,10 @@ const I18N = {
     proFAnalysisTitle: '심층 분석', proFAnalysisDesc: '지출 패턴 · 카테고리 트렌드 분석',
     proFCoachTitle: 'AI 코치 무제한', proFCoachDesc: '월 10회 → 무제한 대화',
     proFExportTitle: '데이터 내보내기', proFExportDesc: 'CSV · Excel 파일로 저장',
+    proInputSectionLabel: '📱 고급 입력 기능',
+    proFOcrTitle: '영수증 OCR', proFOcrDesc: '사진으로 지출 자동 인식',
+    proFVoiceTitle: '음성 입력', proFVoiceDesc: '말하면 AI가 자동 기록',
+    proFLocationTitle: '위치 감지', proFLocationDesc: '주변 장소 자동 분류 (준비 중)',
     stExportTitle: '📥 데이터 내보내기', stExportDesc: '지출 · 절약 기록을 CSV로 내보내세요',
     stProBannerTitle: '💎 머니코치 Pro', stProBannerDesc: '주간/월간 리포트 · 심층 분석 · 무제한 AI 코치 · 데이터 내보내기', stProBannerBtn: '월 ₩4,900으로 시작하기',
     langCurTitle: '🌐 언어 및 화폐', langLabel: '언어', currencyLabel: '화폐 단위',
@@ -1015,6 +1059,10 @@ const I18N = {
     proFAnalysisTitle: 'Deep Analysis', proFAnalysisDesc: 'Spending patterns · Category trends',
     proFCoachTitle: 'Unlimited AI Coach', proFCoachDesc: '10/month → Unlimited',
     proFExportTitle: 'Data Export', proFExportDesc: 'Save as CSV · Excel',
+    proInputSectionLabel: '📱 Advanced Input',
+    proFOcrTitle: 'Receipt OCR', proFOcrDesc: 'Auto-detect expenses from photos',
+    proFVoiceTitle: 'Voice Input', proFVoiceDesc: 'Speak and AI records it',
+    proFLocationTitle: 'Location Detect', proFLocationDesc: 'Auto-categorize nearby places (soon)',
     stExportTitle: '📥 Export Data', stExportDesc: 'Export your expenses & savings as CSV',
     stProBannerTitle: '💎 Money Coach Pro', stProBannerDesc: 'Weekly/Monthly reports · Deep analysis · Unlimited AI · Data export', stProBannerBtn: 'Start for ₩4,900/month',
     langCurTitle: '🌐 Language & Currency', langLabel: 'Language', currencyLabel: 'Currency',
@@ -1063,6 +1111,10 @@ const I18N = {
     proFAnalysisTitle: '詳細分析', proFAnalysisDesc: '支出パターン・カテゴリトレンド分析',
     proFCoachTitle: 'AIコーチ無制限', proFCoachDesc: '月10回→無制限',
     proFExportTitle: 'データエクスポート', proFExportDesc: 'CSV・Excelファイルで保存',
+    proInputSectionLabel: '📱 高度な入力機能',
+    proFOcrTitle: 'レシートOCR', proFOcrDesc: '写真で支出を自動認識',
+    proFVoiceTitle: '音声入力', proFVoiceDesc: '話すとAIが自動記録',
+    proFLocationTitle: '位置検出', proFLocationDesc: '周辺の場所を自動分類（準備中）',
     stExportTitle: '📥 データエクスポート', stExportDesc: '支出・節約記録をCSVでエクスポート',
     stProBannerTitle: '💎 マネーコーチ Pro', stProBannerDesc: '週次/月次レポート · 詳細分析 · 無制限AIコーチ · データエクスポート', stProBannerBtn: '月₩4,900で始める',
     langCurTitle: '🌐 言語と通貨', langLabel: '言語', currencyLabel: '通貨単位',
@@ -1201,6 +1253,13 @@ function applyI18n() {
   setText('pro-f-coach-desc', t('proFCoachDesc'));
   setText('pro-f-export-title', t('proFExportTitle'));
   setText('pro-f-export-desc', t('proFExportDesc'));
+  setText('pro-f-input-section-label', t('proInputSectionLabel'));
+  setText('pro-f-ocr-title', t('proFOcrTitle'));
+  setText('pro-f-ocr-desc', t('proFOcrDesc'));
+  setText('pro-f-voice-title', t('proFVoiceTitle'));
+  setText('pro-f-voice-desc', t('proFVoiceDesc'));
+  setText('pro-f-location-title', t('proFLocationTitle'));
+  setText('pro-f-location-desc', t('proFLocationDesc'));
   setText('st-pro-banner-title', t('stProBannerTitle'));
   setText('st-pro-banner-desc', t('stProBannerDesc'));
   setText('st-pro-banner-btn', t('stProBannerBtn'));
@@ -1764,7 +1823,19 @@ function openProFeature(feature) {
       document.querySelectorAll('.bnav-item')[2].classList.add('active');
       return;
     }
-    // 리포트/분석은 준비 중
+    if (feature === 'ocr') {
+      goPage('Input', document.querySelectorAll('.bnav-item')[1]);
+      document.querySelectorAll('.bnav-item')[1].classList.add('active');
+      setTimeout(() => showPanel('ocr', document.querySelector('[onclick*="ocr"]')), 100);
+      return;
+    }
+    if (feature === 'voice') {
+      goPage('Input', document.querySelectorAll('.bnav-item')[1]);
+      document.querySelectorAll('.bnav-item')[1].classList.add('active');
+      setTimeout(() => showPanel('voice', document.querySelector('[onclick*="voice"]')), 100);
+      return;
+    }
+    // 리포트/분석/위치는 준비 중
     const comingSoon = lang === 'en' ? '🚧 Coming soon!' : lang === 'ja' ? '🚧 近日公開！' : '🚧 준비 중이에요!';
     showToast(comingSoon);
     return;
@@ -1783,7 +1854,7 @@ function openProFeature(feature) {
 }
 
 function updateProFeatureIcons() {
-  const features = ['weekly', 'monthly', 'analysis', 'coach', 'export'];
+  const features = ['weekly', 'monthly', 'analysis', 'coach', 'export', 'ocr', 'voice', 'location'];
   features.forEach(f => {
     const icon = document.getElementById(`pro-f-${f}-icon`);
     if (!icon) return;
