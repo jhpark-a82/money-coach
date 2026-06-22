@@ -1903,6 +1903,15 @@ function saveSettings() {
 const FEEDBACK_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzGE6L7eZ9t8xxqbPA_5cSuZb_a3X2ZL3lma-BJSmevQZRrB7Ri9mlBGQqrNO6e9eMK/exec';
 let selectedRating = 0;
 
+function checkFeedbackTrigger() {
+  if (localStorage.getItem('mc_feedback_done')) return;
+  const count = parseInt(localStorage.getItem('mc_ai_count') || '0') + 1;
+  localStorage.setItem('mc_ai_count', count);
+  if (count === 5) {
+    setTimeout(() => openFeedback(), 800);
+  }
+}
+
 function openFeedback() {
   selectedRating = 0;
   document.querySelectorAll('#fb-q5 button').forEach(b => {
@@ -1920,6 +1929,9 @@ function openFeedback() {
 
 function closeFeedbackModal() {
   document.getElementById('feedbackModal').style.display = 'none';
+  if (!localStorage.getItem('mc_feedback_done')) {
+    localStorage.setItem('mc_ai_count', '0');
+  }
 }
 
 function selectRating(n) {
@@ -1968,6 +1980,7 @@ async function submitFeedback() {
       })
     });
     closeFeedbackModal();
+    localStorage.setItem('mc_feedback_done', '1');
     showToast('피드백 감사해요! 출시 시 꼭 연락드릴게요 🎁');
   } catch(err) {
     showToast('제출 중 오류가 생겼어요. 다시 시도해주세요 🙏');
@@ -3585,6 +3598,7 @@ Response guidelines:
     const reply = data.content?.[0]?.text || fallback;
     setTyping(false);
     addChatMsg('ai', reply);
+    checkFeedbackTrigger();
   } catch(e) {
     setTyping(false);
     const errMsgMap = {
