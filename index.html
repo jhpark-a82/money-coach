@@ -274,6 +274,24 @@ textarea.sms-input:focus { border-color: var(--purple); }
     </div>
   </div>
 
+  <!-- 💬 피드백 모달 -->
+  <div id="feedbackModal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);" onclick="closeFeedbackModal()">
+    <div style="position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:28px 24px 44px;" onclick="event.stopPropagation()">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:40px;margin-bottom:8px;">🎁</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;" id="fm-title">베타 피드백 = Pro 무료</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;" id="fm-desc">지금 피드백을 주시면<br>앱 정식 출시 후 <strong style="color:var(--purple);">Pro 3개월을 무료</strong>로 드려요!<br>이메일만 남겨주시면 연락드릴게요 💌</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;padding:14px;background:var(--surface2);border-radius:var(--r-lg);">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);"><span style="font-size:16px;">✅</span> <span id="fm-b1">피드백 제출 (5분이면 충분해요)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);"><span style="font-size:16px;">🎉</span> <span id="fm-b2">출시 시 Pro 3개월 무료 제공</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);"><span style="font-size:16px;">💰</span> <span id="fm-b3">절약 금액: ₩14,700 (₩4,900 × 3)</span></div>
+      </div>
+      <button onclick="goToFeedbackForm()" style="width:100%;padding:14px;background:linear-gradient(135deg,#534AB7,#7C6FE0);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);margin-bottom:10px;" id="fm-cta">📝 피드백 작성하러 가기</button>
+      <button onclick="closeFeedbackModal()" style="width:100%;padding:12px;background:transparent;color:var(--text2);border:none;font-size:14px;cursor:pointer;font-family:var(--font-sans);" id="fm-skip">나중에</button>
+    </div>
+  </div>
+
   <!-- 💎 Pro 업그레이드 모달 -->
   <div id="proModal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);" onclick="closeProModal()">
     <div style="position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:28px 24px 44px;" onclick="event.stopPropagation()">
@@ -456,6 +474,24 @@ textarea.sms-input:focus { border-color: var(--purple); }
           <button onclick="toggleSavingsList()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">✕</button>
         </div>
         <div id="savingsListBody" style="padding:0 14px 14px;"></div>
+      </div>
+
+      <!-- 스트릭 카드 -->
+      <div id="streakCard" style="display:none;background:linear-gradient(135deg,#534AB7,#7C6FE0);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:2px;" id="streak-card-label">연속 기록 중</div>
+            <div style="font-size:22px;font-weight:700;color:#fff;" id="streak-card-count">🔥 0일</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;" id="streak-card-title"></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-bottom:4px;" id="streak-next-label">다음 목표</div>
+            <div style="font-size:12px;font-weight:600;color:#fff;" id="streak-next-milestone"></div>
+            <div style="width:80px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin-top:6px;overflow:hidden;">
+              <div id="streak-progress-bar" style="height:100%;background:#fff;border-radius:99px;transition:width 0.4s;"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 인라인 편집 패널 -->
@@ -1758,6 +1794,7 @@ window.addEventListener('DOMContentLoaded', () => {
   applyI18n();
   updateMetrics();
   renderStreakBadge();
+  updateStreakCard();
   initProBadges();
 });
 
@@ -1810,11 +1847,44 @@ function saveSettings() {
 }
 
 // ── 피드백 ──────────────────────────────────────────────────
-const FEEDBACK_URL = 'YOUR_GOOGLE_FORM_URL'; // 구글 폼 URL을 여기에 입력하세요
+const FEEDBACK_URL = 'YOUR_GOOGLE_FORM_URL'; // 👈 구글 폼 URL을 여기에 입력하세요
 
 function openFeedback() {
+  const lang = userProfile.lang || 'ko';
+  // 모달 다국어 적용
+  const texts = {
+    title: { ko: '베타 피드백 = Pro 무료', en: 'Beta Feedback = Free Pro', ja: 'ベータフィードバック = Pro無料' },
+    desc: {
+      ko: '지금 피드백을 주시면<br>앱 정식 출시 후 <strong style="color:var(--purple);">Pro 3개월을 무료</strong>로 드려요!<br>이메일만 남겨주시면 연락드릴게요 💌',
+      en: 'Leave feedback now and get<br><strong style="color:var(--purple);">3 months of Pro FREE</strong> when we launch!<br>Just drop your email and we\'ll reach out 💌',
+      ja: '今フィードバックをいただくと<br>正式リリース後に<strong style="color:var(--purple);">Pro 3ヶ月無料</strong>をプレゼント！<br>メールアドレスを残してください 💌'
+    },
+    b1: { ko: '피드백 제출 (5분이면 충분해요)', en: 'Submit feedback (takes ~5 min)', ja: 'フィードバック提出（約5分）' },
+    b2: { ko: '출시 시 Pro 3개월 무료 제공', en: '3 months of Pro free at launch', ja: 'リリース時にPro 3ヶ月無料' },
+    b3: { ko: '절약 금액: ₩14,700 (₩4,900 × 3)', en: 'Value: ₩14,700 (₩4,900 × 3)', ja: '節約額: ₩14,700（₩4,900 × 3）' },
+    cta: { ko: '📝 피드백 작성하러 가기', en: '📝 Write Feedback', ja: '📝 フィードバックを書く' },
+    skip: { ko: '나중에', en: 'Later', ja: 'あとで' }
+  };
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+  setText('fm-title', texts.title[lang] || texts.title.ko);
+  setText('fm-desc', texts.desc[lang] || texts.desc.ko);
+  setText('fm-b1', texts.b1[lang] || texts.b1.ko);
+  setText('fm-b2', texts.b2[lang] || texts.b2.ko);
+  setText('fm-b3', texts.b3[lang] || texts.b3.ko);
+  setText('fm-cta', texts.cta[lang] || texts.cta.ko);
+  setText('fm-skip', texts.skip[lang] || texts.skip.ko);
+  document.getElementById('feedbackModal').style.display = 'block';
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'none';
+}
+
+function goToFeedbackForm() {
+  closeFeedbackModal();
   if (FEEDBACK_URL === 'YOUR_GOOGLE_FORM_URL') {
-    showToast('피드백 폼을 준비 중이에요! 곧 연결할게요 😊');
+    const lang = userProfile.lang || 'ko';
+    showToast(lang === 'en' ? '🚧 Form coming soon!' : lang === 'ja' ? '🚧 フォーム準備中！' : '🚧 폼을 준비 중이에요! 곧 연결할게요');
     return;
   }
   window.open(FEEDBACK_URL, '_blank');
@@ -1851,7 +1921,25 @@ function openSettings() {
     if (planStatus) planStatus.textContent = lang === 'en' ? 'Free plan' : lang === 'ja' ? '無料プラン' : '무료 플랜';
     if (planTitle) planTitle.textContent = lang === 'en' ? 'Current Plan' : lang === 'ja' ? '現在のプラン' : '현재 플랜';
     const used = getCoachCount();
-    if (planCoachCount) planCoachCount.textContent = lang === 'en' ? `AI Coach: ${used}/${FREE_COACH_LIMIT} used this month` : lang === 'ja' ? `AIコーチ：今月 ${used}/${FREE_COACH_LIMIT}回使用済み` : `AI 코치: 이번 달 ${used}/${FREE_COACH_LIMIT}회 사용`;
+    const bonus = parseInt(localStorage.getItem('mc_bonus_coach') || '0');
+    const limit = FREE_COACH_LIMIT + bonus;
+    const streak = calcDailyStreak();
+    const title = getUserTitle(streak);
+    const bonusText = bonus > 0 ? ` (+${bonus} 보너스)` : '';
+    if (planCoachCount) planCoachCount.textContent = lang === 'en'
+      ? `AI Coach: ${used}/${limit} used this month${bonus > 0 ? ` (+${bonus} bonus)` : ''}`
+      : lang === 'ja'
+      ? `AIコーチ：今月 ${used}/${limit}回使用済み${bonus > 0 ? `（+${bonus}ボーナス）` : ''}`
+      : `AI 코치: 이번 달 ${used}/${limit}회 사용${bonusText}`;
+    if (streak >= 1) {
+      const streakEl = document.getElementById('st-plan-coach-count');
+      if (streakEl) {
+        const streakText = lang === 'en' ? ` · ${streak}-day streak ${title ? title.emoji : '🔥'}`
+          : lang === 'ja' ? ` · ${streak}日連続 ${title ? title.emoji : '🔥'}`
+          : ` · ${streak}일 연속 ${title ? title.emoji : '🔥'}`;
+        streakEl.textContent += streakText;
+      }
+    }
   }
 
   updateProFeatureIcons();
@@ -2380,6 +2468,8 @@ function addSaving() {
   applyI18n();
   updateMetrics();
   renderStreakBadge();
+  checkStreakMilestone();
+  updateStreakCard();
   goPage('Home', document.querySelectorAll('.bnav-item')[0]);
   document.querySelectorAll('.bnav-item')[0].classList.add('active');
   // 보상 트리거 (홈으로 이동 후 약간의 딜레이)
@@ -2394,6 +2484,9 @@ function addExp(name, amt, cat, src) {
   renderHomeExp();
   updateMetrics();
   updateSavingsInsight(userProfile.lang || 'ko');
+  renderStreakBadge();
+  checkStreakMilestone();
+  updateStreakCard();
   const lang = userProfile.lang || 'ko';
   showToast(lang === 'en' ? 'Expense added!' : lang === 'ja' ? '支出を追加しました！' : '지출이 추가됐어요!');
   // reset ocr
@@ -2466,6 +2559,22 @@ function savingEquivalent(amt, lang) {
 }
 
 // 절약 스트릭 계산
+function calcDailyStreak() {
+  // 지출 + 절약 통합 스트릭 (하루에 하나라도 입력하면 OK)
+  const today = new Date();
+  let streak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const hasExp = expenses.some(e => e.date === dateStr);
+    const hasSav = savings.some(s => s.date === dateStr);
+    if (hasExp || hasSav) streak++;
+    else if (i > 0) break;
+  }
+  return streak;
+}
+
 function calcSavingStreak() {
   const today = new Date();
   let streak = 0;
@@ -2478,6 +2587,84 @@ function calcSavingStreak() {
   }
   return streak;
 }
+
+function getUserTitle(streak) {
+  const lang = userProfile.lang || 'ko';
+  const titles = {
+    ko: [
+      { days: 30, label: '재정 마스터 👑', emoji: '👑' },
+      { days: 14, label: '절약 고수 💪', emoji: '💪' },
+      { days: 7,  label: '재정 습관러 🔥', emoji: '🔥' },
+      { days: 3,  label: '절약 새싹 🌱', emoji: '🌱' },
+    ],
+    en: [
+      { days: 30, label: 'Finance Master 👑', emoji: '👑' },
+      { days: 14, label: 'Savings Pro 💪', emoji: '💪' },
+      { days: 7,  label: 'Habit Builder 🔥', emoji: '🔥' },
+      { days: 3,  label: 'Sprout 🌱', emoji: '🌱' },
+    ],
+    ja: [
+      { days: 30, label: '財務マスター 👑', emoji: '👑' },
+      { days: 14, label: '節約上級者 💪', emoji: '💪' },
+      { days: 7,  label: '習慣構築者 🔥', emoji: '🔥' },
+      { days: 3,  label: '節約の芽 🌱', emoji: '🌱' },
+    ]
+  };
+  const list = titles[lang] || titles.ko;
+  return list.find(t => streak >= t.days) || null;
+}
+
+function checkStreakMilestone() {
+  const streak = calcDailyStreak();
+  const lang = userProfile.lang || 'ko';
+  const milestones = [3, 7, 14, 30];
+  const key = `mc_streak_milestone_`;
+
+  // 이미 축하한 마일스톤은 건너뜀
+  const hit = milestones.find(m => streak >= m && !localStorage.getItem(key + m));
+  if (!hit) return;
+
+  localStorage.setItem(key + hit, '1');
+
+  const rewards = {
+    3: {
+      emoji: '🌱',
+      title: { ko: `3일 연속 달성! 절약 새싹 🌱`, en: `3-Day Streak! Sprout 🌱`, ja: `3日連続達成！節約の芽 🌱` },
+      sub: { ko: '습관이 만들어지고 있어요. 내일도 화이팅!', en: 'A habit is forming. Keep it up tomorrow!', ja: '習慣が作られています。明日も頑張ろう！' }
+    },
+    7: {
+      emoji: '🏆',
+      title: { ko: `7일 연속! 재정 습관러 🔥`, en: `7-Day Streak! Habit Builder 🔥`, ja: `7日連続！習慣構築者 🔥` },
+      sub: { ko: 'AI 코치 보너스 3회를 드려요! 설정에서 확인하세요 🎁', en: 'Bonus 3 AI Coach sessions unlocked! 🎁', ja: 'AIコーチボーナス3回解放！ 🎁' },
+      reward: () => {
+        const cur = parseInt(localStorage.getItem('mc_bonus_coach') || '0');
+        localStorage.setItem('mc_bonus_coach', cur + 3);
+      }
+    },
+    14: {
+      emoji: '💪',
+      title: { ko: `14일 연속! 절약 고수 💪`, en: `14-Day Streak! Savings Pro 💪`, ja: `14日連続！節約上級者 💪` },
+      sub: { ko: '2주 개근! 정말 대단해요. 이 페이스라면 한 달도 문제없어요!', en: '2 weeks straight! Amazing. At this pace, 30 days is no problem!', ja: '2週間連続！素晴らしい。このペースなら30日も大丈夫！' }
+    },
+    30: {
+      emoji: '👑',
+      title: { ko: `30일 개근! 재정 마스터 👑`, en: `30-Day Streak! Finance Master 👑`, ja: `30日皆勤！財務マスター 👑` },
+      sub: { ko: '한 달 개근 달성! 월간 리포트 1회 무료 체험권을 드려요 🎁', en: 'Full month streak! 1 free Monthly Report unlocked 🎁', ja: '1ヶ月皆勤！月次レポート1回無料券をプレゼント 🎁' },
+      reward: () => {
+        localStorage.setItem('mc_free_monthly_report', '1');
+      }
+    }
+  };
+
+  const r = rewards[hit];
+  if (!r) return;
+  if (r.reward) r.reward();
+
+  setTimeout(() => {
+    showCelebration(r.title[lang] || r.title.ko, r.sub[lang] || r.sub.ko, r.emoji);
+  }, 500);
+}
+
 
 // 컨페티 애니메이션
 function launchConfetti() {
@@ -2647,14 +2834,16 @@ async function triggerAiPraise(amt, name, streak, lang) {
 // AI 코치 횟수 제한 체크 (Free 플랜)
 function checkCoachLimit() {
   if (isPro()) return true;
-  const count = getCoachCount();
-  if (count >= FREE_COACH_LIMIT) {
+  const used = getCoachCount();
+  const bonus = parseInt(localStorage.getItem('mc_bonus_coach') || '0');
+  const limit = FREE_COACH_LIMIT + bonus;
+  if (used >= limit) {
     const lang = userProfile.lang || 'ko';
     const reason = lang === 'ko'
-      ? `무료 플랜은 월 ${FREE_COACH_LIMIT}회 코치 대화가 제공돼요. Pro로 업그레이드하면 무제한이에요!`
+      ? `무료 플랜은 월 ${FREE_COACH_LIMIT}회 + 보너스 ${bonus}회 = ${limit}회예요. Pro로 업그레이드하면 무제한이에요!`
       : lang === 'ja'
-      ? `無料プランは月${FREE_COACH_LIMIT}回のコーチ会話が提供されます。Proにアップグレードすると無制限です！`
-      : `Free plan includes ${FREE_COACH_LIMIT} coach conversations/month. Go Pro for unlimited!`;
+      ? `無料プランは月${FREE_COACH_LIMIT}回＋ボーナス${bonus}回＝${limit}回です。Proにアップグレードすると無制限です！`
+      : `Free plan: ${FREE_COACH_LIMIT} + ${bonus} bonus = ${limit} sessions/month. Go Pro for unlimited!`;
     showProModal(reason);
     return false;
   }
@@ -3059,6 +3248,48 @@ function toggleSavingsList() {
   }
   panel.style.display = 'block';
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function updateStreakCard() {
+  const streak = calcDailyStreak();
+  const lang = userProfile.lang || 'ko';
+  const card = document.getElementById('streakCard');
+  if (!card) return;
+
+  if (streak < 1) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const title = getUserTitle(streak);
+  const milestones = [3, 7, 14, 30];
+  const nextM = milestones.find(m => m > streak) || 30;
+  const prevM = milestones.filter(m => m <= streak).pop() || 0;
+  const progress = prevM === nextM ? 100 : Math.round((streak - prevM) / (nextM - prevM) * 100);
+
+  const labelMap = { ko: '연속 기록 중', en: 'Day Streak', ja: '連続記録中' };
+  const nextLabelMap = { ko: '다음 목표', en: 'Next Goal', ja: '次の目標' };
+  const dayMap = { ko: `🔥 ${streak}일`, en: `🔥 ${streak} days`, ja: `🔥 ${streak}日` };
+  const nextMap = { ko: `${nextM}일 달성`, en: `Reach ${nextM} days`, ja: `${nextM}日達成` };
+
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('streak-card-label', labelMap[lang] || labelMap.ko);
+  setText('streak-card-count', dayMap[lang] || dayMap.ko);
+  setText('streak-card-title', title ? title.label : '');
+  setText('streak-next-label', nextLabelMap[lang] || nextLabelMap.ko);
+  setText('streak-next-milestone', nextMap[lang] || nextMap.ko);
+  const bar = document.getElementById('streak-progress-bar');
+  if (bar) bar.style.width = Math.min(progress, 100) + '%';
+
+  // 인사말에 칭호 표시
+  const greeting = document.getElementById('home-greeting');
+  if (greeting && title) {
+    const name = userProfile.name || '';
+    const greetMap = {
+      ko: `안녕하세요, ${name}님 ${title.emoji}`,
+      en: `Hello, ${name}! ${title.emoji}`,
+      ja: `こんにちは、${name}さん ${title.emoji}`
+    };
+    greeting.textContent = greetMap[lang] || greetMap.ko;
+  }
 }
 
 function renderStreakBadge() {
